@@ -8,6 +8,8 @@ The canonical editing instructions live in [the project humanize skill](../.agen
 
 Keep the substantive skill in `.agents/skills/humanize/SKILL.md`. The [Claude Code wrapper](../.claude/skills/humanize/SKILL.md) points to that file instead of carrying another copy of the rules. `AGENTS.md` routes agents to the same source; `CLAUDE.md` continues to route to `AGENTS.md`. The skill is checked into the repository and needs no personal home-directory path, plugin, API key, network request, or symlink.
 
+The browser host loads this same canonical skill into each new Codex thread through `baseInstructions` in `tools/web_tutor.py`. It also embeds the teaching workflow and gives the model curated tutor tools. Personal Codex/Claude/Desktop configuration is outside that isolated profile. This is still an instruction to the model, not a prose filter or a guarantee about future wording.
+
 Use the agent's skill invocation when available. If skill discovery is unavailable, explicitly read the canonical file and apply it as instructions. An external voice chat cannot read the repository, so its self-contained handoff must include the short communication instructions from `portable/voice-tutor.md`; a path alone is insufficient. That handoff retains its existing controller and report requirements.
 
 Claude Code's project skill location and discovery behavior are documented in its [skills reference](https://code.claude.com/docs/en/skills). Discovery support and exact commands depend on the host agent. Explicit loading through the project instructions provides the fallback.

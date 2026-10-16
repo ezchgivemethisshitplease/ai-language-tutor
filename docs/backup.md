@@ -8,7 +8,7 @@ This complements the previous-generation `.bak` files used for individual JSON r
 
 | Location | Included |
 | --- | --- |
-| Learner root | `active.txt`, `profile.md`, `activity-results.json`, `quiz-current.json`, `reading-current.json`, `dictation-current.json` |
+| Learner root | `active.txt`, `profile.md`, `activity-results.json`, `quiz-current.json`, `reading-current.json`, `dictation-current.json`, `web-chat.json` |
 | Each language directory | `cards.json`, `progress.json`, `learner.json`, `known_words.txt`, `errors.md` |
 | Root and language media | Files below `img/`, `media/`, `audio/`, and `recordings/`, including nested directories |
 
@@ -17,6 +17,8 @@ Language directories use the existing simple names, such as `english` and `frenc
 `img/` accepts `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, and `.avif`. Other media directories also accept `.mp3`, `.wav`, `.m4a`, `.ogg`, `.flac`, `.aiff`, `.aif`, `.mp4`, and `.webm`. Media bytes are preserved exactly; validation checks their integrity rather than assessing their content.
 
 The allowlist excludes credentials and control files such as `.env` and `.serve.json`, TTS caches, event notifications, locks, `.bak` files, hidden paths, scripts, and arbitrary custom files. `english/session-artifacts/` is scratch material and is excluded; canonical observations already contain recorded responses and exercises. Put audio evidence that needs recovery in a managed media directory. Separately preserve anything outside this scope.
+
+`web-chat.json` includes conversation transcripts, request receipts and prepared task definitions. The isolated `.runtime/codex-home` authentication/session store is outside the learner archive. A restored transcript can start a fresh Codex thread when its original rollout is unavailable; sign in again if needed. Legacy JSON `export`/`import` retains its previous scope and does not include web conversations. The browser's download button creates the same verified ZIP; archive restoration remains the explicit CLI operation below.
 
 Known credential-shaped JSON fields are rejected rather than copied or redacted. Free-form profile text, answers, and media remain learner-owned content and may contain personal information. The backup tool does not scan or rewrite those contents, and it does not encrypt archives. Use a protected destination or an encrypted volume appropriate to the data.
 

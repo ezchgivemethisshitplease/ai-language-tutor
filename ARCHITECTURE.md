@@ -1,6 +1,6 @@
 # Architecture and decisions
 
-The system is a single-user local tutor with an agent-independent deterministic core. It supports macOS and Linux and requires Python 3.10+, a pinned FSRS dependency and a shell/file-capable agent. Generated teaching content still needs linguistic review. There is no application model API, public server, account system or frontend compilation step.
+The system is a single-user local tutor with an agent-independent deterministic core. It supports macOS and Linux. The browser host uses Python 3.10+, Node.js 22+/npm 10+ and a pinned standalone Codex CLI with ChatGPT login. Codex Desktop is optional; the existing shell/file-capable Codex/Claude workflow remains available. Generated teaching content still needs linguistic review. There is no public server, application user database or frontend compilation step.
 
 ## Component boundaries
 
@@ -16,6 +16,10 @@ tools/storage.py ← tools/srs.py ← maintained fsrs==6.3.2
         ▲
 tools/serve.py ← static apps + same-origin client + durable browser outbox
         │
+        ├── web_tutor.py ← curated tutor tool / canonical human messages
+        │       └── codex_bridge.py ← stdio JSONL ← independent Codex app-server
+        │                                  └── isolated Codex-owned ChatGPT login
+        │
         └── optional TTS / external voice pass validation
 ```
 
@@ -28,6 +32,8 @@ tools/serve.py ← static apps + same-origin client + durable browser outbox
 | `storage.py` | Strict JSON decoding, process/thread locks, atomic durable replacement and previous-generation backup | Database transactions across arbitrary files or network-filesystem guarantees |
 | `serve.py`, `activity.py` | Bounded same-origin local API, content identities, server-side quiz outcomes and result receipts | Internet hosting, multiuser security or browser quiz completion as mastery |
 | `client.js` | Token/namespace transport, per-batch localStorage outbox and retry acknowledgment | Guaranteed browser-storage durability after user deletion/private-mode restrictions |
+| `web_tutor.py`, `chat.js` | Durable conversation receipts, streamed replies, profile/session controls, curated teacher actions bound to actual human message IDs | Invented answer text, human attestation or fabricated audio evidence |
+| `codex_bridge.py` | Pinned app-server JSONL, correlation, bounded FIFO events/tools, isolated auth, declined approvals, restricted named permissions | Generic browser RPC, inherited Desktop tools or stable production API guarantees |
 | `voice.py`, `tts.py` | External pass/report structure and optional synthesis/playback | Acoustic pronunciation scoring, STT or verified live speech assessment |
 
 ## Decision 1: use the maintained FSRS implementation
@@ -44,7 +50,7 @@ The original file layout is useful for a local agent. Replacing it with a databa
 
 Writes serialize with finite JSON values, write a temporary file, flush it, replace the destination and sync the directory where supported. macOS additionally uses full fsync when available. The previous valid JSON is written atomically to `.bak`. A failed operation never silently substitutes an empty learner; explicit recovery validates the backup and preserves current bytes. These follow the semantics of [Python persistence APIs](https://docs.python.org/3/library/os.html#os.replace). Filesystem/hardware durability still has practical limits.
 
-All application mutations must use `transaction`; atomic `save` alone does not make a read/modify/write safe. Locks are advisory. External manual editors can bypass them. File-level transactions do not make a deck write and completion event a single database transaction. Durable receipts make retries recoverable. Export acquires data locks in a consistent order; import stages validated data and publishes a new directory, preserving the live learner.
+Read/modify/write operations with concurrent writers use `transaction`; atomic `save` alone does not serialize them. The web conversation cache instead has one host, enforced by a learner-specific lifetime process lock and an in-process lock. Locks are advisory. External manual editors can bypass them. File-level transactions do not make a deck write and completion event a single database transaction. Durable receipts make retries recoverable. Export acquires data locks in a consistent order; import stages validated data and publishes a new directory, preserving the live learner.
 
 ## Decision 3: observations are authoritative, estimates are derived
 
@@ -85,3 +91,13 @@ Requirements pin the reference scheduler and development tools. CI uses read-onl
 The legacy JSON export remains compatible. `backup.py` additionally snapshots managed learner documents for all languages and original learner media under a common lock order. Archives have explicit scope, quotas, byte lengths and SHA-256 checksums. Stored-only ZIP, a bounded directory parser, strict schemas and canonical path/member validation keep restore work bounded. Media is streamed; credentials/control/cache/arbitrary files are excluded. Complete validation precedes restore staging; exclusive OS rename publishes a new tree without replacing even a concurrently created empty directory.
 
 Rotation is opt-in through environment configuration and runs after committed mutations release their locks. An optional mount requirement prevents a missing drive from silently becoming a local destination. The latest interval check reads bounded metadata; creation, restore and removal decisions receive full validation. Backup failure remains distinct from the already saved attempt or review. Browser acknowledgments show both outcomes. No daemon, cloud account, off-device path or encryption is configured automatically. See [policy and format](docs/backup.md) for scope, trust boundaries and process-crash drills.
+
+## Decision 9: independent local web teacher
+
+The official [Codex app-server](https://learn.chatgpt.com/docs/app-server) supports embedding Codex in local applications. This adapter pins CLI `0.163.0` because the protocol and dynamic tools are experimental. Each server owns a subprocess over stdio; no app-server network listener or Desktop connector is involved. Codex owns the official ChatGPT login and refresh in a separate `.runtime/codex-home`. The browser gets a validated login URL and a minimal account status, never credential tokens. Account/model eligibility and subscription limits remain service-controlled.
+
+The child receives a small environment allowlist. Host hooks, plugins, apps, shell, browser, computer, agents, skills discovery and web search are disabled. A named deny-by-default permissions profile permits reading only its empty teaching workspace and minimal platform paths, disallows writes and blocks tool network. Codex's own inference/auth networking is separate from agent tool networking. Teaching references arrive through allowlisted Python tools, not unrestricted files. These controls are pinned to the actual release schema; the newer online `readOnly.access` example is not accepted as a security guarantee for this version.
+
+`student/web-chat.json` holds human/assistant transcripts, stable request receipts and prepared task definitions. A human message is saved before starting inference. Attempts read that exact stored message and require a task registered before it; the model cannot supply replacement response text. Reviews are forced to `source: llm`; progression signing and audio claims are absent. A lost start reply retires the connection/thread before another turn, and old-generation/old-turn events and tools are ignored. Failed history writes roll back in-memory receipts and disable mutations until storage is repaired and the server restarted. A lifetime learner-specific process lock prevents two local servers from overwriting cached chat state.
+
+Managed ZIP backups include the transcript but exclude Codex auth/rollout data. After restore, missing Codex threads are replaced with a new thread and selected transcript context; the learner evidence remains canonical. The compatible legacy JSON export retains its previous scope. Browser dialogs do not cover human review, emergency JSON recovery or archive restore; those remain explicit CLI operations. The web host also leaves live speech assessment to the external voice workflow.

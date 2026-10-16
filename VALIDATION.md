@@ -1,21 +1,22 @@
 # Verification record
 
-Date: 2026-10-16. Baseline: `510fc6daf0d1220ae796af31a65a07a262a753f9`. Local environment: macOS arm64, Python 3.14.6, Node 24.3.0, fsrs 6.3.2, Ruff 0.17.1, mypy 2.4.0. All learner scenarios use temporary/synthetic data. No personal learner files were migrated or overwritten.
+Updated: 2026-10-17. Baseline: `510fc6daf0d1220ae796af31a65a07a262a753f9`. Local environment: macOS arm64, Python 3.14.6, Node 24.3.0, fsrs 6.3.2, Ruff 0.17.1, mypy 2.4.0. All learner scenarios use temporary/synthetic data. No personal learner files were migrated or overwritten. The [web acceptance record](docs/web-acceptance.md) separates new local web checks from authenticated provider inference.
 
 ## Local results
 
 | Command or check | Observed result |
 | --- | --- |
-| `python -m unittest discover -s tests -q` | 142 tests passed |
+| `python -m unittest discover -s tests -q` | 188 tests passed, including the new web/runtime/bridge cases |
 | `python -m ruff check tools tests` | Passed |
 | `python -m ruff format --check tools tests` | Passed |
-| `python -m mypy tools` | Passed, 12 source files; checked untyped function bodies, not strict fully annotated typing |
+| `python -m mypy tools` | Passed, 15 source files; checked untyped function bodies, not strict fully annotated typing |
 | `python tools/srs.py selfcheck` | Passed |
 | `python tools/serve.py selfcheck` | Passed |
 | `python tools/voice_selfcheck.py` | Passed; structural contract check only |
 | `python -m pip check` | Passed |
 | `python -m compileall -q tools tests` | Passed |
 | `node tests/browser_transport.cjs` | Four scenarios passed: concurrent separate submissions, offline replay, learner isolation, and a backup warning retained after completion |
+| `node tests/web_chat_ui.cjs` | Eight scenarios passed: null-turn receipt/retry, scoped drafts, exact text, safe links, login URL checks, stream resume, interruption and a persistent backup warning |
 | `python tools/check_browser_scripts.py` | All inline/shared browser JavaScript parsed |
 | Source archive fresh installation | Passed runtime-only install, initialization/resume, redacted diagnostics, rejected unsupported entry, native bank audio, full multilingual/media backup/check/restore and legacy export/import; no development dependencies installed |
 | Both humanize manifests with skill-creator `quick_validate.py` | Passed; all five relative links resolved, ordinary files without symlinks/home paths |

@@ -1,12 +1,25 @@
 # AI Language Tutor
 
-A local English practice system for Codex and Claude Code, with Russian explanations, a persistent learner model and maintained FSRS scheduling. The coding agent teaches and authors material; Python validates exercises, records evidence and manages progress. The course contains 60 A1–C1 lesson outlines. Placement and internal readiness estimates are uncalibrated.
+A local English tutor with a browser chat, Russian explanations, a persistent learner model and maintained FSRS scheduling. The web app uses an independent Codex CLI process with ChatGPT subscription login; Codex Desktop is optional. Python validates exercises, records evidence and manages progress. The course contains 60 A1–C1 lesson outlines. Placement and internal readiness estimates are uncalibrated.
 
 [Инструкция на русском](docs/usage.ru.md) · [Audit](AUDIT.md) · [Architecture](ARCHITECTURE.md) · [Pedagogy](PEDAGOGY.md) · [Implemented changes](IMPROVEMENTS.md) · [Remaining work](ROADMAP.md)
 
 ## Install
 
-Supports macOS and Linux with Python 3.10+ and a file/shell-capable coding agent. Node 24 is needed only for browser script verification. There is no frontend build or hosted service to deploy.
+Supports macOS and Linux with Python 3.10+, Node.js 22+ and npm 10+. There is no frontend build or hosted service to deploy.
+
+```sh
+git clone https://github.com/ezchgivemethisshitplease/ai-language-tutor.git
+cd ai-language-tutor
+git switch improve/reliable-russian-tutor
+./start.sh
+```
+
+Open the local page, choose **Войти через ChatGPT**, complete the official OpenAI login and set your study profile. Chat, conversation history, lesson controls, exercises, cards, reading, dictation, progress and backup download are available in the browser. The app installs pinned dependencies locally and keeps a separate private Codex profile under `.runtime/codex-home`; it never imports Desktop credentials. No API key is needed. Account eligibility and subscription limits still apply. [Web setup and troubleshooting](docs/web.md) explain the details.
+
+Codex app-server and dynamic tools are experimental; the adapter pins version `0.163.0`. The web tutor has a restricted filesystem/network policy and uses curated learning tools. Its microphone is not recorded: real voice work uses the external handoff. Human reviews, recovery and archive restore remain explicit CLI workflows. Keep the server running while using the web tutor; stop it with `Ctrl+C` or `.venv/bin/python tools/serve.py stop`.
+
+For the existing Codex/Claude Code workflow, a file/shell-capable agent can use just the Python core:
 
 ```sh
 git clone https://github.com/ezchgivemethisshitplease/ai-language-tutor.git
@@ -52,7 +65,7 @@ Open `http://localhost:8765/flashcards.html`, `quiz.html`, `reader.html`, `dicta
 
 FSRS owns learning/relearning steps and due times. Hard means remembered with difficulty; Again means forgotten. The browser does not loop forgotten cards until you choose Good. Unknown wording in non-exhaustive language tasks stays `needs_review`. Quiz outcomes never automatically add cards or establish mastery.
 
-Stop after the final acknowledged activity: `python tools/serve.py stop`. The service binds to loopback and enforces Host/Origin/session-token checks. It is a single-user local service, not a public application server.
+For an agent-hosted activity, stop after the final acknowledged activity with `python tools/serve.py stop`. Keep it running for browser chat. The service binds to loopback and enforces Host/Origin/session-token checks. It is a single-user local service, not a public application server.
 
 ## Audio and privacy
 
@@ -88,6 +101,7 @@ python tools/serve.py selfcheck
 python tools/voice_selfcheck.py
 python -m pip check
 node tests/browser_transport.cjs
+node tests/web_chat_ui.cjs
 python tools/check_browser_scripts.py
 ```
 

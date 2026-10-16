@@ -15,6 +15,7 @@ The feasible local engineering P0/P1 work is implemented. Completion of code, ed
 
 | Priority | Work | Impact / effort | Acceptance evidence / dependency |
 | --- | --- | --- | --- |
+| P1, owner login | Authenticated web teacher acceptance | High / small after sign-in | Independent app-server, official login page and synthetic browser/controller flows work. Complete the new isolated profile's ChatGPT login, then verify real tool use and teaching replies; current Desktop/CLI auth was deliberately not copied |
 | P1, external | Finish Anthropic-backed Claude Code acceptance | High / small once authenticated | Existing account returns `401 OAuth access token has been revoked`; owner reauthentication is required. The configured third-party client completed persistence checks but timed out on a bounded teaching request; provider latency/configuration acceptance remains separate from the tested core |
 | P1, empirical | Human assessment review and CEFR validation argument | High / large | Trained independent raters, consented learner trials, item/distractor analysis, fairness review, inter-rater reliability, standard setting and justified uncertainty. AI editorial review and synthetic fixtures cannot supply these observations |
 | P2 | Listening and speech provider QA | High / medium | Naturally recorded/licensed varied voices, actual listening/speaking trials, provider/OS matrix, consented audio references and human-reviewed production. Native macOS stimulus generation works; Linux synthesis arguments are mocked, with no STT or calibrated pronunciation scorer |
@@ -29,5 +30,7 @@ The feasible local engineering P0/P1 work is implemented. Completion of code, ed
 | P2 | More L1s and interface locales | Medium / medium | Another structured contrastive KB, localized bundles and compatibility tests. Russian has first-class structured support; Spanish Markdown survives, other L1 feedback stays generic |
 | P3 | Ongoing teaching and humanize review | Medium / medium | Consented real-session review for clarity, pacing, usefulness and unchanged learner evidence across hosts/configurations. Fixed writing-pattern tests are not an authorship detector |
 | P3 | Multi-device sync or public hosting | Optional / large | Product requirements, authentication, encryption, conflicts and a deployment threat model. The current loopback server stays local |
+
+The added web host moves routine teaching, profile/session controls and practice into the browser without Desktop. Explicit human progression review, archive restoration, emergency recovery and real external speech remain separate workflows. A UI for those owner operations can be added without granting them to the AI teacher. The verified managed ZIP already includes web transcripts and excludes Codex credentials.
 
 Reference mismatches, lost/repeated reviews, accepted corrupt state, fabricated CEFR/human claims, or altered raw learner responses are regressions, not deferred roadmap items. Fix them before release. Human provenance and audio delivery remain declarations whose truth is outside schema validation.

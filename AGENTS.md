@@ -2,6 +2,8 @@
 
 This repository has two workflows. For engineering requests, inspect and improve the code; do not initialize a real learner or start a lesson. For teaching requests, use the lifecycle below. Read this file once, then load only the relevant activity and learner context.
 
+The local web app is an independent teaching host: `./start.sh` launches it without Codex Desktop. `tools/web_tutor.py` embeds the checked-in humanize skill and teaching contract in its isolated Codex thread and exposes curated tutor tools. Web teachers must use those tools, never source edits, shell commands, arbitrary files, or server shutdown. Do not stop the web host after one activity. Archive restore, emergency recovery and actual human progression reviews remain owner-operated CLI workflows; do not impersonate those operations through the AI tool.
+
 ## Communication
 
 At the start of a project interaction, read `docs/communication.md` and `.agents/skills/humanize/SKILL.md` once, then apply the skill in embedded mode to learner-facing replies and engineering prose. Reload after context loss or changes. Return the final requested wording. Preserve learner quotations, structured reports, commands, numbers, assessment uncertainty and provenance. During an independent assessed trial, record the response before offering a prompt or correction; subsequent assistance is marked as hinted.
@@ -41,7 +43,7 @@ Use the repository virtual environment: `.venv/bin/python` on macOS and Linux. I
 - `python tools/serve.py` starts/reuses the loopback server. Validate prepared quiz/reading/dictation with `tutor.py validate-activity KIND FILE`. Shared browser transport retains pending results until server acknowledgment. Never claim a failed save succeeded.
 - Flashcards autosave each explicit grade; `.event-flashcards.json` means the presentation ended, not the first saved card. Quiz events contain server-checked answers and `needs_review`; they never directly increase mastery or add cards. `tutor.py events` recovers durable receipts. Match activity IDs before consuming an event; stale retries can return an older receipt.
 - Browser `localStorage` contains drafts/pending answers until acknowledged. Explain this on shared computers. Preserve unresolved results for review; never clear a conflict silently.
-- After the final browser activity and write-backs: `python tools/serve.py stop`. Stop only this project's instance. Text/chat remains available without a browser.
+- In a CLI-hosted teaching workflow, after the final browser activity and write-backs: `python tools/serve.py stop`. Stop only this project's instance. Keep the server running for web-hosted teaching until the owner stops it.
 
 ## Voice and privacy
 
