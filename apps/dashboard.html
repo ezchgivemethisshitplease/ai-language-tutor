@@ -34,13 +34,12 @@
   .err .e { font-size: 12px; color: var(--ink-soft); }
   .cta { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-1); padding: 16px 20px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; text-align: center; }
   .cta span { font-size: 15px; font-weight: 600; color: var(--ink-soft); }
-  .cta code { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 14px; font-weight: 700; background: var(--surface-2); color: var(--ink); padding: 7px 14px; border-radius: 8px; }
   .muted { color: var(--ink-faint); font-size: 14px; }
 </style>
 </head>
 <body>
-<header>
-  <div class="brand"><b>Tutor</b><span>Прогресс</span></div>
+<header class="activity-header">
+  <div class="activity-heading"><a class="back-to-chat" href="index.html">← В чат</a><div class="brand"><b>Tutor</b><span>Прогресс</span></div></div>
   <span class="chip" id="level-chip">–</span>
 </header>
 <main>
@@ -85,9 +84,8 @@
     </div>
   </section>
   <div class="cta">
-    <span>Для начала занятия напишите</span>
-    <code>“session”</code>
-    <span>в чате тьютора</span>
+    <span>Продолжите практику с преподавателем.</span>
+    <a class="btn-soft" href="index.html">Начать занятие</a>
   </div>
 </main>
 <script src="client.js"></script>
