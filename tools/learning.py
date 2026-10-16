@@ -894,6 +894,13 @@ def complete_step(state: dict, session_id: str, step_id: str, deferred: bool = F
             for o in state["observations"]
             if o["session_id"] == session_id
             and o["exercise"].get("step_id") == step_id
+            and o["exercise"]["domain"] in {"speaking", "pronunciation"}
+            and o["exercise"].get(
+                "mode",
+                "voice-required" if o["exercise"]["type"] == "spoken_response" else "chat",
+            )
+            == "voice-required"
+            and (not step.get("skill_id") or o["exercise"]["skill_id"] == step["skill_id"])
             and (o["exercise"].get("audio_evidence") or o["grade"].get("audio_evidence"))
         ]
         if not deferred and not evidence:

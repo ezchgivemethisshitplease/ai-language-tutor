@@ -160,9 +160,11 @@ def export_bundle(destination):
         for path in paths:
             if path.exists():
                 if path.suffix == ".json":
-                    files[str(path.relative_to(srs.STUDENT))] = storage.load(path, None)
+                    files[path.relative_to(srs.STUDENT).as_posix()] = storage.load(path, None)
                 else:
-                    files[str(path.relative_to(srs.STUDENT))] = path.read_text(encoding="utf-8")
+                    files[path.relative_to(srs.STUDENT).as_posix()] = path.read_text(
+                        encoding="utf-8"
+                    )
         data = {
             "format": "ai-language-tutor-export",
             "version": 1,

@@ -342,6 +342,62 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(result["deferred_steps"], ["learn"])
         le.validate_state(state)
 
+    def test_voice_step_rejects_text_and_listening_even_with_tts_audio_reference(self):
+        for domain in ("grammar", "listening"):
+            with self.subTest(domain=domain):
+                state = le.new_state()
+                session_plan = simple_plan()
+                session_plan["steps"][0].update(mode="voice-required", skill_id="a1-01")
+                sid = le.start_session(state, session_plan)["id"]
+                item = exercise(
+                    "not-speech",
+                    domain=domain,
+                    step_id="learn",
+                    audio_evidence="actual-tutor-TTS-recording-not-learner-speech",
+                )
+                le.record_attempt(state, sid, item, "is")
+                with self.assertRaisesRegex(ValueError, "actual audio evidence"):
+                    le.complete_step(state, sid, "learn")
+                self.assertEqual(state["sessions"][sid]["completed_steps"], [])
+
+    def test_voice_completion_checks_skill_and_keeps_llm_mastery_provisional(self):
+        state = le.new_state()
+        session_plan = simple_plan()
+        session_plan["steps"][0].update(mode="voice-required", skill_id="a1-01")
+        sid = le.start_session(state, session_plan)["id"]
+        spoken = exercise(
+            "spoken",
+            type="spoken_response",
+            domain="speaking",
+            mode="voice-required",
+            step_id="learn",
+            audio_evidence="actual-learner-voice-reference",
+            rubric={"clarity": "The message can be understood."},
+        )
+        spoken.pop("answers")
+        spoken.pop("exhaustive")
+        review = {
+            "source": "llm",
+            "judgment": "correct",
+            "criteria": {"clarity": 1},
+            "rationale": "Provisional review of the actual speech attempt.",
+        }
+        wrong_skill = dict(spoken, skill_id="a1-02")
+        with self.assertRaisesRegex(ValueError, "does not match planned step"):
+            le.record_attempt(state, sid, wrong_skill, "A spoken response.", review=review)
+        # An imported/free-practice observation must not complete a different skill.
+        wrong_skill.pop("step_id")
+        le.record_attempt(state, sid, wrong_skill, "A spoken response.", review=review)
+        state["observations"][-1]["exercise"]["step_id"] = "learn"
+        with self.assertRaisesRegex(ValueError, "actual audio evidence"):
+            le.complete_step(state, sid, "learn")
+        le.record_attempt(
+            state, sid, dict(spoken, id="matching-spoken"), "A spoken response.", review=review
+        )
+        self.assertEqual(le.complete_step(state, sid, "learn")["completed_steps"], ["learn"])
+        self.assertEqual(state["estimates"]["skills"]["a1-01"]["eligible_attempts"], 0)
+        le.validate_state(state)
+
     def test_abandoned_voice_session_keeps_debt(self):
         state = le.new_state()
         session_plan = simple_plan()
