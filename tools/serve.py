@@ -23,6 +23,7 @@ import webbrowser
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from socketserver import TCPServer
 from typing import Any, cast
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -208,6 +209,13 @@ class TutorServer(ThreadingHTTPServer):
     shutdown_token: str
     tutor: web_tutor.WebTutor
     speech: speech_service.SpeechService
+
+    def server_bind(self):
+        # HTTPServer resolves getfqdn() before returning from bind. This service
+        # already binds a literal loopback address and needs no reverse DNS.
+        TCPServer.server_bind(self)
+        self.server_name = "localhost"
+        self.server_port = self.server_address[1]
 
     def server_close(self):
         speech = getattr(self, "speech", None)
