@@ -3,7 +3,7 @@
 **Can-do:** Can say what food and drink I like and dislike, and order simple things in a café.
 
 ## Grammar focus
-*Like / love / hate* + **-ing**, plus *some / any* and *would like*. After **like, love, hate** you can use a noun or a verb in **-ing**: *I like tea. I love cooking.* Use **some** in positive sentences and **any** in negatives and questions: *I have some bread. I don't have any milk. Do you have any eggs?* Use **would like** (I'd like) as a polite way to ask for or offer things — it is more polite than *want*: *I'd like a coffee, please.*
+*Like / love / hate* + **-ing**, plus *some / any* and *would like*. After **like, love, hate** you can use a noun or a verb in **-ing**: *I like tea. I love cooking.* The **to-infinitive** is also possible: *I like to cook.* Practise the -ing pattern here without rejecting the other form. Use **some** in positive sentences and **any** in neutral negatives and questions: *I have some bread. I don't have any milk. Do you have any eggs?* Offers and requests often use **some**: *Would you like some tea? Can I have some water?* Use **would like** (I'd like) for a polite request or offer: *I'd like a coffee, please.*
 
 - I like fish but I hate eggs.
 - She loves cooking dinner.
@@ -40,6 +40,6 @@ sugar — a sweet white food you add to drinks
 - quiz focus: some/any choice, like/love/hate + -ing, and polite "I'd like"
 
 ## Watch out
-- I like eat fish → I like eating fish
+- I like eat fish → I like eating fish / I like to eat fish
 - I have any bread → I have some bread
 - For a more tactful café request: I want a coffee, please (grammatical) → I'd like a coffee, please

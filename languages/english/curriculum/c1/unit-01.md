@@ -3,7 +3,7 @@
 **Can-do:** I can soften claims, signal uncertainty and distance myself from assertions with the precision expected in academic and professional discourse.
 
 ## Grammar focus
-Hedging tones down the force of a claim so it sounds cautious, courteous or academically honest. The toolkit combines epistemic modals (*may, might, could, would*), lexical hedges (*seem, appear, tend to, suggest*), approximators (*somewhat, to some extent, broadly*) and distancing frames (*it is claimed, reportedly, is said to*). Downtoning protects you from being proven wrong and signals respect for counter-evidence. Layer these devices for graded certainty: *would seem to suggest* stacks three hedges on purpose. Over-commit and you sound naïve; hedge with intent and you sound authoritative.
+Hedging adjusts a claim to the available evidence or the social situation. The toolkit combines epistemic modals (*may, might, could, would*), lexical hedges (*seem, appear, tend to, suggest*), approximators (*somewhat, to some extent, broadly*) and distancing frames (*it is claimed, reportedly, is said to*). Choose the degree of certainty deliberately and state relevant limits. *Would seem to suggest* is possible when several qualifications serve a purpose, but redundant hedges can obscure the claim. A supported direct statement may be more suitable than a tentative one.
 
 - The findings would seem to suggest a correlation, though causation remains unproven.
 - Poverty may, to some extent, account for the disparity.
@@ -36,10 +36,10 @@ nuance — a subtle difference in meaning or tone
 
 ## Suggested activities
 - reading: an academic abstract — underline every hedge and rank the claims by confidence.
-- conversation: defend a shaky opinion using only tentative language; no flat assertions allowed.
+- conversation: compare a well-supported claim with a tentative inference; explain why each needs a different degree of certainty.
 - quiz focus: matching hedges to strength (*may / must / tend to*) and rewriting blunt claims as hedged ones.
 
 ## Watch out
-- It maybe true. → It may well be true.
+- It maybe true. → It may be true. *Well* adds emphasis; it is not needed to repair the grammar.
 - I am agree it is plausible. → I agree it is plausible.
 - It may true. → It may be true. (Do not add hedges unless the intended degree of certainty calls for them.)

@@ -42,4 +42,4 @@ winter — the cold season of the year
 ## Watch out
 - Today is raining → It's raining today / It is raining
 - She wears a coat now → She is wearing a coat (right now)
-- It's cold, because I wear a hat → I'm wearing a hat because it's cold
+- To explain why you put on a hat: I'm wearing a hat because it's cold. *It must be cold because everyone is wearing a hat* instead gives evidence for a conclusion; do not reverse cause and evidence automatically.

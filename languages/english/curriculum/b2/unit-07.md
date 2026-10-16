@@ -8,10 +8,10 @@ In reported speech, tenses usually shift back one step (*present → past*, *wil
 - "I'm tired." → She said she **was** tired.
 - "Will you help?" → He asked **whether I would help**.
 - "Don't touch it." → They warned us **not to touch** it.
-- "It was me." → He **admitted breaking** the window.
+- "I broke the window," he acknowledged. → He **admitted breaking** the window.
 - "Let's take a break." → She **suggested taking** a break.
 - "No, I won't go." → He **refused to go**.
-- "You stole it." → She **accused him of stealing** it.
+- "You stole it," she said to him. → She **accused him of stealing** it.
 - "I'll drive you." → He **offered to drive** me.
 
 ## Target vocabulary (10–12 items)

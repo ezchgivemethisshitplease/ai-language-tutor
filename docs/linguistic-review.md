@@ -1,0 +1,44 @@
+# Independent linguistic and assessment review
+
+Reviewed on 2026-10-16 against the implementation based on `41554cf4cfa3b9ff72f28469c1d78b93d02bb12d`, followed by the corrections listed below. The reviewer was a separate AI agent from the item/engine author. This is an independent editorial and adversarial review within the engineering workflow. It is not a qualified human panel, a learner trial, standard setting, or CEFR validation.
+
+## Scope and method
+
+The review read the grammar explanations, examples, suggested activities and watch-outs in all 60 English unit files (12 each at A1, A2, B1, B2 and C1); all 31 Russian interference entries and their contextual examples; and the original 30 diagnostic items, including every answer key, option and rubric. Vocabulary definitions received selected editorial checks, not a corpus-frequency or acquisition-level validation. Catalog prerequisites and references are also covered by the executable curriculum tests.
+
+For each diagnostic item, the reviewer checked the requested meaning, accepted wording, plausible alternatives, distractor meaning, domain, curriculum target and modality. Independently authored responses then probed the scorer. The source guidance used for this process was the [ALTE/Council of Europe test-development manual](https://rm.coe.int/1680667a2b), especially sections 3.4, 5.1 and Appendix IV: review materials against their purpose, trial them, reconsider keys when valid alternatives appear, and separate editorial checks from empirical item analysis. The [Council of Europe assessment resources](https://www.coe.int/en/web/common-european-framework-reference-languages/assessment) supply further work on rubric development and CEFR alignment.
+
+## Defects corrected in the lesson corpus
+
+| Location | Finding | Correction |
+|---|---|---|
+| A1-05 | Teaching only `like/love/hate + -ing` could cause a valid infinitive to be rejected. The categorical questions/`any` rule conflicted with common café offers. | Added `I like to cook` and `I like to eat fish`; explained `some` in offers/requests. Both verb patterns are documented in [Cambridge Grammar](https://dictionary.cambridge.org/grammar/british-grammar/hate-like-love-). |
+| A1-10 | A correction reversed a causal statement without checking whether `because` introduced evidence for an inference. | Named the intended reason-for-wearing context and contrasted an explicit `It must be cold because…` inference. |
+| B1-01 | Quiz guidance told the generator to choose tense by a time marker, contradicting its own contextual explanation. | Required the timeline, present relevance and variety of English to determine the choice. |
+| B2-04 | Two purported reporting alternatives switched from a future prediction to a habitual present. | Both model alternatives now report the same increase in progress; guidance requires preservation of the original timeline. |
+| B2-07 | `It was me` became an admission of breaking a window, adding an event absent from the quote. Another example invented the addressee's identity. | Supplied `I broke the window` and the addressee in the original reporting context. |
+| B2-12 | A laptop repair became a commissioned service without evidence; a teacher's unspecified command gained `us`. The exam description incorrectly implied a separate four-part Use of English paper. | Added the request and addressee to the source sentences. Named the combined Reading and Use of English component and acknowledged reading tasks, matching the [official B2 First format](https://www.cambridgeenglish.org/exams-and-tests/qualifications/first/format/). |
+| C1-01 | Hedging was taught as protection from being wrong and a way to sound authoritative. A grammar correction added `well`, increasing emphasis. | Tied certainty to evidence and context. Removed the unnecessary emphasis and blanket ban on direct assertions. |
+| C1-03 | A normal subject clause appeared among cleft examples; another correction changed the reporting viewpoint. | Replaced it with a genuine pseudo-cleft and preserved the original present viewpoint. |
+| C1-04 | A coordination example did not demonstrate response substitution. A noun-ellipsis example was presented as universally wrong. | Added a `Neither can I` response and contextualised the clear `one` model without an absolute error claim. |
+| C1-05 | Advice equated impersonal nominalization with authority, excluded first person, and treated a grammatical nominal gerund as an error. | Made genre, information focus and clarity decisive. Kept gerund and derived-noun forms available in context. |
+| C1-08 | A punctuation repair also replaced the valid linker `meanwhile`, suggesting a lexical error. | Retained the linker and made the punctuation/request repair explicit. |
+| C1-12 | Fixed rules to hedge once or use one idiom could remove necessary qualifications or natural language. | Replaced numerical limits with evidence and audience checks. |
+
+No raw learner response, historical score or CEFR claim was changed by these editorial corrections. The catalog still indexes all lesson paths and exact can-do statements.
+
+## Diagnostic findings and regression cases
+
+The baseline closed keys were grammatically defensible in their stated contexts. The reported-speech item deliberately accepts both backshift and retained present; the present option expresses a current perspective. Reading keys are examples rather than exhaustive paraphrase lists. A response such as `The writer suggests seven o'clock` must stay eligible for review when the listed key is `At seven`. It must not receive an automatic error just because it supplies a full sentence.
+
+`tests/test_linguistic_review.py` adds held-out reading paraphrases at every level, straight/curly apostrophe contractions, reported-speech alternatives, constrained article/tense contrasts, and the actual meaning contrasts in three choice items. A separate `I like to eat fish` repair checks that contextual AI acceptance preserves the exact response, the `llm` source and the absence of invented confirmed errors. Typed text supplied to a speech item remains unscored pending actual audio and review. These tests protect specific failure cases; they cannot prove that every generated exercise is linguistically valid.
+
+Two-option grammar choices have high guessing probability. The C1 hedging choice is transparent partly through general reasoning; a correct response alone establishes neither C1 grammar control nor research literacy. Short reading snippets cannot represent sustained B2/C1 comprehension. Mechanical transformations tagged `writing` are controlled written production, not a substitute for independently assessed extended writing. Expanded entry diagnostics must require the open-writing sample separately, retain provisional labels, and leave unavailable voice domains unassessed. These findings were supplied to the engine/item author during implementation.
+
+The Russian KB frames L1 contrasts as hypotheses, includes ordinary regional alternatives such as `at/on the weekend` and American past-simple usage, and gives contextual rather than nationality-based diagnoses. Its pronunciation entries require audio and target intelligibility; typed spellings do not diagnose a phoneme error. The review found no further correction necessary in the 31 current entries. Contexts such as standard neutral negation and existential `there` are essential to those judgments and must remain attached to the examples.
+
+## What remains an empirical question
+
+This review checks content and scoring behavior on declared probes. No learner sample, item-facility distribution, distractor analysis, inter-rater reliability, fairness study or learning-gain experiment has been collected. CEFR target labels therefore remain authoring categories. A future empirical phase needs a defined population and purpose, independent trained raters, consented task trials, analysis of alternative answers and distractor behavior, and a justified standard-setting argument before any calibrated level claim.
+
+The shipped application can support practice and a revisable course starting point while retaining those limits. It cannot turn editorial review or synthetic test passes into a validated examination result.

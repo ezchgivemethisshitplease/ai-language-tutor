@@ -40,6 +40,6 @@ verify — to check that something is true or accurate
 
 ## Watch out
 - The house is build in 1950 → The house was built in 1950
-- It is said the prices to rise → It is said that prices will rise / Prices are said to rise
+- To report an increase in progress: It is said the prices to rise → It is said that prices are rising / Prices are said to be rising. Preserve whether the original claim describes a habit, an ongoing change or a future prediction.
 - Passive transformation (both forms are correct): People say that he is rich → He is said to be rich
 - The letter was wrote by the manager → The letter was written by the manager

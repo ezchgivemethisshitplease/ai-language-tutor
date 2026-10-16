@@ -12,7 +12,7 @@ Ellipsis omits words the listener can recover from context; substitution replace
 - "Will the talks collapse?" — "I hope not."
 - He wanted the corner office and eventually got one.
 - They could have intervened earlier, but chose not to.
-- Neither the report nor its authors were credible.
+- "I can't support this proposal." — "Neither can I."
 
 ## Target vocabulary (10–12 items)
 concede — to admit or grant something reluctantly
@@ -41,5 +41,5 @@ overture — an opening proposal or friendly approach
 
 ## Watch out
 - "I'm tired." "So am tired too." → "So am I."
-- I have two red pens and a blue. → I have two red pens and a blue one.
+- A clear standard model for substituting a countable noun: I have two red pens and a blue one. Some coordinated contexts allow noun ellipsis; assess the whole sentence before calling an omitted noun an error.
 - She said she would come but she not did. → …but she didn't.

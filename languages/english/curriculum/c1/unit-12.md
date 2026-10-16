@@ -40,6 +40,6 @@ overarching — comprehensive; encompassing everything else
 - quiz focus: a C1 Advanced (CAE)-style checkpoint covering Units 1–11 — open cloze, key-word transformation, word formation and register transformation.
 
 ## Watch out
-- Over-hedging until no claim survives → hedge once, then commit.
-- Stacking idioms until the register clashes → one idiom, in the right register.
+- Redundant hedges that obscure the claim → retain the qualifications needed by the evidence and remove repetition.
+- Idioms that clash with the audience or genre → choose expressions that fit the context; there is no fixed one-idiom limit.
 - Using inversion or cleft in casual chat where it sounds stilted → reserve marked structures for real effect.

@@ -37,7 +37,7 @@ look back — to think about the past
 ## Suggested activities
 - reading: a short life-story profile that mixes present perfect ("I've done…") with past simple details ("In 2018 I…").
 - conversation: interview a partner about three life milestones and when each happened.
-- quiz focus: choosing present perfect vs past simple by spotting the time marker.
+- quiz focus: choosing present perfect vs past simple from the timeline, relevance and variety of English; time markers provide clues.
 
 ## Watch out
 - I have graduated last year → I graduated last year
