@@ -35,6 +35,7 @@ tools/serve.py ← static apps + same-origin client + durable browser outbox
 | `web_tutor.py`, `chat.js` | Durable conversation receipts, streamed replies, profile/session controls, curated teacher actions bound to actual human message IDs | Invented answer text, human attestation or fabricated audio evidence |
 | `codex_bridge.py` | Pinned app-server JSONL, correlation, bounded FIFO events/tools, isolated auth, declined approvals, restricted named permissions | Generic browser RPC, inherited Desktop tools or stable production API guarantees |
 | `voice.py`, `tts.py` | External pass/report structure and optional synthesis/playback | Acoustic pronunciation scoring, STT or verified live speech assessment |
+| `speech.py`, `speech_service.py`, `speech.js` | Optional pinned native Whisper/FFmpeg, explicit bounded capture, local ASR into a protected draft, source provenance and local-voice playback | Acoustic assessment, independent writing from dictation or automatic message sending |
 
 ## Decision 1: use the maintained FSRS implementation
 

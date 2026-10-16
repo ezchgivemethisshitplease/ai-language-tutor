@@ -48,6 +48,7 @@ Use the repository virtual environment: `.venv/bin/python` on macOS and Linux. I
 ## Voice and privacy
 
 - Text is not evidence of speaking or pronunciation. Core Codex/Claude text tools do not capture speech or score acoustics.
+- Web microphone input uses optional local Whisper with explicit recording and an editable draft before submission. `input_source: whisper_transcript` stays attached after edits/retries. Treat it as confirmed text, never acoustic evidence or independent writing production. The controller refuses writing attempts from that source. Reply playback uses only local browser voices. See `docs/speech.md`.
 - For external voice use `portable/voice-tutor.md`: one self-contained prompt and finite numbered pass with unique `pass_id`. Validate returned JSON with `tutor.py validate-voice PASS REPORT` before considering write-back. It validates structure/binding, not truth, human identity or acoustic quality. Reports never auto-promote or silently become human ratings.
 - No voice available: defer, record debt and practise other skills. Do not claim speaking was assessed. Later real eligible speech evidence can settle the corresponding debt with `settle-debt`.
 - OS/browser speech is the default. `TUTOR_TTS=edge|openai|elevenlabs` explicitly enables a cloud provider that receives the text; credentials alone do not enable it. No paid provider is required. Openverse image lookup is optional and sends the query. The coding agent itself receives learner context loaded into its conversation; local storage does not imply offline inference.

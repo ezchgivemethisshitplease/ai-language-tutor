@@ -17,7 +17,7 @@ git switch improve/reliable-russian-tutor
 
 Open the local page, choose **Войти через ChatGPT**, complete the official OpenAI login and set your study profile. Chat, conversation history, lesson controls, exercises, cards, reading, dictation, progress and backup download are available in the browser. The app installs pinned dependencies locally and keeps a separate private Codex profile under `.runtime/codex-home`; it never imports Desktop credentials. No API key is needed. Account eligibility and subscription limits still apply. [Web setup and troubleshooting](docs/web.md) explain the details.
 
-Codex app-server and dynamic tools are experimental; the adapter pins version `0.163.0`. The web tutor has a restricted filesystem/network policy and uses curated learning tools. Its microphone is not recorded: real voice work uses the external handoff. Human reviews, recovery and archive restore remain explicit CLI workflows. Keep the server running while using the web tutor; stop it with `Ctrl+C` or `.venv/bin/python tools/serve.py stop`.
+Codex app-server and dynamic tools are experimental; the adapter pins version `0.163.0`. The web tutor has a restricted filesystem/network policy and uses curated learning tools. Optional [local Whisper dictation](docs/speech.md) turns recordings into editable drafts; the model receives confirmed text, without acoustic assessment. Replies can be read aloud using installed local browser voices. Human reviews, recovery and archive restore remain explicit CLI workflows. Keep the server running while using the web tutor; stop it with `Ctrl+C` or `.venv/bin/python tools/serve.py stop`.
 
 For the existing Codex/Claude Code workflow, a file/shell-capable agent can use just the Python core:
 
@@ -102,6 +102,7 @@ python tools/voice_selfcheck.py
 python -m pip check
 node tests/browser_transport.cjs
 node tests/web_chat_ui.cjs
+node tests/speech_ui.cjs
 python tools/check_browser_scripts.py
 ```
 

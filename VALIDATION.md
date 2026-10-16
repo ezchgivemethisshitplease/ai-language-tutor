@@ -6,17 +6,18 @@ Updated: 2026-10-17. Baseline: `510fc6daf0d1220ae796af31a65a07a262a753f9`. Local
 
 | Command or check | Observed result |
 | --- | --- |
-| `python -m unittest discover -s tests -q` | 188 tests passed, including the new web/runtime/bridge cases |
+| `python -m unittest discover -s tests -q` | 221 tests passed, including web/runtime/bridge and local speech cases |
 | `python -m ruff check tools tests` | Passed |
 | `python -m ruff format --check tools tests` | Passed |
-| `python -m mypy tools` | Passed, 15 source files; checked untyped function bodies, not strict fully annotated typing |
+| `python -m mypy tools` | Passed, 17 source files; checked untyped function bodies, not strict fully annotated typing |
 | `python tools/srs.py selfcheck` | Passed |
 | `python tools/serve.py selfcheck` | Passed |
 | `python tools/voice_selfcheck.py` | Passed; structural contract check only |
 | `python -m pip check` | Passed |
 | `python -m compileall -q tools tests` | Passed |
 | `node tests/browser_transport.cjs` | Four scenarios passed: concurrent separate submissions, offline replay, learner isolation, and a backup warning retained after completion |
-| `node tests/web_chat_ui.cjs` | Eight scenarios passed: null-turn receipt/retry, scoped drafts, exact text, safe links, login URL checks, stream resume, interruption and a persistent backup warning |
+| `node tests/web_chat_ui.cjs` | Nine scenarios passed, including receipt/retry, draft isolation, exact text, safe links, login, resume, interruption, backup warning and transcript provenance |
+| `node tests/speech_ui.cjs` | Sixteen scenarios passed with a fake MediaRecorder: explicit permission, cancellation/late permission, denied access, drafts/edits/conversation preservation, retained Blob retry, empty recognition, duration/size limits, local-voice output, setup and no feedback loop |
 | `python tools/check_browser_scripts.py` | All inline/shared browser JavaScript parsed |
 | Source archive fresh installation | Passed runtime-only install, initialization/resume, redacted diagnostics, rejected unsupported entry, native bank audio, full multilingual/media backup/check/restore and legacy export/import; no development dependencies installed |
 | Both humanize manifests with skill-creator `quick_validate.py` | Passed; all five relative links resolved, ordinary files without symlinks/home paths |
@@ -37,6 +38,8 @@ A screenshot of the quiz outcome is delivered alongside the source archive. A fu
 
 ## Hosted CI
 
+The [web/Whisper run for revision `bee6df8`](https://github.com/ezchgivemethisshitplease/ai-language-tutor/actions/runs/38964123309) passed all five jobs. Python 3.10 and 3.14 on both Ubuntu and macOS each ran 221 tests and static/selfchecks; the browser job passed all 29 Node scenarios and JavaScript parsing. Native Whisper model download/build/inference was tested separately on the local macOS arm64 host, not by these hosted jobs.
+
 The workflow targets Python 3.10/3.14 on Ubuntu and macOS, plus Node browser checks. Windows support was removed at the user's request, including its lock/speech branches, installation instructions and CI jobs. UTF-8 output, portable archive names and voice-template binding remain covered by regressions. The [hosted run for code revision `278aef9`](https://github.com/ezchgivemethisshitplease/ai-language-tutor/actions/runs/38957258437) passed all five jobs: Python 3.10 and 3.14 on Ubuntu/macOS, plus browser transport/script checks. Each Python job ran all 142 tests, lint/format/type checks and selfchecks. This includes the actual OS no-replace publication and process-crash drills on both supported systems. Provider selection is mocked in the native Linux synthesis test; no actual Linux voice was played or synthesized.
 
 ## Live host and independent review
@@ -50,4 +53,4 @@ Independent code/content passes found and fixed meaning-changing curriculum tran
 
 ## Limits
 
-No live paid/cloud speech call, STT, acoustic score, external voice conversation, calibrated placement study, learner study or physical power-loss/hardware study was performed. Selected real host flows and actual process-crash drills are described above; neither substitutes for those studies. Audio references and human-rating labels are checked structurally; their truth/identity cannot be established by these tests. Large multi-year history performance has not been benchmarked. Source-level compatibility and selected browser behavior must not be reported as validated educational efficacy.
+Local Whisper STT was actually tested on synthesized English/Russian audio and browser container formats on macOS arm64; the web UI showed the ready backend. No real human microphone session, Linux native ASR run, cloud speech call, acoustic score, external voice conversation, calibrated placement study, learner study or physical power-loss/hardware study was performed. Selected real host flows and actual process-crash drills do not substitute for those studies. Audio references and human-rating labels remain structural declarations. Large multi-year history performance has not been benchmarked. Source-level compatibility and selected browser behavior must not be reported as educational efficacy.
