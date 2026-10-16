@@ -666,6 +666,15 @@ def main():
             selfcheck()
         else:
             raise ValueError(__doc__)
+        if command in {"grade", "add", "img", "streak", "import"}:
+            if __package__:
+                from . import backup
+            else:
+                import backup  # type: ignore[no-redef]
+
+            outcome = backup.maybe_automatic_backup(STUDENT)
+            if outcome["status"] in {"warning", "unavailable"}:
+                print("Backup warning: " + outcome["reason"], file=sys.stderr)
     except (ValueError, RuntimeError, OSError) as exc:
         sys.exit(f"error: {exc}")
 

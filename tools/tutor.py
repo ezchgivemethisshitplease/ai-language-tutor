@@ -6,13 +6,13 @@ from __future__ import annotations
 import argparse
 import copy
 import json
-import os
 from pathlib import Path
 import re
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import activity
+import backup
 import learning
 import srs
 import storage
@@ -117,6 +117,8 @@ def initialize(args):
             state["profile"]["daily_minutes"] = args.daily_minutes
         if args.voice_channel is not None:
             state["profile"]["voice_channel"] = args.voice_channel
+        if args.objective is not None:
+            state["objectives"] = args.objective
         learning.validate_state(state)
         storage.save(path, state)
     return {
@@ -128,7 +130,12 @@ def initialize(args):
 
 
 def make_plan(state):
-    return learning.plan(state, catalog(), due_count=len(srs.due_cards(srs.cards_path())))
+    return learning.plan(
+        state,
+        catalog(),
+        due_count=len(srs.due_cards(srs.cards_path())),
+        assessment_bank=reference(ROOT / "data/assessments.json"),
+    )
 
 
 def export_bundle(destination):
@@ -256,8 +263,9 @@ def import_bundle(source, destination):
                 _text_write(path, value)
         if destination.exists():
             raise ValueError("import destination appeared during import")
-        os.rename(stage, destination)
-        storage._sync_directory(destination.parent)
+        # The no-replace primitive also protects an empty directory appearing
+        # between the existence check and publication.
+        backup._publish_restore(stage, destination)
     finally:
         if stage.exists():
             shutil.rmtree(stage)
@@ -274,15 +282,30 @@ def parser():
     init.add_argument("--native-language", default="russian")
     init.add_argument("--daily-minutes", type=int)
     init.add_argument("--voice-channel", choices=["external", "none"])
+    init.add_argument(
+        "--objective", action="append", help="confirmed learner goal; repeat for several"
+    )
     configuration = sub.add_parser("configure")
     configuration.add_argument("--native-language")
     configuration.add_argument("--daily-minutes", type=int)
     configuration.add_argument("--voice-channel", choices=["external", "none"])
+    configuration.add_argument(
+        "--objective", action="append", help="replace saved goals with confirmed values"
+    )
     debt = sub.add_parser("settle-debt")
     debt.add_argument("--session", required=True)
     debt.add_argument("--observation", required=True)
-    for command in ("status", "plan", "start", "validate", "events"):
+    for command in ("status", "plan", "start", "validate", "events", "reconcile"):
         sub.add_parser(command)
+    review = sub.add_parser("review", help="append a later review without changing the raw attempt")
+    review.add_argument("--observation", required=True)
+    review.add_argument("--review", type=Path, required=True)
+    review.add_argument("--id", required=True, help="stable review annotation ID")
+    audio = sub.add_parser(
+        "audio", help="render a diagnostic stimulus locally without printing its script"
+    )
+    audio.add_argument("item_id")
+    audio.add_argument("destination", type=Path)
     for command in ("resume", "interrupt", "finish", "step", "attempt"):
         sp = sub.add_parser(command)
         sp.add_argument("--session", required=True)
@@ -295,6 +318,9 @@ def parser():
             sp.add_argument("--exercise", type=Path, required=True)
             sp.add_argument("--response-file", type=Path, required=True)
             sp.add_argument("--review", type=Path)
+            sp.add_argument(
+                "--presentation", type=Path, help="actual diagnostic audio delivery evidence"
+            )
             sp.add_argument("--id", required=True, help="stable retry-safe attempt ID")
             sp.add_argument("--hints-used", action="store_true")
             sp.add_argument(
@@ -306,6 +332,14 @@ def parser():
     items = sub.add_parser("items")
     items.add_argument("--level", choices=learning.LEVELS)
     items.add_argument("--limit", type=int, default=6)
+    items.add_argument(
+        "--controller",
+        action="store_true",
+        help="include answer keys and hidden audio scripts for the tutor only",
+    )
+    for name in ("placement", "accept-placement"):
+        entry = sub.add_parser(name)
+        entry.add_argument("--target-level", choices=learning.LEVELS, required=True)
     progress = sub.add_parser("progress")
     progress.add_argument("--target-level", choices=learning.LEVELS[1:], required=True)
     progress.add_argument("--human-review", type=Path, required=True)
@@ -318,11 +352,21 @@ def parser():
     restore = sub.add_parser("import")
     restore.add_argument("source", type=Path)
     restore.add_argument("destination", type=Path, help="new directory only")
+    archive = sub.add_parser("backup", help="verified all-language learner and media archive")
+    archive.add_argument("destination", type=Path)
+    check = sub.add_parser("backup-check")
+    check.add_argument("source", type=Path)
+    full_restore = sub.add_parser("restore", help="restore verified archive to a new directory")
+    full_restore.add_argument("source", type=Path)
+    full_restore.add_argument("destination", type=Path)
+    sub.add_parser("backup-auto", help="run the owner-configured rotating backup policy")
     recovery = sub.add_parser("recover")
     recovery.add_argument("document", choices=["learner.json", "cards.json", "progress.json"])
     voice = sub.add_parser("validate-voice")
     voice.add_argument("lesson_pass", type=Path)
     voice.add_argument("report", type=Path)
+    exercise = sub.add_parser("validate-exercise")
+    exercise.add_argument("path", type=Path)
     prepared = sub.add_parser("validate-activity")
     prepared.add_argument("kind", choices=["quiz", "text", "dictation"])
     prepared.add_argument("path", type=Path)
@@ -337,24 +381,56 @@ def run(args):
         return initialize(args)
     if command == "import":
         return import_bundle(args.source, args.destination)
+    if command == "backup":
+        return backup.create_backup(srs.STUDENT, args.destination)
+    if command == "backup-check":
+        return backup.validate_backup(args.source)
+    if command == "restore":
+        return backup.restore_backup(args.source, args.destination)
+    if command == "backup-auto":
+        result = backup.automatic_backup(srs.STUDENT)
+        if result["status"] in {"unavailable", "warning"}:
+            raise ValueError(result.get("reason", "backup unavailable"))
+        return result
+    if command == "audio":
+        import tts
+
+        bank = reference(ROOT / "data/assessments.json")
+        item = next((item for item in bank["items"] if item["id"] == args.item_id), None)
+        if item is None:
+            raise ValueError("unknown diagnostic item")
+        learning.validate_exercise(item)
+        delivery = item.get("delivery", {})
+        if item["domain"] != "listening" or delivery.get("type") != "tts":
+            raise ValueError("item does not provide an original audio script")
+        return {
+            **tts.native_file(delivery["text"], args.destination),
+            "item_id": item["id"],
+            "max_plays": delivery["max_plays"],
+            "learner_performance_evidence": False,
+        }
     if command == "validate-voice":
         import voice
 
         return voice.validate_report(
             storage.load(args.lesson_pass, None), storage.load(args.report, None)
         )
+    if command == "validate-exercise":
+        data = storage.load(args.path, None)
+        learning.validate_exercise(data)
+        return {"valid": True, "exercise_id": data["id"]}
     if command == "validate-activity":
         data = activity.validate(args.kind, storage.load(args.path, None))
         return {"valid": True, "activity_id": activity.identity(data)}
     if command == "recover":
         path = srs.lang_dir() / args.document
         # Validate candidate before replacing anything.
-        backup = storage.load(path.with_name(path.name + ".bak"), None)
+        candidate = storage.load(path.with_name(path.name + ".bak"), None)
         if args.document == "learner.json":
-            learning.validate_state(backup)
+            learning.validate_state(candidate)
         elif args.document == "cards.json":
-            srs.validate_deck(backup)
-        elif not isinstance(backup, dict):
+            srs.validate_deck(candidate)
+        elif not isinstance(candidate, dict):
             raise ValueError("invalid backup")
         storage.restore_backup(path)
         return {"recovered": args.document, "previous_bytes_preserved": True}
@@ -362,6 +438,11 @@ def run(args):
         return export_bundle(args.destination)
     if command == "events":
         return storage.load(srs.STUDENT / "activity-results.json", {"receipts": {}})
+    if command == "reconcile":
+        # This command exists specifically for stale derived caches. Validate
+        # the rebuilt candidate, preserving the raw evidence or failing closed.
+        with storage.transaction(learner_path(), None) as state:
+            return learning.reconcile_state(state)
     state = state_load()
     if command in {"status", "validate"}:
         srs.validate_deck(storage.load(srs.cards_path(), {"cards": []}))
@@ -375,13 +456,25 @@ def run(args):
     if command == "plan":
         return make_plan(state)
     if command == "items":
-        return learning.assessment_items(
-            state, reference(ROOT / "data/assessments.json"), args.level, args.limit
-        )
+        return [
+            learning.present_assessment_item(item, controller=args.controller)
+            for item in learning.assessment_items(
+                state, reference(ROOT / "data/assessments.json"), args.level, args.limit
+            )
+        ]
     if command == "assess":
         return learning.assessment_summary(state, args.level)
+    if command == "placement":
+        return learning.placement_report(
+            state, catalog(), reference(ROOT / "data/assessments.json"), args.target_level
+        )
     if command == "gate":
-        return learning.promotion_eligibility(state, catalog(), args.target_level)
+        return learning.promotion_eligibility(
+            state,
+            catalog(),
+            args.target_level,
+            assessment_bank=reference(ROOT / "data/assessments.json"),
+        )
     with storage.transaction(learner_path(), None) as state:
         learning.validate_state(state)
         if command == "start":
@@ -407,6 +500,7 @@ def run(args):
                 error_tags=args.error_tag,
                 error_kb=reference(KB),
                 catalog=catalog(),
+                presentation=storage.load(args.presentation, None) if args.presentation else None,
             )
             result = {
                 "attempt_id": observation["id"],
@@ -419,12 +513,30 @@ def run(args):
                 state["profile"]["daily_minutes"] = args.daily_minutes
             if args.voice_channel is not None:
                 state["profile"]["voice_channel"] = args.voice_channel
-            result = {"profile": state["profile"], "native_language": state["native_language"]}
+            if args.objective is not None:
+                state["objectives"] = args.objective
+            result = {
+                "profile": state["profile"],
+                "native_language": state["native_language"],
+                "objectives": state["objectives"],
+            }
         elif command == "settle-debt":
             result = learning.settle_speaking_debt(state, args.session, args.observation)
+        elif command == "accept-placement":
+            result = learning.accept_placement(
+                state, catalog(), reference(ROOT / "data/assessments.json"), args.target_level
+            )
+        elif command == "review":
+            result = learning.review_attempt(
+                state, args.observation, storage.load(args.review, None), args.id
+            )
         elif command == "progress":
             result = learning.accept_progression(
-                state, catalog(), args.target_level, storage.load(args.human_review, None)
+                state,
+                catalog(),
+                args.target_level,
+                storage.load(args.human_review, None),
+                assessment_bank=reference(ROOT / "data/assessments.json"),
             )
         elif command == "step":
             result = learning.complete_step(state, args.session, args.step, args.defer)
@@ -446,7 +558,30 @@ def main():
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
     try:
-        emit(run(parser().parse_args()))
+        args = parser().parse_args()
+        result = run(args)
+        if args.command in {
+            "init",
+            "configure",
+            "start",
+            "resume",
+            "interrupt",
+            "finish",
+            "step",
+            "attempt",
+            "settle-debt",
+            "progress",
+            "accept-placement",
+            "recover",
+            "review",
+            "reconcile",
+        }:
+            # Run after the transaction has released every learner lock. A failed
+            # backup cannot turn an already committed attempt into a failed save.
+            outcome = backup.maybe_automatic_backup(srs.STUDENT)
+            if outcome["status"] != "disabled":
+                result["backup"] = outcome
+        emit(result)
     except (OSError, ValueError, KeyError, RuntimeError) as exc:
         # Avoid tracebacks containing imported learner responses or credentials.
         print(f"Tutor error: {exc}", file=sys.stderr)

@@ -8,6 +8,7 @@ Optional cloud providers receive the exact text requested for speech.
 Usage:
   python3 tools/tts.py say "Hello there"      synthesize and play
   python3 tools/tts.py file "Hello" out.mp3   synthesize to a file
+  python3 tools/tts.py native-file "Hello" out.aiff  local file, no playback/cloud
   python3 tools/tts.py check                  print the active provider
 
 Audio is cached in student/.tts-cache/ keyed by provider+voice+text. Independent
@@ -157,6 +158,77 @@ def play(text):
         sys.exit("no audio output found — pip3 install edge-tts and use the browser apps")
 
 
+def native_file(text, destination):
+    """Render English diagnostic audio locally, without playing or sending it.
+
+    macOS uses an installed Samantha voice and AIFF; Linux uses eSpeak and WAV.
+    This creates synthetic stimulus audio, never evidence of learner speech.
+    """
+    if not isinstance(text, str) or not text.strip() or len(text) > 2000:
+        raise ValueError("TTS text must contain 1–2000 characters")
+    destination = Path(destination).absolute()
+    if destination.parent.is_symlink() or not destination.parent.is_dir():
+        raise ValueError("native audio requires an existing real output directory")
+    if destination.exists() or destination.is_symlink():
+        raise ValueError("native audio output must not already exist")
+    destination = destination.parent.resolve() / destination.name
+    say_binary = shutil.which("say")
+    espeak_binary = shutil.which("espeak-ng") or shutil.which("espeak")
+    if sys.platform == "darwin" and say_binary:
+        if destination.suffix.lower() not in {".aif", ".aiff"}:
+            raise ValueError("macOS native output requires .aiff or .aif")
+        command = [say_binary, "-v", "Samantha", "-o"]
+        provider_name = "macos-say"
+    elif sys.platform.startswith("linux") and espeak_binary:
+        if destination.suffix.lower() != ".wav":
+            raise ValueError("Linux native output requires .wav")
+        command = [espeak_binary, "-v", "en", "-w"]
+        provider_name = "espeak"
+    else:
+        raise ValueError("native file synthesis requires macOS say or Linux eSpeak")
+    fd, temporary = tempfile.mkstemp(
+        prefix=".tutor-audio-", suffix=destination.suffix, dir=destination.parent
+    )
+    os.close(fd)
+    try:
+        subprocess.run(
+            [*command, temporary],
+            input=text,
+            text=True,
+            encoding="utf-8",
+            capture_output=True,
+            timeout=30,
+            check=True,
+        )
+        path = Path(temporary)
+        with path.open("rb") as source:
+            header = source.read(12)
+        valid = (
+            (header[:4] == b"FORM" and header[8:12] in {b"AIFF", b"AIFC"})
+            if provider_name == "macos-say"
+            else (header[:4] == b"RIFF" and header[8:12] == b"WAVE")
+        )
+        if not valid or not 44 <= path.stat().st_size <= 10 * 1024 * 1024:
+            raise ValueError("native synthesizer did not produce bounded audio")
+        if __package__:
+            from . import backup
+        else:
+            import backup  # type: ignore[no-redef]
+
+        backup._sync_file(path)
+        backup._publish_archive(path, destination)
+        return {
+            "path": str(destination),
+            "provider": provider_name,
+            "synthetic_stimulus": True,
+            "sha256": hashlib.sha256(destination.read_bytes()).hexdigest(),
+        }
+    except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as exc:
+        raise ValueError("native synthesis failed or timed out; no output published") from exc
+    finally:
+        Path(temporary).unlink(missing_ok=True)
+
+
 def main():
     # Keep JSON/text output UTF-8 when coding agents pipe this command.
     for stream in (sys.stdin, sys.stdout, sys.stderr):
@@ -179,6 +251,13 @@ def main():
             sys.exit("no premium provider configured")
         shutil.copy(path, args[2])
         print(args[2])
+    elif args[0] == "native-file":
+        if len(args) != 3:
+            sys.exit("usage: tts.py native-file <text> <output.aiff|output.wav>")
+        try:
+            print(json.dumps(native_file(args[1], args[2]), ensure_ascii=False))
+        except (ValueError, OSError) as exc:
+            sys.exit(str(exc))
     else:
         sys.exit(__doc__)
 

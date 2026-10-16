@@ -31,14 +31,14 @@ The project includes a portable [`humanize` skill](.agents/skills/humanize/SKILL
 
 ```sh
 python tools/tutor.py start          # store today's plan or resume the unfinished one
-python tools/tutor.py items --level A1 --limit 6
+python tools/tutor.py items --level A1 --limit 6   # learner view, keys/scripts hidden
 python tools/tutor.py assess --level A1
 python tools/tutor.py --help
 ```
 
 Russian explanations remain available at every level: «Объясни по-русски». Support fades according to observed eligible performance. The Russian KB supplies 31 contextual contrasts linked to units and remedial exercise types. Diagnoses require actual evidence; native language alone never proves an error.
 
-Each meaningful attempt retains the exercise, exact response, hints and rating source. Repeated delayed evidence supports a separate mastery estimate. An LLM review remains provisional and cannot by itself establish mastery or promote a level. Open writing/speech progression needs human review; the local attestation records provenance but cannot authenticate a reviewer. See [workflow commands](docs/agent-workflow.md) for attempts, interruptions, debt and internal progression.
+Each meaningful attempt retains the exercise, exact response, hints and rating source. A later `review` appends an annotation to that same trial; it does not rewrite the answer or count as a new independent response. Repeated delayed evidence supports a separate mastery estimate. An LLM review remains provisional and cannot by itself establish mastery or promote a level. Open writing/speech progression needs human review; the local attestation records provenance but cannot authenticate a reviewer. See [workflow commands](docs/agent-workflow.md) for attempts, interruptions, debt and internal progression.
 
 ## Reviews and browser practice
 
@@ -58,17 +58,22 @@ Stop after the final acknowledged activity: `python tools/serve.py stop`. The se
 
 OS/browser speech is the default. On macOS, `python tools/tts.py say "I am a student."` uses the installed OS voice. Browser dictation has an explicit browser-speech fallback. Optional cloud providers require `TUTOR_TTS=edge`, `openai` or `elevenlabs`; provider packages/credentials alone never enable them. Cloud speech receives the requested text. Edge requires an optional `edge-tts` installation; it is not a runtime dependency of the core.
 
+The 100-item original diagnostic bank covers reading, listening, writing and speaking. Listening has original scripts and independent contexts. `python tools/tutor.py audio diag-a1-listening-01 /existing/path/stimulus.aiff` renders an English stimulus locally on macOS without printing its script or playing it; Linux uses `.wav` with optional eSpeak. Present audio before the answer and keep transcripts/keys hidden. Generating a file does not prove the learner heard it. [Assessment instructions](docs/assessment.md) describe actual delivery evidence and provisional advanced entry.
+
 Speech production uses an optional external voice conversation and a finite pass/report workflow. The [voice bridge](portable/voice-tutor.md) and `validate-voice` check structure, pass identity and completion fields. They do not authenticate sound, score pronunciation or calibrate proficiency. Missing speaking/listening evidence stays unassessed. No paid speech dependency is required.
 
-Learner files stay under ignored `student/`. The coding agent receives whatever learner context it reads into its conversation, and external voice receives the handoff context. Optional TTS/image services receive the text/query sent to them. Local storage therefore does not imply offline inference. API keys belong only in environment variables. Exports contain personal data and are not encrypted; they exclude control credentials, audio cache and images.
+Learner files stay under ignored `student/`. The coding agent receives whatever learner context it reads into its conversation, and external voice receives the handoff context. Optional TTS/image services receive the text/query sent to them. Local storage therefore does not imply offline inference. API keys belong only in environment variables. Archives contain personal data and are not encrypted. Full backups include managed files from every language plus learner images/audio/video; credentials, server control files, caches and arbitrary unknown files are excluded.
 
 ```sh
-python tools/tutor.py export /safe/location/learner-export.json
-python tools/tutor.py import /safe/location/learner-export.json /new/location/restored-student
+python tools/tutor.py backup /existing/safe/location/learner.zip
+python tools/tutor.py backup-check /existing/safe/location/learner.zip
+python tools/tutor.py restore /existing/safe/location/learner.zip /new/location/restored-student
 python tools/tutor.py recover learner.json
 ```
 
-Import creates a new directory and preserves the live one. Use `--student-dir PATH` or `TUTOR_STUDENT_DIR` to select isolated/restored data. Full archives currently cover the active English learner; other language files remain untouched.
+Restore validates the complete archive and publishes a new directory without replacing live data. Use `--student-dir PATH` or `TUTOR_STUDENT_DIR` to select isolated/restored data. The older `export`/`import` JSON commands remain compatible for the active English semantic state.
+
+Set `TUTOR_BACKUP_DIR` to an existing directory on your own backup storage to enable rotating copies after successful study mutations. `TUTOR_BACKUP_KEEP` defaults to 7 and `TUTOR_BACKUP_INTERVAL_HOURS` to 24. `TUTOR_BACKUP_REQUIRE_MOUNT` can require a mounted external volume. No background service is installed; `backup-auto` also runs the policy explicitly. A missing backup volume leaves saved study data intact and reports that the backup is unavailable. [Backup policy and restore drills](docs/backup.md) specify the exact scope and limits.
 
 ## Verify
 
@@ -86,7 +91,7 @@ node tests/browser_transport.cjs
 python tools/check_browser_scripts.py
 ```
 
-Tests use temporary data. They cover FSRS reference parity, migration, corruption/recovery, concurrent writes/retries, 100 simulated sessions, assessment limits, Russian feedback and browser transport. [VALIDATION.md](VALIDATION.md) records the actual results/platforms. CI runs Python 3.10 and 3.14 on Ubuntu and macOS plus the Node checks. Live agent teaching quality, learner outcomes and external speech providers require separate acceptance work.
+Tests use temporary data. They cover FSRS reference parity, migration, corruption/recovery, concurrent writes/retries, 100 simulated sessions, assessment limits, Russian feedback and browser transport. [VALIDATION.md](VALIDATION.md) records the actual results/platforms. CI runs Python 3.10 and 3.14 on Ubuntu and macOS plus the Node checks. Selected real Codex and Claude Code flows are recorded separately from deterministic tests. Learner outcomes, psychometric calibration and actual human speech ratings still require external evidence.
 
 ## Files and boundaries
 

@@ -9,6 +9,8 @@ observations are immutable evidence; estimates can always be reconstructed.
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 import math
 import re
 import unicodedata
@@ -97,12 +99,14 @@ def new_state(native_language: str = "russian") -> dict:
         "profile": {"daily_minutes": 30, "voice_channel": "none"},
         "proficiency": {"working_level": "A1", "status": "unassessed", "calibrated": False},
         "observations": [],
+        "reviews": [],
         "estimates": {"skills": {}, "grammar": {}, "vocabulary": {}},
         "errors": {},
         "sessions": {},
         "active_session_id": None,
         "objectives": [],
         "legacy": {},
+        "placement": {"active": None, "history": []},
     }
 
 
@@ -179,6 +183,8 @@ def validate_state(state: dict) -> None:
         ):
             raise ValueError("invalid observation score")
         _strings(observation.get("error_tags", []), "error_tags")
+        _validate_presentation(observation.get("presentation", {}))
+    observations = _evidence_view(state)
     active_ids = []
     for sid, session in sessions.items():
         if not isinstance(session, dict) or session.get("id") != sid:
@@ -250,35 +256,10 @@ def validate_state(state: dict) -> None:
     if estimates != _derive_estimates(observations):
         raise ValueError("estimates disagree with observations; rebuild from evidence")
     errors = state.get("errors")
-    if not isinstance(errors, dict):
-        raise ValueError("errors must be an object")
-    expected_counts: dict[str, int] = {}
-    for o in observations:
-        for tag in o.get("error_tags", []):
-            expected_counts[tag] = expected_counts.get(tag, 0) + 1
-    if set(errors) != set(expected_counts):
-        raise ValueError("error index mismatch")
-    for tag, error in errors.items():
-        if not isinstance(error, dict) or error.get("count") != expected_counts[tag]:
-            raise ValueError("invalid recurring error count")
-        _day(_text(error.get("last_seen"), "error.last_seen", 10))
-        if error.get("confirmed_count") != sum(
-            tag in o.get("error_tags", []) and _eligible(o) for o in observations
-        ):
-            raise ValueError("invalid confirmed recurring error count")
-        confirmed_dates = [
-            o["date"] for o in observations if tag in o.get("error_tags", []) and _eligible(o)
-        ]
-        if error.get("confirmed_last_seen") != max(confirmed_dates, default=None):
-            raise ValueError("invalid confirmed error date")
-        if set(error.get("observation_ids", [])) != {
-            o["id"] for o in observations if tag in o.get("error_tags", [])
-        }:
-            raise ValueError("invalid error observation references")
-        if set(error.get("skill_ids", [])) != {
-            o["exercise"]["skill_id"] for o in observations if tag in o.get("error_tags", [])
-        }:
-            raise ValueError("invalid error skills")
+    if not isinstance(errors, dict) or errors != _derive_errors(observations):
+        raise ValueError("recurring error cache disagrees with independent observed evidence")
+
+    _validate_placement_records(state)
 
 
 def validate_catalog(catalog: dict) -> None:
@@ -345,6 +326,9 @@ def validate_exercise(exercise: Any) -> None:
         "exhaustive",
         "context",
         "explanation_ru",
+        "purpose",
+        "family_id",
+        "delivery",
     }
     if set(exercise) - allowed:
         raise ValueError(
@@ -395,9 +379,50 @@ def validate_exercise(exercise: Any) -> None:
         or any(type(v) is not bool for v in normalization.values())
     ):
         raise ValueError("invalid answer normalization")
-    for key in ("audio_evidence", "step_id", "context", "explanation_ru"):
+    for key in ("audio_evidence", "step_id", "context", "explanation_ru", "family_id"):
         if key in exercise:
             _text(exercise[key], key)
+    if exercise.get("purpose", "practice") not in {"practice", "diagnostic"}:
+        raise ValueError("invalid exercise purpose")
+    if exercise.get("purpose") == "diagnostic" and not exercise.get("family_id"):
+        raise ValueError("diagnostic items require a stable stimulus family_id")
+    if "delivery" in exercise:
+        delivery = exercise["delivery"]
+        if (
+            not isinstance(delivery, dict)
+            or set(delivery) != {"type", "text", "max_plays", "transcript_visible"}
+            or delivery.get("type") != "tts"
+            or type(delivery.get("max_plays")) is not int
+            or not 1 <= delivery["max_plays"] <= 3
+            or delivery.get("transcript_visible") is not False
+        ):
+            raise ValueError("invalid listening delivery contract")
+        _text(delivery.get("text"), "delivery.text", 2000)
+        if exercise["domain"] != "listening":
+            raise ValueError("audio delivery belongs to a listening task")
+    if (
+        exercise.get("purpose") == "diagnostic"
+        and exercise["domain"] == "listening"
+        and "delivery" not in exercise
+    ):
+        raise ValueError("diagnostic listening requires a hidden audio delivery script")
+
+
+def _validate_presentation(presentation: Any) -> None:
+    if not isinstance(presentation, dict) or set(presentation) - {
+        "audio_played",
+        "transcript_shown",
+        "answer_revealed",
+        "plays",
+    }:
+        raise ValueError("invalid presentation evidence")
+    for key in ("audio_played", "transcript_shown", "answer_revealed"):
+        if key in presentation and type(presentation[key]) is not bool:
+            raise ValueError(f"presentation.{key} must be boolean")
+    if "plays" in presentation and (
+        type(presentation["plays"]) is not int or not 0 <= presentation["plays"] <= 20
+    ):
+        raise ValueError("presentation.plays must be an integer from 0 to 20")
 
 
 def _normalize(answer: str, exercise: dict) -> str:
@@ -491,27 +516,44 @@ def _eligible(observation: dict) -> bool:
     audio_ok = exercise["domain"] not in {"speaking", "pronunciation", "listening"} or bool(
         exercise.get("audio_evidence") or grade.get("audio_evidence")
     )
+    presentation = observation.get("presentation", {})
+    independent_delivery = not presentation.get("answer_revealed", False)
+    if exercise.get("purpose") == "diagnostic" and exercise["domain"] == "listening":
+        independent_delivery = (
+            independent_delivery
+            and presentation.get("audio_played") is True
+            and presentation.get("transcript_shown") is False
+            and 1 <= presentation.get("plays", 0) <= exercise["delivery"]["max_plays"]
+        )
     return (
         not observation["hints_used"]
+        and independent_delivery
         and grade["source"] in {"deterministic", "human"}
         and grade["score"] is not None
         and audio_ok
     )
 
 
-def _summary(observations: list[dict]) -> dict:
-    eligible = [o for o in observations if _eligible(o)]
-    # One first unassisted response per item/session; re-submission cannot wash out errors.
+def _first_trials(observations: list[dict]) -> list[dict]:
+    """Establish trial ownership before eligibility, level or freshness filters."""
     independent: dict[tuple[str, str], dict] = {}
-    for o in eligible:
-        independent.setdefault((o["session_id"], o["exercise"]["id"]), o)
-    evidence = list(independent.values())
+    for observation in observations:
+        item = observation["exercise"]
+        family = item.get("family_id", item["id"])
+        scope = "diagnostic" if item.get("purpose") == "diagnostic" else observation["session_id"]
+        independent.setdefault((scope, family), observation)
+    return list(independent.values())
+
+
+def _summary(observations: list[dict]) -> dict:
+    # First response, including hinted/failed/pending trials, owns the slot.
+    evidence = [o for o in _first_trials(observations) if _eligible(o)]
     count = len(evidence)
     # Each item has equal weight; repeatedly passing one easy item cannot drown
     # out failures on other items. Latest *first response* per item is used.
     latest_by_item = {}
     for o in sorted(evidence, key=lambda item: item["date"]):
-        latest_by_item[o["exercise"]["id"]] = o
+        latest_by_item[o["exercise"].get("family_id", o["exercise"]["id"])] = o
     distinct = list(latest_by_item.values())
     successes = sum(o["grade"]["status"] == "correct" for o in distinct)
     rate = successes / len(distinct) if distinct else 0.0
@@ -580,6 +622,8 @@ def _derive_estimates(observations: list[dict]) -> dict:
     groups: dict[str, dict[str, list[dict]]] = {"skills": {}, "grammar": {}, "vocabulary": {}}
     for o in observations:
         exercise = o["exercise"]
+        if exercise.get("purpose") == "diagnostic":
+            continue
         groups["skills"].setdefault(exercise["skill_id"], []).append(o)
         for group, field in (("grammar", "grammar_tags"), ("vocabulary", "vocabulary")):
             for tag in exercise.get(field, []):
@@ -592,7 +636,9 @@ def _derive_estimates(observations: list[dict]) -> dict:
 
 def rebuild_estimates(state: dict) -> None:
     """Explicit recovery for a stale derived cache, keeping every observation."""
-    state["estimates"] = _derive_estimates(state["observations"])
+    effective = _evidence_view(state)
+    state["estimates"] = _derive_estimates(effective)
+    state["errors"] = _derive_errors(effective)
 
 
 def language_policy(state: dict, explicit_l1: bool = False) -> dict:
@@ -604,13 +650,15 @@ def language_policy(state: dict, explicit_l1: bool = False) -> dict:
     else:
         # Observed performance only: declared/legacy CEFR does not remove L1 support.
         demonstrated = [
-            o for o in state["observations"] if _eligible(o) and o["grade"]["status"] == "correct"
+            o
+            for o in _first_trials(_evidence_view(state))
+            if _eligible(o) and o["grade"]["status"] == "correct"
         ]
         level = "A1"
         for candidate in LEVELS:
             samples = [o for o in demonstrated if o["exercise"]["level"] == candidate]
             if (
-                len({o["exercise"]["id"] for o in samples}) >= 4
+                len({o["exercise"].get("family_id", o["exercise"]["id"]) for o in samples}) >= 4
                 and len({o["exercise"]["domain"] for o in samples}) >= 2
                 and len({o["session_id"] for o in samples}) >= 2
             ):
@@ -665,10 +713,13 @@ def plan(
     today: str | date | None = None,
     minutes: int | None = None,
     voice_available: bool | None = None,
+    assessment_bank: dict | None = None,
 ) -> dict:
     validate_state(state)
     validate_catalog(catalog)
     day = _day(today)
+    routing = _routing_context(state, catalog, assessment_bank, day)
+    routing_prerequisites = set(routing["assumed_prerequisites"])
     if type(due_count) is not int or due_count < 0:
         raise ValueError("due_count must be nonnegative integer")
     budget = state["profile"]["daily_minutes"] if minutes is None else minutes
@@ -681,7 +732,8 @@ def plan(
     )
     if type(voice) is not bool:
         raise ValueError("voice_available must be boolean")
-    estimates = _derive_estimates(state["observations"])["skills"]
+    effective_observations = _evidence_view(state)
+    estimates = _derive_estimates(effective_observations)["skills"]
     mastered = {key for key, val in estimates.items() if val["mastered"]}
     units = {u["id"]: u for u in catalog["units"]}
     # Priority is lexicographic and documented: errors, overdue retrieval, new prerequisites.
@@ -691,7 +743,7 @@ def plan(
             continue
         recovered = {
             o["session_id"]
-            for o in state["observations"]
+            for o in effective_observations
             if _eligible(o)
             and o["grade"]["status"] == "correct"
             and o["date"] > error["confirmed_last_seen"]
@@ -703,9 +755,13 @@ def plan(
     available = [
         u
         for u in catalog["units"]
-        if set(u["prerequisites"]) <= mastered
+        if set(u["prerequisites"]) <= mastered | routing_prerequisites
         and u["id"] not in mastered
-        and LEVELS.index(u["level"]) <= LEVELS.index(state["proficiency"]["working_level"])
+        and (
+            u["level"] == routing["current_level"]
+            if routing["enabled"]
+            else LEVELS.index(u["level"]) <= LEVELS.index(routing["current_level"])
+        )
     ]
     recurring_units = [
         units[s] for s in recurrent if s in units and set(units[s]["prerequisites"]) <= mastered
@@ -718,7 +774,7 @@ def plan(
     candidates = {u["id"]: u for u in recurring_units + overdue + available}
     recent = [
         o
-        for o in state["observations"]
+        for o in effective_observations
         if 0 <= (date.fromisoformat(day) - date.fromisoformat(o["date"])).days < 7
     ]
     counts = {domain: sum(o["exercise"]["domain"] == domain for o in recent) for domain in DOMAINS}
@@ -748,6 +804,19 @@ def plan(
             }
         )
         remaining -= review_minutes
+    if routing["enabled"] and routing["confirmation_probes"] and remaining >= 4:
+        probe = routing["confirmation_probes"][0]
+        probe_minutes = min(3, remaining - 1)
+        steps.append(
+            {
+                "id": "entry-probe",
+                "type": "prerequisite_probe",
+                "mode": "chat",
+                "minutes": probe_minutes,
+                **probe,
+            }
+        )
+        remaining -= probe_minutes
     selected = ranked[: 1 if budget < 45 else 2]
     debt = any(s.get("speaking_debt") for s in state["sessions"].values())
     deferred_voice_skills: list[str] = []
@@ -767,6 +836,8 @@ def plan(
         for i, unit in enumerate(selected):
             domains = sorted(unit["domains"], key=lambda d: (counts[d], DOMAINS.index(d)))
             usable = [d for d in domains if voice or d not in {"speaking", "pronunciation"}]
+            if routing["enabled"] and unit["level"] == routing["current_level"]:
+                usable = [d for d in usable if d in routing["routing_domains"]]
             domain = usable[0] if usable else "reading"
             if not voice and any(d in {"speaking", "pronunciation"} for d in domains):
                 debt = True
@@ -820,6 +891,7 @@ def plan(
         "language_policy": language_policy(state),
         "policy": copy.deepcopy(POLICY),
         "calibrated": False,
+        "routing": routing,
     }
     _validate_plan(result)
     return result
@@ -891,7 +963,7 @@ def complete_step(state: dict, session_id: str, step_id: str, deferred: bool = F
     if step["mode"] == "voice-required":
         evidence = [
             o
-            for o in state["observations"]
+            for o in _evidence_view(state)
             if o["session_id"] == session_id
             and o["exercise"].get("step_id") == step_id
             and o["exercise"]["domain"] in {"speaking", "pronunciation"}
@@ -954,6 +1026,7 @@ def record_attempt(
     error_tags: list[str] | None = None,
     catalog: dict | None = None,
     today: str | date | None = None,
+    presentation: dict | None = None,
 ) -> dict:
     """Record first-hand task evidence; LLM judgments remain explicitly provisional.
 
@@ -962,6 +1035,8 @@ def record_attempt(
     """
     validate_state(state)
     validate_exercise(exercise)
+    if presentation is not None:
+        _validate_presentation(presentation)
     if catalog is not None:
         validate_catalog(catalog)
         unit = next((u for u in catalog["units"] if u["id"] == exercise["skill_id"]), None)
@@ -1012,6 +1087,8 @@ def record_attempt(
         "grade": grade,
         "error_tags": tags,
     }
+    if presentation is not None:
+        observation["presentation"] = copy.deepcopy(presentation)
     existing = next((o for o in state["observations"] if o["id"] == oid), None)
     if existing is not None:
         if existing != observation:
@@ -1031,27 +1108,6 @@ def record_attempt(
             break
     state["observations"].append(observation)
     session["observation_ids"].append(oid)
-    for tag in tags:
-        error = state["errors"].setdefault(
-            tag,
-            {
-                "count": 0,
-                "confirmed_count": 0,
-                "confirmed_last_seen": None,
-                "first_seen": day,
-                "last_seen": day,
-                "skill_ids": [],
-                "observation_ids": [],
-            },
-        )
-        error["count"] += 1
-        if _eligible(observation):
-            error["confirmed_count"] += 1
-            error["confirmed_last_seen"] = max(error["confirmed_last_seen"] or day, day)
-        error["last_seen"] = max(error["last_seen"], day)
-        error["observation_ids"].append(oid)
-        if exercise["skill_id"] not in error["skill_ids"]:
-            error["skill_ids"].append(exercise["skill_id"])
     rebuild_estimates(state)
     return copy.deepcopy(observation)
 
@@ -1079,7 +1135,7 @@ def feedback(
         "remediation": [],
     }
     kb = {e["id"]: e for e in (error_kb or {}).get("errors", [])}
-    for tag in observation.get("error_tags", []):
+    for tag in observation.get("error_tags", []) if grade["status"] == "incorrect" else []:
         if tag in kb:
             entry = kb[tag]
             result["remediation"].append(
@@ -1113,10 +1169,20 @@ def assessment_summary(
     ).isoformat()
     relevant = [
         o
-        for o in state["observations"]
+        for o in _first_trials(_evidence_view(state))
         if (level is None or o["exercise"]["level"] == level) and cutoff <= o["date"] <= day
     ]
-    domains = {d: _summary([o for o in relevant if o["exercise"]["domain"] == d]) for d in DOMAINS}
+    domains = {
+        d: _summary(
+            [
+                o
+                for o in relevant
+                if o["exercise"]["domain"] == d
+                and (d not in {"writing", "speaking"} or o["exercise"]["type"] in OPEN_TYPES)
+            ]
+        )
+        for d in DOMAINS
+    }
     assessed = [d for d, summary in domains.items() if summary["eligible_attempts"]]
     required = {"reading", "listening", "writing", "speaking"}
     missing = sorted(required - set(assessed))
@@ -1129,12 +1195,20 @@ def assessment_summary(
         "calibrated": False,
         "cefr_certification": False,
         "window_days": POLICY["assessment_max_age_days"],
+        "controlled_writing_form_trials": sum(
+            o["exercise"]["domain"] == "writing" and o["exercise"]["type"] not in OPEN_TYPES
+            for o in relevant
+        ),
         "warning_ru": "Это предварительный профиль по выполненным заданиям, а не подтверждённый уровень CEFR. Непроверенные навыки остаются неизвестными.",
     }
 
 
 def promotion_eligibility(
-    state: dict, catalog: dict, target_level: str, today: str | date | None = None
+    state: dict,
+    catalog: dict,
+    target_level: str,
+    today: str | date | None = None,
+    assessment_bank: dict | None = None,
 ) -> dict:
     """Readiness for an internal curriculum step, never a CEFR certificate/promotion."""
     validate_catalog(catalog)
@@ -1144,7 +1218,7 @@ def promotion_eligibility(
     summary = assessment_summary(state, current, today)
     reasons = []
     units = [u["id"] for u in catalog["units"] if u["level"] == current]
-    mastery = _derive_estimates(state["observations"])["skills"]
+    mastery = _derive_estimates(_evidence_view(state))["skills"]
     pending = [uid for uid in units if not mastery.get(uid, {}).get("mastered", False)]
     if not units or pending:
         reasons.append("curriculum_mastery_incomplete")
@@ -1156,13 +1230,17 @@ def promotion_eligibility(
             or (evidence["success_rate"] or 0) < POLICY["assessment_success_rate"]
         ):
             reasons.append("insufficient_" + domain + "_evidence")
-    if state["proficiency"]["working_level"] != current:
+    routing = _routing_context(state, catalog, assessment_bank, _day(today))
+    if routing["current_level"] != current:
         reasons.append("target_is_not_next_working_level")
     return {
         "eligible": not reasons,
         "target_level": target_level,
         "reasons": reasons,
         "pending_units": pending,
+        "effective_current_level": routing["current_level"],
+        "proficiency_baseline": state["proficiency"]["working_level"],
+        "routing_decision_id": routing["decision_id"],
         "action": "human_review_required" if not reasons else "collect_missing_evidence",
         "automatic_promotion": False,
         "calibrated": False,
@@ -1182,21 +1260,13 @@ def assessment_items(
     chosen_level = level or state["proficiency"]["working_level"]
     if chosen_level not in LEVELS or type(limit) is not int or not 1 <= limit <= 50:
         raise ValueError("invalid assessment level or limit")
-    if (
-        not isinstance(bank, dict)
-        or bank.get("schema_version") != 1
-        or not isinstance(bank.get("items"), list)
-        or bank.get("calibrated") is not False
-    ):
-        raise ValueError("unsupported or falsely calibrated assessment bank")
-    ids = set()
-    for item in bank["items"]:
-        validate_exercise(item)
-        if item["id"] in ids:
-            raise ValueError("duplicate assessment item id")
-        ids.add(item["id"])
-    seen = {o["exercise"]["id"] for o in state["observations"]}
-    items = [item for item in bank["items"] if item["level"] == chosen_level]
+    validate_assessment_bank(bank)
+    seen = {o["exercise"].get("family_id", o["exercise"]["id"]) for o in state["observations"]}
+    items = [
+        item
+        for item in bank["items"]
+        if item["level"] == chosen_level and item.get("family_id", item["id"]) not in seen
+    ]
     selected: list[dict] = []
     while items and len(selected) < limit:
         domain_counts = {
@@ -1211,7 +1281,12 @@ def assessment_items(
 
 
 def accept_progression(
-    state: dict, catalog: dict, target_level: str, review: dict, today: str | date | None = None
+    state: dict,
+    catalog: dict,
+    target_level: str,
+    review: dict,
+    today: str | date | None = None,
+    assessment_bank: dict | None = None,
 ) -> dict:
     """Record an explicitly human-reviewed internal curriculum transition.
 
@@ -1226,12 +1301,14 @@ def accept_progression(
         raise ValueError("progression requires an explicit human review")
     for key in ("reviewer", "rationale", "evidence_reference"):
         _text(review.get(key), key)
-    eligibility = promotion_eligibility(state, catalog, target_level, today)
+    eligibility = promotion_eligibility(state, catalog, target_level, today, assessment_bank)
     if not eligibility["eligible"]:
         raise ValueError("progression evidence incomplete: " + ", ".join(eligibility["reasons"]))
     decision = {
         "date": _day(today),
-        "from_level": state["proficiency"]["working_level"],
+        "from_level": eligibility["effective_current_level"],
+        "proficiency_baseline": state["proficiency"]["working_level"],
+        "routing_decision_id": eligibility["routing_decision_id"],
         "to_level": target_level,
         "review": copy.deepcopy(review),
         "eligibility": eligibility,
@@ -1242,6 +1319,8 @@ def accept_progression(
     proficiency.setdefault("decisions", []).append(decision)
     proficiency["working_level"] = target_level
     proficiency["status"] = "human_reviewed_curriculum_progression"
+    if state.get("placement", {}).get("active"):
+        state["placement"]["active"] = None
     return copy.deepcopy(decision)
 
 
@@ -1282,7 +1361,7 @@ def settle_speaking_debt(state: dict, origin_session_id: str, observation_id: st
     """
     validate_state(state)
     origin = _session(state, origin_session_id, {"completed", "abandoned"})
-    observation = next((o for o in state["observations"] if o["id"] == observation_id), None)
+    observation = next((o for o in _evidence_view(state) if o["id"] == observation_id), None)
     if observation is None or not _debt_evidence_eligible(state, origin, observation):
         raise ValueError("debt settlement requires eligible later real speech evidence")
     skill = observation["exercise"]["skill_id"]
@@ -1298,3 +1377,501 @@ def settle_speaking_debt(state: dict, origin_session_id: str, observation_id: st
     settlements.append({"skill_id": skill, "observation_id": observation_id})
     origin["speaking_debt"] = bool(set(debts) - {entry["skill_id"] for entry in settlements})
     return copy.deepcopy(origin)
+
+
+def _evidence_view(state: dict) -> list[dict]:
+    """Apply append-only review provenance without changing first-trial identity."""
+    effective = {o["id"]: copy.deepcopy(o) for o in state["observations"]}
+    annotations = state.get("reviews", [])
+    if not isinstance(annotations, list):
+        raise ValueError("reviews must be an append-only list")
+    ids = set()
+    for annotation in annotations:
+        if not isinstance(annotation, dict) or set(annotation) != {
+            "id",
+            "observation_id",
+            "date",
+            "review",
+            "grade",
+        }:
+            raise ValueError("invalid review annotation")
+        identifier = _text(annotation["id"], "review.id", 200)
+        if identifier in ids:
+            raise ValueError("duplicate review id")
+        ids.add(identifier)
+        observation = effective.get(annotation["observation_id"])
+        if observation is None:
+            raise ValueError("review references missing observation")
+        day = _day(_text(annotation["date"], "review.date", 10))
+        if day < observation["date"] or day < observation.get(
+            "last_reviewed_on", observation["date"]
+        ):
+            raise ValueError("review predates its evidence or earlier review")
+        grade = _review_grade(observation["exercise"], annotation["review"])
+        if grade != annotation["grade"]:
+            raise ValueError("stored review grade contradicts its rubric")
+        previous = observation["grade"]
+        if grade["source"] == "llm" and (
+            previous["source"] == "human"
+            or (previous["source"] == "deterministic" and previous["status"] != "needs_review")
+        ):
+            raise ValueError("LLM review cannot override human or definite deterministic evidence")
+        observation["grade"] = grade
+        observation["last_reviewed_on"] = day
+        observation.setdefault("review_ids", []).append(identifier)
+    return list(effective.values())
+
+
+def _derive_errors(observations: list[dict]) -> dict:
+    errors: dict[str, dict] = {}
+    seen_trials: set[tuple[str, str]] = set()
+    for observation in observations:
+        item = observation["exercise"]
+        key = (
+            "diagnostic" if item.get("purpose") == "diagnostic" else observation["session_id"],
+            item.get("family_id", item["id"]),
+        )
+        independent = key not in seen_trials
+        seen_trials.add(key)
+        day = observation["date"]
+        for tag in observation.get("error_tags", []):
+            error = errors.setdefault(
+                tag,
+                {
+                    "count": 0,
+                    "confirmed_count": 0,
+                    "confirmed_last_seen": None,
+                    "first_seen": day,
+                    "last_seen": day,
+                    "skill_ids": [],
+                    "observation_ids": [],
+                },
+            )
+            error["count"] += 1
+            error["first_seen"] = min(error["first_seen"], day)
+            error["last_seen"] = max(error["last_seen"], day)
+            error["observation_ids"].append(observation["id"])
+            skill = observation["exercise"]["skill_id"]
+            if skill not in error["skill_ids"]:
+                error["skill_ids"].append(skill)
+            if (
+                independent
+                and _eligible(observation)
+                and observation["grade"]["status"] == "incorrect"
+            ):
+                error["confirmed_count"] += 1
+                error["confirmed_last_seen"] = max(error["confirmed_last_seen"] or day, day)
+    return errors
+
+
+def review_attempt(
+    state: dict, observation_id: str, review: dict, review_id: str, today: str | date | None = None
+) -> dict:
+    """Attach a contextual review to the original immutable, first response."""
+    validate_state(state)
+    identifier = _text(review_id, "review_id", 200)
+    raw = next((o for o in state["observations"] if o["id"] == observation_id), None)
+    if raw is None:
+        raise ValueError("unknown observation for review")
+    grade = _review_grade(raw["exercise"], review)
+    annotation = {
+        "id": identifier,
+        "observation_id": observation_id,
+        "date": _day(today),
+        "review": copy.deepcopy(review),
+        "grade": grade,
+    }
+    existing = next((a for a in state.get("reviews", []) if a["id"] == identifier), None)
+    if existing is not None:
+        if existing["observation_id"] != observation_id or existing["review"] != review:
+            raise ValueError("review_id reused with different content")
+        effective = next(o for o in _evidence_view(state) if o["id"] == observation_id)
+        return {
+            "review_id": identifier,
+            "observation_id": observation_id,
+            "annotation": copy.deepcopy(existing),
+            "effective_observation": effective,
+            "duplicate": True,
+        }
+    candidate = copy.deepcopy(state)
+    candidate.setdefault("reviews", []).append(annotation)
+    rebuild_estimates(candidate)
+    validate_state(candidate)
+    state.setdefault("reviews", []).append(annotation)
+    state["estimates"] = candidate["estimates"]
+    state["errors"] = candidate["errors"]
+    effective = next(o for o in _evidence_view(state) if o["id"] == observation_id)
+    return {
+        "review_id": identifier,
+        "observation_id": observation_id,
+        "annotation": copy.deepcopy(annotation),
+        "effective_observation": effective,
+        "duplicate": False,
+    }
+
+
+def reconcile_state(state: dict) -> dict:
+    """Explicitly rebuild derived caches; refuse to repair or replace raw evidence."""
+    if not isinstance(state, dict) or not isinstance(state.get("observations"), list):
+        raise ValueError("reconcile requires an existing learner object with raw observations")
+    candidate = copy.deepcopy(state)
+    try:
+        rebuild_estimates(candidate)
+        validate_state(candidate)
+    except (KeyError, TypeError, AttributeError) as exc:
+        raise ValueError("raw evidence is malformed; reconcile cannot repair observations") from exc
+    state["estimates"] = candidate["estimates"]
+    state["errors"] = candidate["errors"]
+    return {
+        "reconciled": True,
+        "observations_preserved": len(state["observations"]),
+        "review_annotations_preserved": len(state.get("reviews", [])),
+    }
+
+
+PLACEMENT_POLICY = {
+    "version": 1,
+    "min_items_per_receptive_domain": 3,
+    "min_receptive_units": 3,
+    "min_success_rate_per_domain": 0.8,
+    "fresh_days": 90,
+}
+CORE_DOMAINS = ("reading", "listening", "writing", "speaking")
+
+
+def _digest(value: Any) -> str:
+    return hashlib.sha256(
+        json.dumps(value, ensure_ascii=False, sort_keys=True, allow_nan=False).encode()
+    ).hexdigest()
+
+
+def validate_assessment_bank(bank: Any) -> None:
+    if (
+        not isinstance(bank, dict)
+        or bank.get("schema_version") != 1
+        or not isinstance(bank.get("items"), list)
+        or not bank["items"]
+        or bank.get("calibrated") is not False
+    ):
+        raise ValueError("unsupported or falsely calibrated assessment bank")
+    ids = set()
+    for item in bank["items"]:
+        validate_exercise(item)
+        if item["id"] in ids:
+            raise ValueError("duplicate assessment item id")
+        ids.add(item["id"])
+
+
+def present_assessment_item(item: dict, controller: bool = False) -> dict:
+    """A learner view is intentionally not a full, scorable exercise definition."""
+    validate_exercise(item)
+    if type(controller) is not bool:
+        raise ValueError("controller must be boolean")
+    if controller:
+        return copy.deepcopy(item)
+    visible = {
+        key: copy.deepcopy(value)
+        for key, value in item.items()
+        if key
+        in {
+            "id",
+            "type",
+            "skill_id",
+            "level",
+            "domain",
+            "prompt",
+            "options",
+            "context",
+            "rubric",
+            "mode",
+        }
+    }
+    if "delivery" in item:
+        visible["delivery"] = {
+            key: value for key, value in item["delivery"].items() if key != "text"
+        }
+        visible["audio_required"] = True
+    return visible
+
+
+def _diagnostic_trials(state: dict, bank: dict, level: str) -> tuple[list[dict], dict]:
+    registered = {item["id"]: item for item in bank["items"]}
+    first: dict[str, dict] = {}
+    for observation in _evidence_view(state):
+        item = observation["exercise"]
+        first.setdefault(item.get("family_id", item["id"]), observation)
+    matched = []
+    excluded = {"unregistered_or_changed_item": 0, "not_diagnostic": 0}
+    for observation in first.values():
+        item = observation["exercise"]
+        if item["level"] != level:
+            continue
+        if item.get("purpose") != "diagnostic":
+            excluded["not_diagnostic"] += 1
+            continue
+        canonical = registered.get(item["id"])
+        definition = {
+            key: value for key, value in item.items() if key not in {"step_id", "audio_evidence"}
+        }
+        if canonical is None or canonical != definition:
+            excluded["unregistered_or_changed_item"] += 1
+            continue
+        matched.append(observation)
+    return matched, excluded
+
+
+def _entry_assumptions(catalog: dict, target_level: str) -> tuple[list[str], list[str]]:
+    units = {unit["id"]: unit for unit in catalog["units"]}
+    target_index = LEVELS.index(target_level)
+    entry = [
+        unit["id"]
+        for unit in units.values()
+        if unit["level"] == target_level
+        and all(
+            LEVELS.index(units[parent]["level"]) < target_index for parent in unit["prerequisites"]
+        )
+    ]
+    ancestors: set[str] = set()
+
+    def visit(uid: str) -> None:
+        for parent in units[uid]["prerequisites"]:
+            if parent not in ancestors and LEVELS.index(units[parent]["level"]) < target_index:
+                ancestors.add(parent)
+                visit(parent)
+
+    for uid in entry:
+        visit(uid)
+    return sorted(entry), sorted(ancestors)
+
+
+def placement_report(
+    state: dict, catalog: dict, bank: dict, target_level: str, today: str | date | None = None
+) -> dict:
+    """A narrow provisional routing argument, with a separate four-domain profile."""
+    validate_state(state)
+    validate_catalog(catalog)
+    validate_assessment_bank(bank)
+    if target_level not in LEVELS:
+        raise ValueError("unknown placement target level")
+    day = _day(today)
+    cutoff = (date.fromisoformat(day) - timedelta(days=PLACEMENT_POLICY["fresh_days"])).isoformat()
+    trials, excluded = _diagnostic_trials(state, bank, target_level)
+    known_units = {u["id"]: u for u in catalog["units"]}
+    valid_trials = [
+        o
+        for o in trials
+        if o["exercise"]["skill_id"] in known_units
+        and known_units[o["exercise"]["skill_id"]]["level"] == target_level
+    ]
+    excluded["unknown_curriculum_unit"] = len(trials) - len(valid_trials)
+    trials = valid_trials
+    fresh = [observation for observation in trials if cutoff <= observation["date"] <= day]
+    profiles = {}
+    for domain in CORE_DOMAINS:
+        records = [o for o in fresh if o["exercise"]["domain"] == domain]
+        # Controlled transformations do not establish broad writing competence.
+        broad = [
+            o
+            for o in records
+            if domain not in {"writing", "speaking"} or o["exercise"]["type"] in OPEN_TYPES
+        ]
+        confirmed = _summary(broad)
+        profiles[domain] = {
+            "confirmed": confirmed,
+            "llm_only_trials": sum(o["grade"]["source"] == "llm" for o in broad),
+            "pending_trials": sum(o["grade"]["status"] == "needs_review" for o in broad),
+            "not_independent_or_missing_audio": sum(not _eligible(o) for o in broad),
+            "controlled_form_trials": len(records) - len(broad),
+        }
+    routing = [
+        o
+        for o in fresh
+        if o["exercise"]["domain"] in {"reading", "listening"}
+        and o["grade"]["source"] == "deterministic"
+        and _eligible(o)
+    ]
+    reasons = []
+    for domain in ("reading", "listening"):
+        domain_records = [o for o in routing if o["exercise"]["domain"] == domain]
+        summary = _summary(domain_records)
+        if summary["distinct_items"] < PLACEMENT_POLICY["min_items_per_receptive_domain"]:
+            reasons.append("insufficient_independent_" + domain)
+        if (summary["success_rate"] or 0) < PLACEMENT_POLICY["min_success_rate_per_domain"]:
+            reasons.append("insufficient_observed_" + domain + "_success")
+    units_sampled = sorted({o["exercise"]["skill_id"] for o in routing})
+    if len(units_sampled) < PLACEMENT_POLICY["min_receptive_units"]:
+        reasons.append("insufficient_curriculum_sampling")
+    entry, assumptions = _entry_assumptions(catalog, target_level)
+    if not entry:
+        reasons.append("no_curriculum_entry_units")
+    probes = [
+        {
+            "skill_id": uid,
+            "level": next(u["level"] for u in catalog["units"] if u["id"] == uid),
+            "domain": "reading",
+            "reason": "routing_assumption_requires_confirmation",
+        }
+        for uid in sorted(
+            assumptions,
+            key=lambda uid: (
+                LEVELS.index(next(u["level"] for u in catalog["units"] if u["id"] == uid)),
+                uid,
+            ),
+            reverse=True,
+        )[:3]
+    ]
+    return {
+        "target_level": target_level,
+        "eligible": not reasons,
+        "reasons": reasons,
+        "status": "provisional_receptive_routing_supported"
+        if not reasons
+        else "collect_further_diagnostic_evidence",
+        "evidence_ids": [o["id"] for o in routing],
+        "units_sampled": units_sampled,
+        "profiles": profiles,
+        "routing_domains": ["reading", "listening"],
+        "unconfirmed_productive_domains": [
+            domain
+            for domain in ("writing", "speaking")
+            if profiles[domain]["confirmed"]["distinct_items"] < 2
+        ],
+        "entry_unit_ids": entry,
+        "assumed_prerequisites": assumptions,
+        "confirmation_probes": probes,
+        "excluded": {**excluded, "not_fresh": len(trials) - len(fresh)},
+        "policy": copy.deepcopy(PLACEMENT_POLICY),
+        "calibrated": False,
+        "mastery_granted": False,
+        "cefr_certification": False,
+        "human_attestation_required": False,
+        "warning_ru": "Это временный выбор материалов по наблюдаемому чтению и аудированию. Непроверенные навыки и предпосылки остаются гипотезами; уровень CEFR и освоение разделов не подтверждены.",
+    }
+
+
+def _validate_placement_records(state: dict) -> None:
+    placement = state.get("placement", {"active": None, "history": []})
+    if (
+        not isinstance(placement, dict)
+        or set(placement) != {"active", "history"}
+        or not isinstance(placement["history"], list)
+    ):
+        raise ValueError("invalid provisional placement history")
+    ids = set()
+    observations = {o["id"]: o for o in state["observations"]}
+    for decision in placement["history"]:
+        required = {
+            "id",
+            "target_level",
+            "accepted_on",
+            "evidence_ids",
+            "evidence_digest",
+            "entry_unit_ids",
+            "assumed_prerequisites",
+            "bank_digest",
+            "report_snapshot",
+        }
+        if (
+            not isinstance(decision, dict)
+            or set(decision) != required
+            or decision["target_level"] not in LEVELS
+        ):
+            raise ValueError("invalid provisional routing decision")
+        identifier = _text(decision["id"], "placement.id", 200)
+        if identifier in ids:
+            raise ValueError("duplicate placement id")
+        ids.add(identifier)
+        day = _day(_text(decision["accepted_on"], "placement.accepted_on", 10))
+        cited = _strings(decision["evidence_ids"], "placement.evidence_ids", nonempty=True)
+        if not set(cited) <= set(observations) or any(
+            observations[oid]["date"] > day for oid in cited
+        ):
+            raise ValueError("placement references missing or future evidence")
+        if decision["evidence_digest"] != _digest([observations[oid] for oid in cited]):
+            raise ValueError("placement evidence changed after its decision")
+        for key in ("entry_unit_ids", "assumed_prerequisites"):
+            _strings(decision[key], key)
+        snapshot = decision["report_snapshot"]
+        if (
+            not isinstance(snapshot, dict)
+            or snapshot.get("target_level") != decision["target_level"]
+            or snapshot.get("evidence_ids") != cited
+            or snapshot.get("entry_unit_ids") != decision["entry_unit_ids"]
+            or snapshot.get("assumed_prerequisites") != decision["assumed_prerequisites"]
+            or snapshot.get("eligible") is not True
+            or snapshot.get("calibrated") is not False
+            or snapshot.get("cefr_certification") is not False
+            or snapshot.get("mastery_granted") is not False
+        ):
+            raise ValueError("placement cannot claim calibrated mastery or certification")
+    if placement["active"] is not None and placement["active"] not in ids:
+        raise ValueError("unknown active placement decision")
+
+
+def accept_placement(
+    state: dict, catalog: dict, bank: dict, target_level: str, today: str | date | None = None
+) -> dict:
+    report = placement_report(state, catalog, bank, target_level, today)
+    if LEVELS.index(target_level) <= LEVELS.index(state["proficiency"]["working_level"]):
+        raise ValueError("advanced entry must be above the existing working baseline")
+    if not report["eligible"]:
+        raise ValueError("placement evidence incomplete: " + ", ".join(report["reasons"]))
+    ids = report["evidence_ids"]
+    by_id = {o["id"]: o for o in state["observations"]}
+    decision = {
+        "id": str(uuid.uuid4()),
+        "target_level": target_level,
+        "accepted_on": _day(today),
+        "evidence_ids": ids,
+        "evidence_digest": _digest([by_id[oid] for oid in ids]),
+        "entry_unit_ids": report["entry_unit_ids"],
+        "assumed_prerequisites": report["assumed_prerequisites"],
+        "bank_digest": _digest(bank),
+        "report_snapshot": copy.deepcopy(report),
+    }
+    placement = state.setdefault("placement", {"active": None, "history": []})
+    placement["history"].append(decision)
+    placement["active"] = decision["id"]
+    return copy.deepcopy(decision)
+
+
+def _routing_context(state: dict, catalog: dict, bank: dict | None, today: str) -> dict:
+    baseline = state["proficiency"]["working_level"]
+    result = {
+        "enabled": False,
+        "current_level": baseline,
+        "proficiency_baseline": baseline,
+        "decision_id": None,
+        "assumed_prerequisites": [],
+        "confirmation_probes": [],
+        "routing_domains": [],
+        "evidence_status": "no_active_placement",
+    }
+    placement = state.get("placement", {})
+    if not placement.get("active"):
+        return result
+    decision = next(d for d in placement["history"] if d["id"] == placement["active"])
+    if LEVELS.index(decision["target_level"]) <= LEVELS.index(baseline):
+        return {**result, "evidence_status": "superseded_by_progression"}
+    if bank is None:
+        return {**result, "evidence_status": "assessment_bank_required"}
+    report = placement_report(state, catalog, bank, decision["target_level"], today)
+    known = {u["id"]: u for u in catalog["units"]}
+    assumptions = [
+        uid
+        for uid in decision["assumed_prerequisites"]
+        if uid in known
+        and LEVELS.index(known[uid]["level"]) < LEVELS.index(decision["target_level"])
+    ]
+    result.update(
+        enabled=True,
+        current_level=decision["target_level"],
+        decision_id=decision["id"],
+        assumed_prerequisites=assumptions,
+        confirmation_probes=report["confirmation_probes"],
+        routing_domains=report["routing_domains"],
+        evidence_status="supported_provisionally"
+        if report["eligible"] and decision["bank_digest"] == _digest(bank)
+        else "recheck_required",
+    )
+    return result

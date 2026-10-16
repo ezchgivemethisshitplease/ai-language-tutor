@@ -1,13 +1,13 @@
 # Portable teaching workflow
 
-Codex loads root AGENTS.md; Claude Code imports the same file through CLAUDE.md. No custom MCP, model API, paid speech service or agent-specific skill is required. Shell/file-capable agents invoke the same Python CLI. This is source-contract compatibility; live model adherence is not established by unit tests.
+Codex loads root AGENTS.md; Claude Code imports the same file through CLAUDE.md. No custom MCP, model API, paid speech service or agent-specific skill is required. Shell/file-capable agents invoke the same Python CLI. Selected live host acceptance is recorded in `host-acceptance.md`; unit tests establish deterministic contracts, not future model adherence.
 
 ## Prepare and resume
 
 From an activated virtual environment:
 
 ```sh
-python tools/tutor.py init --native-language russian --daily-minutes 30
+python tools/tutor.py init --native-language russian --daily-minutes 30 --objective "Read work emails"
 python tools/tutor.py status
 python tools/tutor.py start
 ```
@@ -34,7 +34,7 @@ An original constrained exercise file:
 
 Choose error IDs from russian.json; `be_omission` is the Russian zero-copula contrast. `error_tags` on an exercise are hypotheses. Only pass `--error-tag` after the actual response supports a diagnosis. A supplied tag must exist in the KB; audio-only tags require audio evidence.
 
-Save the exact response as UTF-8 and invoke:
+Validate the full controller exercise with `python tools/tutor.py validate-exercise exercise.json` before presenting it. Save the exact response as UTF-8 and invoke:
 
 ```sh
 python tools/tutor.py attempt --session SESSION_ID --exercise exercise.json --response-file response.txt --id ATTEMPT_ID
@@ -45,7 +45,9 @@ Use a unique stable ID per actual trial; retries must reuse it and identical pay
 
 Open tasks (`dialogue`, `short_writing`, `extended_writing`, `spoken_response`) require `rubric: {criterion: description}`. A review file contains `source` (`llm` or `human`), `judgment` (`correct`, `correct_alternative`, `incorrect`, `unnatural`, `stylistically_inappropriate`, `contextually_inappropriate`), `rationale` and `criteria` (all rubric criteria, each scored 0–1). Inspect the actual schema in `learning._review_grade`; validate before use. `--review review.json` records provenance. A stylistic judgment must explain the audience/context, not erase a grammatical alternative. Audio tasks require an audio reference and actual sound; a filename does not prove the evaluator listened.
 
-Mastery estimates are derived from raw observations, never from session completion. The current policy requires distinct items, multiple sessions/dates, delayed retrieval and productive evidence. These are conservative course safeguards, not empirically calibrated probabilities. Read PEDAGOGY.md for thresholds and limitations.
+A later review uses `python tools/tutor.py review --observation ATTEMPT_ID --review review.json --id REVIEW_ID`. This appends an idempotent annotation while preserving the original exercise, response, initial grade and trial date. LLM reviews cannot override a human review or a definite deterministic result. `python tools/tutor.py reconcile` explicitly rebuilds stale derived caches after a policy update; it never repairs or invents raw evidence.
+
+Mastery estimates are derived from raw observations, never from session completion. Diagnostic-bank tasks support diagnostics and never establish unit mastery. The current policy requires distinct items, multiple sessions/dates, delayed retrieval and productive evidence. These are conservative course safeguards, not empirically calibrated probabilities. Read PEDAGOGY.md for thresholds and limitations.
 
 ## Placement, checks and course progression
 
@@ -55,7 +57,17 @@ python tools/tutor.py assess --level A1
 python tools/tutor.py gate --target-level A2
 ```
 
-The authored bank is deliberately small: 30 original A1–C1 tasks, including open production prompts but no bundled listening recordings. Use these to find an appropriate provisional starting point and gaps. Do not infer unseen vocabulary or assess listening from visible text. Generate further reviewed tasks with original contexts and report uncertainty. Missing writing/speaking/listening evidence remains missing.
+The bank has 100 original tasks across A1–C1, including 20 independent listening scripts, extended/open writing and real-speech prompts. `items` returns learner fields without keys or audio scripts; add `--controller` for the full exercise saved by the tutor. Do not pass a redacted learner view to the scorer. Native English audio can be prepared without printing the script:
+
+```sh
+python tools/tutor.py audio diag-a1-listening-01 /existing/path/stimulus.aiff
+python tools/tutor.py placement --target-level B1
+python tools/tutor.py accept-placement --target-level B1
+```
+
+Linux uses `.wav` with eSpeak; macOS uses installed Samantha speech. No playback or cloud call occurs. Actually present the audio, hide transcripts/keys, record the audio reference and the truthful `--presentation FILE` fields. Missing real listening stays missing. The application does not authenticate a playback claim or grade acoustics.
+
+Provisional entry requires fresh independent authored reading/listening evidence across multiple units. It selects materials at the sampled level while retaining the nominal baseline and unconfirmed production/prerequisites. Confirmation probes revisit those assumptions; diagnostic items cannot inflate mastery. The [assessment policy](assessment.md) documents thresholds, family independence, uncertainty and later reviews. These are local course safeguards, not CEFR calibration.
 
 `gate` lists every missing requirement. If it succeeds, a real human may submit a review JSON with exactly `source: "human"`, `reviewer`, `rationale`, `evidence_reference`, then use `progress --target-level A2 --human-review review.json`. This attestation is recorded, not authenticated. The result advances internal curriculum planning and never certifies CEFR. An AI cannot sign as that human.
 
@@ -81,9 +93,12 @@ Flashcard reviews are applied immediately and idempotently. The completion event
 ## Data ownership and recovery
 
 ```sh
-python tools/tutor.py export /safe/location/learner-export.json
-python tools/tutor.py import /safe/location/learner-export.json /new/location/restored-student
+python tools/tutor.py backup /existing/safe/location/learner.zip
+python tools/tutor.py backup-check /existing/safe/location/learner.zip
+python tools/tutor.py restore /existing/safe/location/learner.zip /new/location/restored-student
 python tools/tutor.py recover learner.json
 ```
 
-Exports include the active English learner, deck, legacy progress/profile/text logs and activity receipts. They exclude credentials, control tokens, audio cache, images and inactive languages. Import validates before creating a new directory; use `--student-dir` or the environment variable to select it. Do not export into the live learner directory. Recovery restores a validated `.bak` generation and preserves current bytes as `.recovery-*`. Backups are local; copy an export to your own durable backup storage. JSON files are human-readable personal information, not encrypted.
+Full ZIP archives validate managed files across every language and learner media with sizes/checksums before publishing a new destination. They exclude credentials, control state, caches, arbitrary files and session artifacts already captured in canonical observations. The compatible `export`/`import` JSON commands retain their active-English semantic scope. Both restoration paths preserve live data. Recovery restores a validated `.bak` generation and preserves current bytes as `.recovery-*`.
+
+Optional rotation uses an existing `TUTOR_BACKUP_DIR`, retention/interval settings and an optional required mount. It runs after successful mutations and lock release, without installing a daemon. An unavailable backup volume reports a warning while the saved trial/review remains acknowledged. See [backup policy](backup.md) for scope, filesystem requirements, quotas, restore drills and manual scheduling. Files are personal information and are not automatically encrypted.

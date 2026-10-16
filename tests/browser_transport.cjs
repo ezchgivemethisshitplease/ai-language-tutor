@@ -3,29 +3,31 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync('apps/client.js', 'utf8');
-function runtime({storage = {}, namespace = 'learner-en', fail = false} = {}) {
+function runtime({storage = {}, namespace = 'learner-en', fail = false, backup} = {}) {
   const sent = [];
+  const messages = [];
+  const elements = new Map();
   const localStorage = {
     getItem: key => storage[key] ?? null,
     setItem: (key, value) => { storage[key] = value; localStorage[key] = value; },
     removeItem: key => { delete storage[key]; delete localStorage[key]; }
   };
   for (const [key, value] of Object.entries(storage)) localStorage[key] = value;
-  const node = () => ({style:{}, setAttribute(){}, replaceChildren(){}, append(){}});
+  const node = () => ({style:{}, setAttribute(){}, replaceChildren(...content){ this.textContent = content.join(''); messages.push(this.textContent); }, append(){}, remove(){ elements.delete(this.id); }});
   const context = vm.createContext({
     window: {fetch: async (url, options) => {
       if (url === '/api/session') return {ok:true,json:async()=>({token:'csrf',namespace,locale:'ru'})};
       const body = JSON.parse(options.body); sent.push(body);
       if (fail) throw new Error('offline');
-      return {ok:true,json:async()=>({ok:true,batch_id:body.batch_id})};
+      return {ok:true,json:async()=>({ok:true,batch_id:body.batch_id,backup})};
     }},
     location:{origin:'http://localhost:8765',reload(){}}, localStorage,
     crypto:require('node:crypto').webcrypto,
-    document:{documentElement:{},getElementById:()=>null,createElement:node,createTextNode:value=>value,body:{prepend(){}}},
+    document:{documentElement:{},getElementById:id=>elements.get(id)||null,createElement:node,createTextNode:value=>value,body:{prepend(element){ elements.set(element.id,element); }}},
     Error, JSON, String, Object, encodeURIComponent
   });
   vm.runInContext(source, context);
-  return {api:context.window.Tutor,sent,storage};
+  return {api:context.window.Tutor,sent,storage,messages,elements};
 }
 (async () => {
   const first = runtime();
@@ -50,5 +52,12 @@ function runtime({storage = {}, namespace = 'learner-en', fail = false} = {}) {
   await differentLearner.api.flush();
   assert.equal(differentLearner.sent.length,0);
   assert.equal(Object.keys(differentLearner.storage).length,1);
-  console.log('Browser transport: 3 scenarios passed (concurrency, offline replay, learner isolation)');
+  const savedWithoutBackup = runtime({backup:{status:'unavailable'}});
+  const acknowledgment = await savedWithoutBackup.api.post('/api/deck', {results:[{id:'one',grade:3}]});
+  assert.equal(acknowledgment.ok,true);
+  assert.equal(Object.keys(savedWithoutBackup.storage).length,0);
+  assert.match(savedWithoutBackup.messages.at(-1),/Ответ сохранён.*Резервная копия недоступна/);
+  savedWithoutBackup.api.status('Все показанные ответы сохранены.');
+  assert.match(savedWithoutBackup.elements.get('backup-status').textContent,/Резервная копия недоступна/);
+  console.log('Browser transport: 4 scenarios passed (concurrency, offline replay, learner isolation, backup warning)');
 })().catch(error=>{ console.error(error);process.exitCode=1; });

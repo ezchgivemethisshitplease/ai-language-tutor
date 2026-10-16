@@ -157,6 +157,59 @@ class LinguisticReviewTests(unittest.TestCase):
                 self.assertEqual(len(normalized), len(set(normalized)))
                 self.assertLess(len(item["answers"]), len(item["options"]))
 
+    def test_learner_views_hide_all_keys_and_listening_scripts(self):
+        for item in self.bank["items"]:
+            with self.subTest(item=item["id"]):
+                before = copy.deepcopy(item)
+                visible = learning.present_assessment_item(item)
+                self.assertNotIn("answers", visible)
+                self.assertNotIn("grammar_tags", visible)
+                self.assertNotIn("error_tags", visible)
+                self.assertNotIn("explanation_ru", visible)
+                if "delivery" in item:
+                    self.assertNotIn("text", visible["delivery"])
+                    self.assertTrue(visible["audio_required"])
+                    self.assertFalse(visible["delivery"]["transcript_visible"])
+                if item["domain"] == "reading":
+                    self.assertEqual(visible["context"], item["context"])
+                controller = learning.present_assessment_item(item, controller=True)
+                self.assertEqual(controller, item)
+                controller["prompt"] = "Mutation must not alter the authored item."
+                self.assertEqual(item, before)
+
+    def test_replacement_listening_keys_follow_the_script_rather_than_topic_expectations(self):
+        cases = [
+            ("diag-a1-listening-01", "At seven.", "At eight."),
+            (
+                "diag-a2-listening-01",
+                "At the café near the exit.",
+                "At the main information desk.",
+            ),
+            (
+                "diag-b1-listening-04",
+                "It will start later in the usual room.",
+                "It will begin at the usual time in a smaller room.",
+            ),
+            (
+                "diag-b2-listening-03",
+                "The speaker now values wording that preserves the character's uncertainty.",
+                "The speaker now prefers the smoother version for its speed.",
+            ),
+            (
+                "diag-c1-listening-04",
+                "It developed judgment through guided exposure to ordinary decisions.",
+                "It provided a set of rules that could be applied without discussion.",
+            ),
+        ]
+        for item_id, accepted, distractor in cases:
+            with self.subTest(item=item_id):
+                self.assertEqual(
+                    learning.grade_answer(self.items[item_id], accepted)["status"], "correct"
+                )
+                self.assertEqual(
+                    learning.grade_answer(self.items[item_id], distractor)["status"], "incorrect"
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

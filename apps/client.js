@@ -17,10 +17,10 @@
     if (!response.ok) { const error = new Error(`HTTP ${response.status}`); error.status = response.status; throw error; }
     return response;
   }
-  function status(message, retry) {
-    let box = document.getElementById('save-status');
+  function status(message, retry, id = 'save-status') {
+    let box = document.getElementById(id);
     if (!box) {
-      box = document.createElement('div'); box.id = 'save-status';
+      box = document.createElement('div'); box.id = id;
       box.setAttribute('role', 'status'); box.style.cssText = 'padding:12px;text-align:center;background:var(--surface-2);font:14px system-ui';
       document.body.prepend(box);
     }
@@ -39,7 +39,13 @@
     const result = await response.json();
     if (result.ok !== true) throw new Error('Save not acknowledged');
     localStorage.removeItem(key);
+    const backupUnavailable = ['warning', 'unavailable'].includes(result.backup?.status);
     status('Сохранено');
+    if (backupUnavailable) {
+      status('Ответ сохранён. Резервная копия недоступна: проверьте подключение диска и настройку копирования.', undefined, 'backup-status');
+    } else if (result.backup && result.backup.status !== 'disabled') {
+      document.getElementById('backup-status')?.remove();
+    }
     return result;
   }
   async function flush() {

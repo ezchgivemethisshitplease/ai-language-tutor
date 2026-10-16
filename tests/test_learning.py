@@ -758,7 +758,17 @@ class PlanningAndAssessmentTests(unittest.TestCase):
                 item = exercise(f"{domain}-{n}", domain=domain)
                 human_review = None
                 if domain == "writing":
-                    item["type"] = "transformation"
+                    item.update(
+                        type="short_writing", rubric={"clarity": "The written message is clear."}
+                    )
+                    item.pop("answers")
+                    item.pop("exhaustive")
+                    human_review = {
+                        "source": "human",
+                        "judgment": "correct",
+                        "criteria": {"clarity": 1},
+                        "rationale": "Reviewed actual written sample.",
+                    }
                 if domain in {"listening", "speaking"}:
                     item["audio_evidence"] = f"local-audio-reference-{n}"
                 if domain == "speaking":

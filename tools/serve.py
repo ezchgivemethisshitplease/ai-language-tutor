@@ -24,6 +24,7 @@ from typing import Any, cast
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import activity
+import backup
 import srs
 import storage
 import tts
@@ -32,6 +33,12 @@ ROOT = Path(__file__).resolve().parent.parent
 STUDENT = srs.STUDENT
 APPS = ROOT / "apps"
 CONTROL = STUDENT / ".serve.json"
+
+
+def backup_status():
+    # Mutation handlers call this only after releasing the data transaction.
+    # An offline backup volume does not invalidate a saved browser response.
+    return backup.maybe_automatic_backup(STUDENT)
 
 
 def namespace(directory=None):
@@ -354,7 +361,7 @@ class Handler(SimpleHTTPRequestHandler):
                 receipt = srs.apply_reviews(
                     d / "cards.json", body.get("results"), batch_id=batch_id
                 )
-                return self._json({"ok": True, "receipt": receipt})
+                return self._json({"ok": True, "receipt": receipt, "backup": backup_status()})
             if parsed.path in {"/api/quiz", "/api/text", "/api/deck/complete"}:
                 kind = (
                     "flashcards"
@@ -420,7 +427,7 @@ class Handler(SimpleHTTPRequestHandler):
                     "reader" if kind == "text" else kind,
                     {"batch_id": batch_id, "activity_id": body.get("activity_id"), **result},
                 )
-                return self._json({"ok": True, **result})
+                return self._json({"ok": True, **result, "backup": backup_status()})
             return self._json({"error": "unknown endpoint"}, 404)
         except (ValueError, KeyError, TypeError):
             return self._json({"error": "invalid result or corrupt data; nothing graded"}, 400)
