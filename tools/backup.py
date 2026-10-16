@@ -41,6 +41,7 @@ MANAGED_ROOT_FILES = frozenset(
         "quiz-current.json",
         "reading-current.json",
         "dictation-current.json",
+        "web-chat.json",
     }
 )
 MANAGED_LANGUAGE_FILES = frozenset(
@@ -183,6 +184,10 @@ def _document(name, raw, languages):
                 )
             elif name == "activity-results.json" and not isinstance(data.get("receipts"), dict):
                 raise BackupError("invalid activity receipts")
+            elif name == "web-chat.json":
+                import web_tutor
+
+                web_tutor.validate_history(data)
         except (ValueError, KeyError, TypeError, RecursionError) as exc:
             raise BackupError(
                 f"{name}: invalid learner document/schema or credential field"

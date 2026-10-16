@@ -6,6 +6,7 @@ The local service is single-user and is not an internet deployment server.
 """
 
 import hashlib
+import argparse
 import json
 import mimetypes
 import os
@@ -14,9 +15,11 @@ import secrets
 import sys
 import threading
 import time
+import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
+import webbrowser
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -28,6 +31,7 @@ import backup
 import srs
 import storage
 import tts
+import web_tutor
 
 ROOT = Path(__file__).resolve().parent.parent
 STUDENT = srs.STUDENT
@@ -200,6 +204,11 @@ def progress_payload():
 
 class TutorServer(ThreadingHTTPServer):
     shutdown_token: str
+    tutor: web_tutor.WebTutor
+
+    def server_close(self):
+        self.tutor.close()
+        super().server_close()
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -263,6 +272,28 @@ class Handler(SimpleHTTPRequestHandler):
                     {"ok": True} if self._authorized(parsed.query) else {"error": "forbidden"},
                     200 if self._authorized(parsed.query) else 403,
                 )
+            if route.startswith("/api/web/"):
+                if not self._authorized(parsed.query):
+                    return self._json({"error": "token required"}, 403)
+                query = urllib.parse.parse_qs(parsed.query)
+                if route == "/api/web/status":
+                    return self._json(self.server.tutor.status())
+                if route == "/api/web/conversation":
+                    return self._json(self.server.tutor.conversation((query.get("id") or [""])[0]))
+                if route == "/api/web/events":
+                    return self._json(
+                        self.server.tutor.events(
+                            (query.get("conversation_id") or [""])[0],
+                            int((query.get("after") or ["0"])[0]),
+                        )
+                    )
+                if route == "/api/web/backup":
+                    # No caller-supplied paths. The archive excludes the isolated Codex auth store.
+                    with tempfile.TemporaryDirectory(prefix="tutor-download-") as temporary:
+                        destination = Path(temporary) / "learner.zip"
+                        backup.create_backup(STUDENT, destination)
+                        return self._bytes(destination, "application/zip", "tutor-backup.zip")
+                return self._json({"error": "unknown endpoint"}, 404)
             if route == "/api/tts":
                 if not self._authorized(parsed.query):
                     return self._json({"error": "token required"}, 403)
@@ -300,6 +331,8 @@ class Handler(SimpleHTTPRequestHandler):
                 )
             if route.startswith("/api/"):
                 return self._json({"error": "unknown endpoint"}, 404)
+            if route == "/":
+                return self._bytes(APPS / "index.html", "text/html; charset=utf-8")
             # Do not expose directory listings or follow static symlinks outside apps/.
             path = (APPS / urllib.parse.unquote(route).lstrip("/")).resolve()
             if not path.is_relative_to(APPS.resolve()) or path.suffix not in {
@@ -316,13 +349,15 @@ class Handler(SimpleHTTPRequestHandler):
                 {"error": "operation failed; data retained; check local configuration"}, 503
             )
 
-    def _bytes(self, path, content_type):
+    def _bytes(self, path, content_type, download=None):
         if not path.is_file():
             return self._json({"error": "not found"}, 404)
         body = path.read_bytes()
         self.send_response(200)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
+        if download:
+            self.send_header("Content-Disposition", f'attachment; filename="{download}"')
         self.end_headers()
         self.wfile.write(body)
 
@@ -340,7 +375,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         try:
             directory = lang_dir()
-            if directory is None or self.headers.get("X-Tutor-Namespace") != namespace(directory):
+            if (directory is None and not parsed.path.startswith("/api/web/")) or self.headers.get(
+                "X-Tutor-Namespace"
+            ) != namespace(directory):
                 return self._json({"error": "learner changed; reload before submitting"}, 409)
         except (OSError, ValueError):
             return self._json({"error": "invalid learner path"}, 409)
@@ -353,6 +390,22 @@ class Handler(SimpleHTTPRequestHandler):
             body = storage.decode(self.rfile.read(int(raw_length)))
             if not isinstance(body, dict):
                 raise ValueError("object required")
+            if parsed.path.startswith("/api/web/"):
+                route = parsed.path.removeprefix("/api/web/")
+                tutor = self.server.tutor
+                if route == "setup":
+                    return self._json(tutor.setup(body))
+                if route == "login":
+                    return self._json(tutor.login())
+                if route == "chat":
+                    return self._json(tutor.chat(body))
+                if route == "interrupt":
+                    return self._json(tutor.interrupt(body.get("conversation_id")))
+                if route == "session":
+                    return self._json(
+                        tutor.lesson(body.get("action"), body.get("allow_incomplete", False))
+                    )
+                return self._json({"error": "unknown endpoint"}, 404)
             if parsed.path == "/api/deck":
                 d = directory
                 if not d:
@@ -438,9 +491,10 @@ class Handler(SimpleHTTPRequestHandler):
         pass  # No learner content, TTS text, or tokens in request logs.
 
 
-def create_server(port=0):
+def create_server(port=0, tutor=None):
     server = TutorServer(("127.0.0.1", port), Handler)
     server.shutdown_token = secrets.token_urlsafe(32)
+    server.tutor = tutor or web_tutor.WebTutor(STUDENT)
     return server
 
 
@@ -469,11 +523,17 @@ def selfcheck():
 
 
 def main():
+    import fcntl
+
     # Coding-agent pipes use an explicit UTF-8 text contract.
     for stream in (sys.stdin, sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
-    command = sys.argv[1] if len(sys.argv) > 1 else None
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("command", nargs="?", help="port, status, stop or selfcheck")
+    parser.add_argument("--open", action="store_true", help="open the local web tutor")
+    args = parser.parse_args()
+    command = args.command
     if command == "stop":
         raise SystemExit(stop_server())
     if command == "status":
@@ -484,39 +544,78 @@ def main():
         raise SystemExit(0 if data else 1)
     if command == "selfcheck":
         return selfcheck()
-    running = server_status()
-    if running:
-        print(f"server already running on http://localhost:{running['port']}")
-        return
-    # Do not silently overwrite a corrupt/stale control file: explicit stop or cleanup is needed.
-    if CONTROL.exists():
-        raise SystemExit(
-            "stale/corrupt control file: inspect student/.serve.json before removing it"
-        )
-    server = create_server(int(command) if command else 8765)
-    storage.save(
-        CONTROL,
-        {
-            "pid": os.getpid(),
-            "port": server.server_address[1],
-            "token": server.shutdown_token,
-            "root": str(ROOT),
-        },
-    )
-    print(
-        f"serving apps/ on http://localhost:{server.server_address[1]} — python tools/serve.py stop",
-        flush=True,
-    )
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        server.server_close()
-        current = read_control()
-        if current and secrets.compare_digest(current["token"], server.shutdown_token):
-            CONTROL.unlink(missing_ok=True)
-            CONTROL.with_suffix(CONTROL.suffix + ".bak").unlink(missing_ok=True)
+    STUDENT.mkdir(mode=0o700, parents=True, exist_ok=True)
+    # Keep this inode for the entire server lifetime, including control publication/cleanup.
+    # Unlinking it would let a later process lock a different inode and start a second writer.
+    descriptor = os.open(STUDENT / ".serve.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(descriptor, "a") as singleton:
+        try:
+            fcntl.flock(singleton, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            # The owner may still be publishing its control file. Bound both file-lock
+            # acquisition and HTTP health checks; never wait for the serving lock itself.
+            deadline = time.monotonic() + 1.25
+            while time.monotonic() < deadline:
+                try:
+                    with storage.locked(CONTROL, timeout=0.05):
+                        running = read_control()
+                    if running:
+                        request = urllib.request.Request(
+                            f"http://127.0.0.1:{running['port']}/api/health",
+                            headers={"X-Tutor-Token": running["token"]},
+                        )
+                        remaining = max(0.01, deadline - time.monotonic())
+                        with urllib.request.urlopen(
+                            request, timeout=min(0.15, remaining)
+                        ) as response:
+                            healthy = json.loads(response.read()).get("ok") is True
+                        if healthy:
+                            print(f"server already running on http://localhost:{running['port']}")
+                            if args.open:
+                                webbrowser.open(f"http://localhost:{running['port']}/")
+                            return
+                except (OSError, RuntimeError, ValueError, AttributeError):
+                    pass
+                time.sleep(min(0.05, max(0, deadline - time.monotonic())))
+            raise SystemExit("server startup or shutdown in progress; retry shortly") from None
+
+        running = server_status()
+        if running:
+            print(f"server already running on http://localhost:{running['port']}")
+            if args.open:
+                webbrowser.open(f"http://localhost:{running['port']}/")
+            return
+        # Do not silently overwrite a corrupt/stale control file.
+        if CONTROL.exists():
+            raise SystemExit(
+                "stale/corrupt control file: inspect student/.serve.json before removing it"
+            )
+        server = create_server(int(command) if command else 8765)
+        try:
+            storage.save(
+                CONTROL,
+                {
+                    "pid": os.getpid(),
+                    "port": server.server_address[1],
+                    "token": server.shutdown_token,
+                    "root": str(ROOT),
+                },
+            )
+            print(
+                f"AI Language Tutor: http://localhost:{server.server_address[1]}/ — python tools/serve.py stop",
+                flush=True,
+            )
+            if args.open:
+                webbrowser.open(f"http://localhost:{server.server_address[1]}/")
+            server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            server.server_close()
+            current = read_control()
+            if current and secrets.compare_digest(current["token"], server.shutdown_token):
+                CONTROL.unlink(missing_ok=True)
+                CONTROL.with_suffix(CONTROL.suffix + ".bak").unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

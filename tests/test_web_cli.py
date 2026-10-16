@@ -294,7 +294,7 @@ class WebTests(unittest.TestCase):
         (self.student / "english/cards.json").write_text("{bad")
         self.request("/api/deck", expected=409)
         self.request("/../AGENTS.md", expected=404)
-        self.request("/", expected=404)
+        self.assertIn(b"<!DOCTYPE html>", self.request("/"))
         self.request("/quiz.html")
         external = Path(self.temp.name) / "secret.html"
         external.write_text("secret")
