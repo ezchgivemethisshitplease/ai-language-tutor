@@ -10,3 +10,7 @@ __pycache__/
 *.egg-info/
 .coverage
 htmlcov/
+node_modules/
+.runtime/
+.runtime-setup.lock
+npm-debug.log*
