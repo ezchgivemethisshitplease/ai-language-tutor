@@ -440,7 +440,9 @@
   }
   function openSettings() {
     const profile = state.status?.profile || {};
-    $('native-language').value = validText(profile.native_language) || validText(state.status?.native_language) || 'russian';
+    const language = validText(profile.native_language) || validText(state.status?.native_language) || 'russian';
+    const names = {russian:'Русский', english:'Английский', spanish:'Испанский', german:'Немецкий', french:'Французский', ukrainian:'Украинский'};
+    $('native-language').value = names[language.toLocaleLowerCase('ru')] || language;
     $('daily-minutes').value = profile.daily_minutes || 20;
     $('voice-channel').value = profile.voice_channel === 'external' ? 'external' : 'none';
     const objectives = state.status?.objectives || profile.objectives || [];
@@ -453,8 +455,10 @@
     if (!$('settings-form').reportValidity()) return;
     $('save-settings').disabled = true; $('settings-error').hidden = true; saveDraft();
     try {
+      const native = $('native-language').value.trim();
+      const languageIds = {'русский':'russian', 'английский':'english', 'испанский':'spanish', 'немецкий':'german', 'французский':'french', 'украинский':'ukrainian'};
       await request('/api/web/setup', {
-        native_language: $('native-language').value.trim(), daily_minutes: Number($('daily-minutes').value),
+        native_language: languageIds[native.toLocaleLowerCase('ru')] || native, daily_minutes: Number($('daily-minutes').value),
         voice_channel: $('voice-channel').value, objectives: $('objectives-input').value.split('\n').map(line => line.trim()).filter(Boolean)
       });
       location.reload();
