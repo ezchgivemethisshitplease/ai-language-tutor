@@ -20,12 +20,14 @@ from __future__ import annotations
 import argparse
 from array import array
 from contextlib import contextmanager
+import ctypes
 import fcntl
 import hashlib
 import json
 import os
 from pathlib import Path
 import platform
+import select
 import shutil
 import signal
 import subprocess
@@ -35,6 +37,7 @@ import threading
 import time
 from typing import Callable, Iterator
 import urllib.request
+import uuid
 import wave
 import zipfile
 
@@ -115,10 +118,11 @@ def _environment() -> dict[str, str]:
 
 
 def _kill(process: subprocess.Popen) -> None:
-    if process.poll() is None:
-        try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except (ProcessLookupError, PermissionError):
+    # Helpers may still own the process group after its leader has exited.
+    try:
+        os.killpg(process.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError):
+        if process.poll() is None:
             process.kill()
 
 
@@ -143,6 +147,7 @@ def _run(
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             start_new_session=True,
+            bufsize=0,
         )
     except OSError as exc:
         raise SpeechError(code, "Не удалось запустить локальную обработку речи.") from exc
@@ -151,37 +156,44 @@ def _run(
     if cancel_event is not None and cancel_event.is_set():
         _kill(process)
     output = bytearray()
-    overflow = threading.Event()
-
-    def drain() -> None:
-        assert process.stdout is not None
-        while True:
-            chunk = process.stdout.read(8192)
-            if not chunk:
-                return
-            if len(output) + len(chunk) > MAX_LOG_BYTES:
-                overflow.set()
-                _kill(process)
-                return
-            output.extend(chunk)
-
-    reader = threading.Thread(target=drain, daemon=True)
-    reader.start()
+    assert process.stdout is not None
+    descriptor = process.stdout.fileno()
+    os.set_blocking(descriptor, False)
+    deadline = time.monotonic() + timeout
+    eof = False
     try:
-        process.wait(timeout=timeout)
-    except subprocess.TimeoutExpired as exc:
-        _kill(process)
-        process.wait(timeout=5)
-        raise SpeechError("timeout", "Локальная обработка речи превысила время ожидания.") from exc
+        while True:
+            if cancel_event is not None and cancel_event.is_set():
+                raise SpeechError("canceled", "Обработка речи остановлена.")
+            if eof and process.poll() is not None:
+                break
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise SpeechError("timeout", "Локальная обработка речи превысила время ожидания.")
+            if eof:
+                time.sleep(min(0.02, remaining))
+            elif select.select([descriptor], [], [], min(0.05, remaining))[0]:
+                chunk = os.read(descriptor, 8192)
+                if not chunk:
+                    eof = True
+                elif len(output) + len(chunk) > MAX_LOG_BYTES:
+                    raise SpeechError(
+                        code, "Локальная обработка превысила допустимый размер вывода."
+                    )
+                else:
+                    output.extend(chunk)
     finally:
-        reader.join(timeout=2)
-        if process.stdout is not None:
-            process.stdout.close()
+        _kill(process)
+        try:
+            process.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            pass
+        process.stdout.close()
         if process_callback is not None:
             process_callback(process, False)
     if cancel_event is not None and cancel_event.is_set():
         raise SpeechError("canceled", "Обработка речи остановлена.")
-    if process.returncode != 0 or overflow.is_set():
+    if process.returncode != 0:
         raise SpeechError(code, "Локальная обработка не завершилась. Проверьте запись и установку.")
     return bytes(output)
 
@@ -192,6 +204,39 @@ def _sha256(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _rename_new(source: Path, destination: Path) -> None:
+    """Publish without replacing a directory another local writer created."""
+    libc = ctypes.CDLL(None, use_errno=True)
+    old, new = os.fsencode(source), os.fsencode(destination)
+    try:
+        if sys.platform == "darwin":
+            operation = libc.renamex_np
+            operation.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+            operation.restype = ctypes.c_int
+            result = operation(old, new, 0x00000004)  # macOS RENAME_EXCL.
+        elif sys.platform == "linux":
+            operation = libc.renameat2
+            operation.argtypes = [
+                ctypes.c_int,
+                ctypes.c_char_p,
+                ctypes.c_int,
+                ctypes.c_char_p,
+                ctypes.c_uint,
+            ]
+            operation.restype = ctypes.c_int
+            result = operation(0, old, 0, new, 1)  # Linux RENAME_NOREPLACE; paths are absolute.
+        else:
+            raise SpeechError("setup_failed", "Публикация компонентов требует macOS или Linux.")
+    except AttributeError as exc:
+        raise SpeechError(
+            "setup_failed", "Система не поддерживает безопасную публикацию компонентов."
+        ) from exc
+    if result:
+        raise SpeechError(
+            "setup_failed", "Не удалось сохранить компоненты без замены существующей папки."
+        )
 
 
 def _download(
@@ -406,6 +451,76 @@ class LocalSpeech:
         finally:
             wheel.unlink(missing_ok=True)
 
+    def _source_commit(self, source: Path) -> str:
+        return (
+            self._run(
+                [
+                    "git",
+                    "--git-dir",
+                    str(source / ".git"),
+                    "--work-tree",
+                    str(source),
+                    "rev-parse",
+                    "--verify",
+                    "HEAD",
+                ],
+                cwd=source,
+                timeout=10,
+                code="setup_failed",
+            )
+            .decode()
+            .strip()
+        )
+
+    def _prepare_source(self, progress: Callable[[str], None]) -> None:
+        if self.source.is_symlink() or (self.source.exists() and not self.source.is_dir()):
+            raise SpeechError(
+                "setup_failed", "Некорректная папка исходного whisper.cpp; содержимое сохранено."
+            )
+        if self.source.exists():
+            try:
+                commit = self._source_commit(self.source)
+            except SpeechError as error:
+                if error.code != "setup_failed":
+                    raise
+                # Older installs cloned directly here. Preserve incomplete/corrupt
+                # checkouts, then retry from a fresh private staging directory.
+                recovery = self.runtime / ("whisper.cpp.recovery-" + uuid.uuid4().hex)
+                _rename_new(self.source, recovery)
+                progress("Незавершённые исходники сохранены; повторная загрузка")
+            else:
+                if commit != SOURCE_COMMIT:
+                    raise SpeechError(
+                        "setup_failed",
+                        "Версия исходного whisper.cpp не совпала с закреплённой; содержимое сохранено.",
+                    )
+                return
+        progress("Загрузка whisper.cpp")
+        with tempfile.TemporaryDirectory(prefix=".source-", dir=self.runtime) as temporary:
+            checkout = Path(temporary) / "checkout"
+            self._run(
+                [
+                    "git",
+                    "clone",
+                    "--depth",
+                    "1",
+                    "--branch",
+                    "v" + VERSION,
+                    "https://github.com/ggml-org/whisper.cpp.git",
+                    str(checkout),
+                ],
+                cwd=self.runtime,
+                timeout=180,
+                code="setup_failed",
+            )
+            if self._source_commit(checkout) != SOURCE_COMMIT:
+                raise SpeechError(
+                    "setup_failed", "Версия загруженного whisper.cpp не совпала с закреплённой."
+                )
+            if self._cancelled.is_set():
+                raise SpeechError("canceled", "Установка речи остановлена.")
+            _rename_new(checkout, self.source)
+
     def setup(self, progress_callback: Callable[[str], None] | None = None) -> dict:
         def progress(stage: str) -> None:
             if progress_callback is not None:
@@ -419,34 +534,7 @@ class LocalSpeech:
                 )
             progress("Проверка компонентов")
             self._install_ffmpeg()
-            if not self.source.exists():
-                progress("Загрузка whisper.cpp")
-                self._run(
-                    [
-                        "git",
-                        "clone",
-                        "--depth",
-                        "1",
-                        "--branch",
-                        "v" + VERSION,
-                        "https://github.com/ggml-org/whisper.cpp.git",
-                        str(self.source),
-                    ],
-                    cwd=self.runtime,
-                    timeout=180,
-                    code="setup_failed",
-                )
-            commit = (
-                self._run(
-                    ["git", "rev-parse", "HEAD"], cwd=self.source, timeout=10, code="setup_failed"
-                )
-                .decode()
-                .strip()
-            )
-            if commit != SOURCE_COMMIT:
-                raise SpeechError(
-                    "setup_failed", "Версия исходного whisper.cpp не совпала с закреплённой."
-                )
+            self._prepare_source(progress)
             progress("Сборка локального распознавателя")
             self._run(
                 [

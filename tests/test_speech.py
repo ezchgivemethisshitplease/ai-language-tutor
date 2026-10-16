@@ -6,6 +6,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -272,6 +273,118 @@ class SpeechTests(unittest.TestCase):
             self.assertEqual(runner.call_count, 1)
             download.assert_not_called()
 
+    def test_canceled_staged_clone_is_clean_and_fresh_retry_publishes_verified_source(self):
+        def failed_clone(command, **kwargs):
+            self.assertIn("clone", command)
+            destination = Path(command[-1])
+            self.assertNotEqual(destination, self.service.source)
+            (destination / ".git").mkdir(parents=True)
+            self.assertFalse(self.service.source.exists())
+            raise speech.SpeechError("canceled", "canceled fixture")
+
+        with (
+            self.service._operation(),
+            patch.object(self.service, "_run", side_effect=failed_clone),
+        ):
+            with self.assertRaises(speech.SpeechError):
+                self.service._prepare_source(lambda _: None)
+        self.assertFalse(self.service.source.exists())
+        self.assertEqual(list(self.service.runtime.glob(".source-*")), [])
+        fresh = speech.LocalSpeech(self.service.runtime)
+
+        def successful_clone(command, **kwargs):
+            if "clone" in command:
+                destination = Path(command[-1])
+                destination.mkdir()
+                (destination / "verified-marker").write_text("source")
+                return b""
+            self.assertFalse(fresh.source.exists())
+            return speech.SOURCE_COMMIT.encode()
+
+        with fresh._operation(), patch.object(fresh, "_run", side_effect=successful_clone):
+            fresh._prepare_source(lambda _: None)
+        self.assertEqual((fresh.source / "verified-marker").read_text(), "source")
+        self.assertEqual(list(fresh.runtime.glob(".source-*")), [])
+
+    def test_legacy_partial_source_is_quarantined_without_losing_bytes_then_recloned(self):
+        (self.service.source / ".git").mkdir(parents=True)
+        (self.service.source / "original-note").write_bytes(b"preserved incomplete checkout")
+
+        def runner(command, *, cwd, **kwargs):
+            if "clone" in command:
+                Path(command[-1]).mkdir()
+                return b""
+            if cwd == self.service.source:
+                raise speech.SpeechError("setup_failed", "partial git checkout")
+            return speech.SOURCE_COMMIT.encode()
+
+        with self.service._operation(), patch.object(self.service, "_run", side_effect=runner):
+            self.service._prepare_source(lambda _: None)
+        recovery = list(self.service.runtime.glob("whisper.cpp.recovery-*"))
+        self.assertEqual(len(recovery), 1)
+        self.assertEqual(
+            (recovery[0] / "original-note").read_bytes(), b"preserved incomplete checkout"
+        )
+        self.assertTrue(self.service.source.is_dir())
+        self.assertFalse((self.service.source / "original-note").exists())
+
+    @unittest.skipUnless(shutil.which("git"), "Git is required for the source discovery regression")
+    def test_partial_checkout_never_inherits_parent_project_git_head(self):
+        subprocess.run(
+            ["git", "init", "-q", str(self.root)], check=True, env=speech._environment(), timeout=5
+        )
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(self.root),
+                "-c",
+                "user.name=Fixture",
+                "-c",
+                "user.email=fixture@example.invalid",
+                "commit",
+                "--allow-empty",
+                "--no-verify",
+                "-qm",
+                "Parent repository fixture",
+            ],
+            check=True,
+            env=speech._environment(),
+            timeout=5,
+        )
+        self.service.source.mkdir(parents=True)
+        with self.assertRaises(speech.SpeechError) as error:
+            self.service._source_commit(self.service.source)
+        self.assertEqual(error.exception.code, "setup_failed")
+
+    def test_staged_wrong_commit_and_foreign_canonical_directory_are_never_published_over(self):
+        for foreign in (False, True):
+            with self.subTest(foreign=foreign):
+
+                def runner(command, *, foreign=foreign, **kwargs):
+                    if "clone" in command:
+                        Path(command[-1]).mkdir()
+                        return b""
+                    if foreign:
+                        self.service.source.mkdir()
+                        (self.service.source / "foreign").write_text("do not replace")
+                        return speech.SOURCE_COMMIT.encode()
+                    return b"wrong commit"
+
+                with (
+                    self.service._operation(),
+                    patch.object(self.service, "_run", side_effect=runner),
+                ):
+                    with self.assertRaises(speech.SpeechError):
+                        self.service._prepare_source(lambda _: None)
+                self.assertEqual(list(self.service.runtime.glob(".source-*")), [])
+                if foreign:
+                    self.assertEqual(
+                        (self.service.source / "foreign").read_text(), "do not replace"
+                    )
+                else:
+                    self.assertFalse(self.service.source.exists())
+
     def test_model_hash_is_checked_and_rechecked_after_content_changes(self):
         self.service.model.parent.mkdir(parents=True)
         self.service.model.write_bytes(b"model")
@@ -345,6 +458,26 @@ class SpeechTests(unittest.TestCase):
                     code="transcription_failed",
                 )
             self.assertNotIn("private", str(error.exception))
+
+    def test_inherited_stdout_helper_cannot_extend_deadline_after_leader_exits(self):
+        escaped = self.root / "helper-completed"
+        helper = (
+            "import pathlib,time; time.sleep(1.2); pathlib.Path("
+            + repr(str(escaped))
+            + ").write_text('escaped')"
+        )
+        leader = (
+            "import subprocess,sys; subprocess.Popen([sys.executable,'-c'," + repr(helper) + "])"
+        )
+        started = time.monotonic()
+        with self.assertRaises(speech.SpeechError) as error:
+            speech._run(
+                [sys.executable, "-c", leader], cwd=self.root, timeout=0.15, code="setup_failed"
+            )
+        self.assertEqual(error.exception.code, "timeout")
+        self.assertLess(time.monotonic() - started, 1)
+        time.sleep(1.25)
+        self.assertFalse(escaped.exists(), "helper survived its owned process group")
 
     def test_child_environment_excludes_service_credentials(self):
         with patch.dict(
