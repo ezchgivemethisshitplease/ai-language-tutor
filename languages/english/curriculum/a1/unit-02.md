@@ -41,5 +41,5 @@ grandfather — your parent's father
 
 ## Watch out
 - She have got a son → She has got a son
-- Is my father brother → He is my father's brother / my brother
+- He is my father brother → He is my father's brother
 - Two childs → two children

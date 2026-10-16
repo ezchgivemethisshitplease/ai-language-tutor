@@ -3,7 +3,7 @@
 **Can-do:** I can manage extended discourse with a wide range of cohesive devices, signposting the relationships between ideas and holding a long turn together.
 
 ## Grammar focus
-Cohesion binds a text into a whole through three channels: reference (*this, such, the former / the latter*), conjunction (*nevertheless, consequently, hence, whereas*) and lexical chains (repetition, synonyms, superordinate terms). Discourse markers signpost your route through an argument — *to begin with, on the one hand, that said, in short*. Sentence adverbials such as *admittedly, crucially, incidentally* colour the relationship between one idea and the next. Managing a long turn means previewing your structure, holding the floor and closing cleanly. This precision — knowing which linker names which logical relation — is what separates a C1 speaker from a fluent B2 one.
+Cohesion binds a text into a whole through three channels: reference (*this, such, the former / the latter*), conjunction (*nevertheless, consequently, hence, whereas*) and lexical chains (repetition, synonyms, superordinate terms). Discourse markers signpost your route through an argument — *to begin with, on the one hand, that said, in short*. Sentence adverbials such as *admittedly, crucially, incidentally* colour the relationship between one idea and the next. Managing a long turn means previewing your structure, holding the floor and closing cleanly. Using appropriate logical links supports precise extended discourse; no single linker or structure determines a CEFR level.
 
 - The former option is cheaper; the latter, more sustainable.
 - Admittedly, the plan has flaws; nevertheless, it remains our best option.

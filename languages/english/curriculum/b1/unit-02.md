@@ -3,7 +3,7 @@
 **Can-do:** I can talk about activities that started in the past and are still going on, and say how long they have lasted.
 
 ## Grammar focus
-The **present perfect continuous** (*have/has + been + -ing*) describes an action that began in the past and is still happening, or has just stopped with a visible result now. It puts the focus on the activity and its duration rather than a finished result. Use **for** with a length of time (*for two hours, for years*) and **since** with a starting point (*since Monday, since I was a child*). Compare it with the present perfect simple: the continuous stresses "how long / still going" (*I've been studying all day*), while the simple stresses the completed amount (*I've studied three chapters*). Stative verbs like *know, have, be* stay simple.
+The **present perfect continuous** (*have/has + been + -ing*) describes an action that began in the past and is still happening, or has just stopped with a visible result now. It puts the focus on the activity and its duration rather than a finished result. Use **for** with a length of time (*for two hours, for years*) and **since** with a starting point (*since Monday, since I was a child*). Compare it with the present perfect simple: the continuous stresses "how long / still going" (*I've been studying all day*), while the simple stresses the completed amount (*I've studied three chapters*). Verbs in stative meanings usually stay simple (*have a car*, *know the answer*); dynamic meanings can be continuous (*have lunch*, *be unusually helpful*).
 
 - I'**ve been working** here **for** six months.
 - She'**s been learning** to code **since** January.

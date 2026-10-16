@@ -38,7 +38,7 @@ restore — to return something to its original condition
 - quiz focus: commas and *that* vs *which / who*; reducing full relative clauses.
 
 ## Watch out
-- My father who is a doctor lives in Rome → My father, who is a doctor, lives in Rome
+- If the person is already uniquely identified: My father, who is a doctor, lives in Rome. Without commas, the clause identifies which father; choose punctuation from the intended meaning.
 - Rome, that is in Italy, is beautiful → Rome, which is in Italy, is beautiful
 - The people waited on the platform were angry → The people waiting on the platform were angry
 - He passed the exam, what pleased his parents → He passed the exam, which pleased his parents

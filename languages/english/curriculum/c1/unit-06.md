@@ -40,6 +40,6 @@ overrule — to reject a decision by higher authority
 - quiz focus: completing subjunctive frames after *suggest / insist / essential* and choosing the diplomatic option.
 
 ## Watch out
-- I suggest that he goes home. → I suggest that he go home.
-- It is essential that she is informed. → It is essential that she be informed.
+- For a mandative subjunctive: I suggest that he go home. *I suggest that he should go home* is also standard; indicative variants depend on variety and meaning.
+- Mandative options: It is essential that she be informed / should be informed. *Is informed* also occurs in standard English; do not mark it wrong merely for lacking the subjunctive.
 - If I was you, I'd resign. (formal) → If I were you, I would resign.

@@ -38,7 +38,7 @@ knock-on effect — an indirect result caused by an earlier event
 - quiz focus: choosing the correct mix (past→present vs present→past) from the time signals.
 
 ## Watch out
-- If I studied medicine, I would be a doctor now → If I had studied medicine, I would be a doctor now
+- For an unreal completed past course of study: If I had studied medicine, I would be a doctor now. *If I studied medicine* can instead introduce a hypothetical present/future activity.
 - If I would be taller, I would have played basketball → If I were taller, I would have played basketball
 - I would be rich if I invested then → I would be rich if I had invested then
 - If she wouldn't have lied, we would still be friends → If she hadn't lied, we would still be friends

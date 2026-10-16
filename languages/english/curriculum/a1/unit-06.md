@@ -42,4 +42,4 @@ between — in the middle of two things
 ## Watch out
 - She cans swim → She can swim
 - I can to drive → I can drive
-- The park is in front the school → The park is opposite/in front of the school
+- The park is in front the school → The park is in front of the school (opposite describes a different spatial relationship)

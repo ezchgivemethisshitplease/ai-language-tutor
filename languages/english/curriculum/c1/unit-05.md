@@ -40,6 +40,6 @@ rigorous — thorough, careful and exact
 - quiz focus: nominalizing given verbs and completing complex-passive reporting frames.
 
 ## Watch out
-- They have proved that… (in a report) → It has been proved that…
+- Active and passive can both be suitable in a report: They have demonstrated that… / It has been demonstrated that… . Choose who or what to foreground; passive voice alone does not make evidence stronger.
 - The reducing of costs… → The reduction of costs…
-- It is believed that the sample was been contaminated. → It is believed to have been contaminated.
+- It is believed that the sample was been contaminated. → It is believed that the sample was contaminated. / The sample is believed to have been contaminated.

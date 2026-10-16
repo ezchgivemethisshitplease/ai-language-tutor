@@ -42,4 +42,4 @@ sugar — a sweet white food you add to drinks
 ## Watch out
 - I like eat fish → I like eating fish
 - I have any bread → I have some bread
-- I want a coffee please (too direct) → I'd like a coffee, please
+- For a more tactful café request: I want a coffee, please (grammatical) → I'd like a coffee, please

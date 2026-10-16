@@ -42,4 +42,4 @@ receipt — a paper that shows what you paid
 ## Watch out
 - How much are this bag? → How much is this bag?
 - How many money do you have? → How much money do you have?
-- It's very expensive too → It's too expensive
+- If the price exceeds your budget: It's too expensive. *It's very expensive too* can mean that another item is also expensive; it is not the same message.

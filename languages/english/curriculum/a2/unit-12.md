@@ -1,6 +1,6 @@
 # A2 · Unit 12 — Milestone
 
-**Can-do:** I can handle the everyday A2 tasks of the whole level — narrating, comparing, planning, advising and describing — accurately enough to pass an A2 Key-style checkpoint.
+**Can-do:** I can handle the everyday A2 tasks of the whole level — narrating, comparing, planning, advising and describing — using the structures practised in this course, and identify what needs further practice.
 
 ## Grammar focus
 Full A2 review (no new grammar). This unit brings together every criterial structure from Units 1–11: past simple and past continuous; comparatives, superlatives and *as … as*; *be going to* vs *will*; *should* and *have to / must*; quantifiers with *too / enough*; present perfect with *ever/never/just/already/yet* vs past simple; infinitive of purpose and adverbs of manner; *used to*; zero and first conditional with *must / mustn't / don't have to*; and verb + gerund/infinitive with connectors. Mix them as real communication does.
@@ -34,7 +34,7 @@ achieve — to succeed in reaching a goal
 ## Suggested activities
 - reading: a mixed short text (message + short article) with questions across all A2 grammar.
 - conversation: a paired task like A2 Key Speaking — an interview plus a collaborative decision using a visual prompt.
-- quiz focus: an **A2 Key (KET)-style checkpoint** covering Units 1–11 — a Reading & Writing section (matching, multiple choice, gap-fill, a ~25-word message), a short Listening, and a paired Speaking task; pass mark ≥70%, including the spoken part.
+- quiz focus: an **A2 Key (KET)-style checkpoint** covering Units 1–11 — a Reading & Writing section (matching, multiple choice, gap-fill, a ~25-word message), a short Listening, and a paired Speaking task; report sampled performance and unassessed skills. Use the structured evidence policy for internal progression; this is not an official or calibrated exam.
 
 ## Watch out
 - I have finished the course last month → I finished the course last month

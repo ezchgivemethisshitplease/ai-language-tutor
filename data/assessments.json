@@ -1,0 +1,512 @@
+{
+  "schema_version": 1,
+  "language": "english",
+  "calibrated": false,
+  "purpose": "Original low-stakes diagnostic samples, not a validated placement test or certification instrument. Item level labels are curriculum targets, not empirically calibrated difficulties.",
+  "limitations": [
+    "No listening items or audio files are supplied; listening remains unassessed until actual audio tasks are added.",
+    "Open writing and speaking require contextual rubric review; LLM-only ratings never gate progression.",
+    "There are too few items and no equating or standard-setting study to establish CEFR cut scores.",
+    "Do not reveal answer keys or feedback while collecting an unassisted response."
+  ],
+  "rubric_scale": {
+    "0": "Requested communicative outcome is not demonstrated.",
+    "0.5": "Partly demonstrated; substantial support or revision is needed.",
+    "1": "Demonstrated for this specific task and audience; not a global proficiency score."
+  },
+  "items": [
+    {
+      "id": "a1-article-01",
+      "type": "cloze",
+      "skill_id": "a1-03",
+      "level": "A1",
+      "domain": "grammar",
+      "prompt": "Complete with a or an: I live in ___ old house.",
+      "answers": [
+        "an"
+      ],
+      "exhaustive": true,
+      "error_tags": [
+        "articles"
+      ],
+      "grammar_tags": [
+        "articles"
+      ]
+    },
+    {
+      "id": "a1-routine-01",
+      "type": "transformation",
+      "skill_id": "a1-04",
+      "level": "A1",
+      "domain": "writing",
+      "prompt": "Make this sentence negative: She works on Sundays.",
+      "answers": [
+        "She does not work on Sundays.",
+        "She doesn't work on Sundays."
+      ],
+      "error_tags": [
+        "negation",
+        "auxiliaries"
+      ],
+      "grammar_tags": [
+        "present_simple",
+        "auxiliaries"
+      ]
+    },
+    {
+      "id": "a1-question-01",
+      "type": "reorder",
+      "skill_id": "a1-07",
+      "level": "A1",
+      "domain": "grammar",
+      "prompt": "Use every word once to make a question: you / where / work / do",
+      "answers": [
+        "Where do you work?"
+      ],
+      "exhaustive": true,
+      "error_tags": [
+        "word_order",
+        "questions"
+      ],
+      "grammar_tags": [
+        "questions",
+        "word_order"
+      ]
+    },
+    {
+      "id": "a1-reading-01",
+      "type": "reading_comprehension",
+      "skill_id": "a1-08",
+      "level": "A1",
+      "domain": "reading",
+      "prompt": "Maya usually reads after work. Today she is playing a game with her sister. What is Maya doing today?",
+      "answers": [
+        "She is playing a game with her sister.",
+        "She is playing a game.",
+        "Playing a game."
+      ],
+      "context": "Maya usually reads after work. Today she is playing a game with her sister."
+    },
+    {
+      "id": "a1-writing-01",
+      "type": "short_writing",
+      "skill_id": "a1-04",
+      "level": "A1",
+      "domain": "writing",
+      "prompt": "Write three short sentences about your normal morning. Include one time and one thing you do not do.",
+      "mode": "chat",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "clarity": "The audience can understand the intended message without guessing.",
+        "language_control": "Vocabulary and grammar support the intended meaning; assess the whole sample in context."
+      }
+    },
+    {
+      "id": "a1-speaking-01",
+      "type": "spoken_response",
+      "skill_id": "a1-01",
+      "level": "A1",
+      "domain": "speaking",
+      "prompt": "In a real voice conversation, introduce yourself and say where you live. You may ask the listener to repeat a question.",
+      "mode": "voice-required",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "intelligibility": "The audience can understand the intended message without guessing.",
+        "language_control": "Vocabulary and grammar support the intended meaning; assess the whole sample in context."
+      }
+    },
+    {
+      "id": "a2-past-01",
+      "type": "cloze",
+      "skill_id": "a2-01",
+      "level": "A2",
+      "domain": "grammar",
+      "prompt": "Use the past simple form of go: We ___ to the lake last Saturday.",
+      "answers": [
+        "went"
+      ],
+      "exhaustive": true,
+      "error_tags": [
+        "tense_aspect"
+      ],
+      "grammar_tags": [
+        "past_simple"
+      ],
+      "vocabulary": [
+        "go"
+      ]
+    },
+    {
+      "id": "a2-past-question-01",
+      "type": "transformation",
+      "skill_id": "a2-01",
+      "level": "A2",
+      "domain": "writing",
+      "prompt": "Ask a yes/no question about this statement: They visited the museum yesterday.",
+      "answers": [
+        "Did they visit the museum yesterday?"
+      ],
+      "error_tags": [
+        "auxiliaries",
+        "questions"
+      ],
+      "grammar_tags": [
+        "past_simple",
+        "questions",
+        "auxiliaries"
+      ]
+    },
+    {
+      "id": "a2-experience-01",
+      "type": "choice",
+      "skill_id": "a2-07",
+      "level": "A2",
+      "domain": "grammar",
+      "prompt": "Choose the sentence that refers to a finished time yesterday.",
+      "answers": [
+        "I saw him yesterday."
+      ],
+      "options": [
+        "I saw him yesterday.",
+        "I have seen him yesterday."
+      ],
+      "error_tags": [
+        "perfect_vs_past"
+      ],
+      "grammar_tags": [
+        "perfect_vs_past"
+      ]
+    },
+    {
+      "id": "a2-reading-01",
+      "type": "reading_comprehension",
+      "skill_id": "a2-04",
+      "level": "A2",
+      "domain": "reading",
+      "prompt": "A note says: We planned to meet at six, but my train is late. Can we meet at seven instead? What time does the writer now suggest?",
+      "answers": [
+        "At seven.",
+        "Seven.",
+        "7.",
+        "At 7."
+      ],
+      "context": "We planned to meet at six, but my train is late. Can we meet at seven instead?"
+    },
+    {
+      "id": "a2-writing-01",
+      "type": "short_writing",
+      "skill_id": "a2-01",
+      "level": "A2",
+      "domain": "writing",
+      "prompt": "Write a short message to a friend about last weekend. Say where you went, who was there, and one thing you enjoyed.",
+      "mode": "chat",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "clarity": "The audience can understand the intended message without guessing.",
+        "language_control": "Vocabulary and grammar support the intended meaning; assess the whole sample in context."
+      }
+    },
+    {
+      "id": "a2-speaking-01",
+      "type": "spoken_response",
+      "skill_id": "a2-04",
+      "level": "A2",
+      "domain": "speaking",
+      "prompt": "In a real voice conversation, arrange a visit with a friend: suggest a place and time, answer one follow-up question, and confirm the plan.",
+      "mode": "voice-required",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "intelligibility": "The audience can understand the intended message without guessing.",
+        "language_control": "Vocabulary and grammar support the intended meaning; assess the whole sample in context."
+      }
+    },
+    {
+      "id": "b1-duration-01",
+      "type": "cloze",
+      "skill_id": "b1-02",
+      "level": "B1",
+      "domain": "grammar",
+      "prompt": "Choose for or since: I have been working here ___ 2022.",
+      "answers": [
+        "since"
+      ],
+      "exhaustive": true,
+      "error_tags": [
+        "perfect_vs_past",
+        "prepositions_time"
+      ],
+      "grammar_tags": [
+        "perfect_continuous",
+        "for_since"
+      ]
+    },
+    {
+      "id": "b1-report-01",
+      "type": "transformation",
+      "skill_id": "b1-07",
+      "level": "B1",
+      "domain": "writing",
+      "prompt": "Yesterday Maya said, \"I am tired.\" Report her words beginning Maya said that...",
+      "answers": [
+        "Maya said that she was tired.",
+        "Maya said that she is tired."
+      ],
+      "context": "No information is given about whether Maya is still tired now.",
+      "error_tags": [
+        "reported_speech"
+      ],
+      "grammar_tags": [
+        "reported_speech"
+      ]
+    },
+    {
+      "id": "b1-narrative-01",
+      "type": "cloze",
+      "skill_id": "b1-03",
+      "level": "B1",
+      "domain": "grammar",
+      "prompt": "Use the past perfect of leave: When we reached the station, the train ___.",
+      "answers": [
+        "had already left",
+        "had left"
+      ],
+      "error_tags": [
+        "tense_aspect"
+      ],
+      "grammar_tags": [
+        "past_perfect"
+      ]
+    },
+    {
+      "id": "b1-reading-01",
+      "type": "reading_comprehension",
+      "skill_id": "b1-04",
+      "level": "B1",
+      "domain": "reading",
+      "prompt": "The organiser writes: The walk will go ahead if it is dry. If it rains, we will meet inside the library instead. Where will the group meet in wet weather?",
+      "answers": [
+        "Inside the library.",
+        "At the library.",
+        "In the library.",
+        "The library."
+      ],
+      "context": "The walk will go ahead if it is dry. If it rains, we will meet inside the library instead."
+    },
+    {
+      "id": "b1-writing-01",
+      "type": "short_writing",
+      "skill_id": "b1-01",
+      "level": "B1",
+      "domain": "writing",
+      "prompt": "Describe a change in your life. Explain what happened, how you felt, and how your life is different now. Link the main events clearly.",
+      "mode": "chat",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "clarity": "The audience can understand the intended message without guessing.",
+        "language_control": "Vocabulary and grammar support the intended meaning; assess the whole sample in context."
+      }
+    },
+    {
+      "id": "b1-speaking-01",
+      "type": "spoken_response",
+      "skill_id": "b1-04",
+      "level": "B1",
+      "domain": "speaking",
+      "prompt": "In a real voice conversation, recommend a plan for a weekend trip. Give reasons, respond to a different suggestion, and agree on one practical next step.",
+      "mode": "voice-required",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "intelligibility": "The audience can understand the intended message without guessing.",
+        "language_control": "Vocabulary and grammar support the intended meaning; assess the whole sample in context."
+      }
+    },
+    {
+      "id": "b2-conditional-01",
+      "type": "cloze",
+      "skill_id": "b2-01",
+      "level": "B2",
+      "domain": "grammar",
+      "prompt": "Use the third conditional form of leave: If we ___ earlier, we would have caught the train.",
+      "answers": [
+        "had left"
+      ],
+      "exhaustive": true,
+      "error_tags": [
+        "conditionals_unreal"
+      ],
+      "grammar_tags": [
+        "third_conditional"
+      ]
+    },
+    {
+      "id": "b2-reporting-01",
+      "type": "transformation",
+      "skill_id": "b2-04",
+      "level": "B2",
+      "domain": "writing",
+      "prompt": "Rewrite without changing the meaning, beginning The bridge is believed...: People believe that the bridge is unsafe.",
+      "answers": [
+        "The bridge is believed to be unsafe."
+      ],
+      "error_tags": [
+        "tense_aspect"
+      ],
+      "grammar_tags": [
+        "passive_reporting"
+      ]
+    },
+    {
+      "id": "b2-mixed-01",
+      "type": "choice",
+      "skill_id": "b2-02",
+      "level": "B2",
+      "domain": "grammar",
+      "prompt": "Choose the sentence describing a past decision with a present result.",
+      "answers": [
+        "If I had accepted the job, I would live in Rome now."
+      ],
+      "options": [
+        "If I had accepted the job, I would live in Rome now.",
+        "If I accept the job, I will live in Rome next year."
+      ],
+      "error_tags": [
+        "conditionals_unreal"
+      ],
+      "grammar_tags": [
+        "mixed_conditionals"
+      ]
+    },
+    {
+      "id": "b2-reading-01",
+      "type": "reading_comprehension",
+      "skill_id": "b2-08",
+      "level": "B2",
+      "domain": "reading",
+      "prompt": "The trial reduced commuting time, although the author warns that volunteers may have been unusually enthusiastic. What limits the finding?",
+      "answers": [
+        "The volunteers may not represent typical workers.",
+        "The volunteers may have been unusually enthusiastic.",
+        "The sample may not be representative."
+      ],
+      "context": "The trial reduced commuting time, although the author warns that volunteers may have been unusually enthusiastic."
+    },
+    {
+      "id": "b2-writing-01",
+      "type": "short_writing",
+      "skill_id": "b2-01",
+      "level": "B2",
+      "domain": "writing",
+      "prompt": "Write a reasoned recommendation on whether a team should work remotely two days each week. Discuss a benefit, a drawback, and a condition that would change your recommendation.",
+      "mode": "chat",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "clarity": "The audience can understand the intended message without guessing.",
+        "language_control": "Vocabulary and grammar support the intended meaning; assess the whole sample in context."
+      }
+    },
+    {
+      "id": "b2-speaking-01",
+      "type": "spoken_response",
+      "skill_id": "b2-02",
+      "level": "B2",
+      "domain": "speaking",
+      "prompt": "In a real voice discussion, compare two ways to reduce city traffic. Explain trade-offs, respond to one counterargument, and qualify your conclusion.",
+      "mode": "voice-required",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "intelligibility": "The audience can understand the intended message without guessing.",
+        "language_control": "Vocabulary and grammar support the intended meaning; assess the whole sample in context."
+      }
+    },
+    {
+      "id": "c1-hedging-01",
+      "type": "choice",
+      "skill_id": "c1-01",
+      "level": "C1",
+      "domain": "grammar",
+      "prompt": "Select the claim best justified by a small, unrepresentative study.",
+      "answers": [
+        "The findings suggest a possible association, but further research is needed."
+      ],
+      "options": [
+        "The findings prove that the treatment always works.",
+        "The findings suggest a possible association, but further research is needed."
+      ],
+      "grammar_tags": [
+        "hedging",
+        "register"
+      ]
+    },
+    {
+      "id": "c1-inversion-01",
+      "type": "transformation",
+      "skill_id": "c1-02",
+      "level": "C1",
+      "domain": "writing",
+      "prompt": "Rewrite for emphasis, beginning Rarely...: We have rarely encountered such a complicated case.",
+      "answers": [
+        "Rarely have we encountered such a complicated case."
+      ],
+      "grammar_tags": [
+        "inversion"
+      ]
+    },
+    {
+      "id": "c1-cleft-01",
+      "type": "transformation",
+      "skill_id": "c1-03",
+      "level": "C1",
+      "domain": "grammar",
+      "prompt": "Complete the cleft sentence to emphasise timing: The timing worried me. What worried me ___.",
+      "answers": [
+        "was the timing"
+      ],
+      "exhaustive": true,
+      "grammar_tags": [
+        "clefts"
+      ]
+    },
+    {
+      "id": "c1-reading-01",
+      "type": "reading_comprehension",
+      "skill_id": "c1-08",
+      "level": "C1",
+      "domain": "reading",
+      "prompt": "The proposal is elegant on paper; whether it survives contact with the budget committee is another matter. What reservation does the writer imply?",
+      "answers": [
+        "The proposal may not receive funding.",
+        "The budget committee may reject it.",
+        "Its practical financial feasibility is uncertain."
+      ],
+      "context": "The proposal is elegant on paper; whether it survives contact with the budget committee is another matter."
+    },
+    {
+      "id": "c1-writing-01",
+      "type": "extended_writing",
+      "skill_id": "c1-08",
+      "level": "C1",
+      "domain": "writing",
+      "prompt": "Write a concise policy recommendation about using AI feedback in language learning. Distinguish established facts from assumptions, address a plausible objection, and adapt the register to an education manager.",
+      "mode": "chat",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "clarity": "The audience can understand the intended message without guessing.",
+        "language_control": "Vocabulary and grammar support the intended meaning; assess the whole sample in context."
+      }
+    },
+    {
+      "id": "c1-speaking-01",
+      "type": "spoken_response",
+      "skill_id": "c1-01",
+      "level": "C1",
+      "domain": "speaking",
+      "prompt": "In a real voice discussion, evaluate whether automated feedback can replace teacher feedback. Qualify claims, respond to an objection, and reformulate one complex point for a non-specialist listener.",
+      "mode": "voice-required",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "intelligibility": "The audience can understand the intended message without guessing.",
+        "language_control": "Vocabulary and grammar support the intended meaning; assess the whole sample in context."
+      }
+    }
+  ]
+}

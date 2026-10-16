@@ -3,7 +3,7 @@
 **Can-do:** I can report statements, questions and commands accurately, and use precise reporting verbs.
 
 ## Grammar focus
-In reported speech, tenses usually shift back one step (*present → past*, *will → would*, *can → could*), and pronouns and time words change ("**tomorrow**" → "**the next day**"). **Reported questions** use statement word order with no auxiliary ("Where do you live?" → "She asked where I **lived**"); yes/no questions take *if / whether*. **Reported commands** use *tell / ask someone + to-infinitive* ("Wait!" → "He told me **to wait**"). Many **reporting verbs** carry meaning and take fixed patterns: *suggest + -ing*, *admit + -ing*, *refuse + to*, *offer + to*, *warn someone + to*, *accuse someone of + -ing*.
+In reported speech, tenses usually shift back one step (*present → past*, *will → would*, *can → could*), and pronouns and time words change when the reporting context changes ("**tomorrow**" → "**the next day**"). **Reported questions** use statement word order without question-style *do/does/did* (other auxiliaries remain where needed) ("Where do you live?" → "She asked where I **lived**"); yes/no questions take *if / whether*. **Reported commands** use *tell / ask someone + to-infinitive* ("Wait!" → "He told me **to wait**"). Many **reporting verbs** carry meaning and take fixed patterns: *suggest + -ing*, *admit + -ing*, *refuse + to*, *offer + to*, *warn someone + to*, *accuse someone of + -ing*.
 
 - "I'm tired." → She said she **was** tired.
 - "Will you help?" → He asked **whether I would help**.

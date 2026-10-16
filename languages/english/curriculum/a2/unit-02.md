@@ -39,6 +39,6 @@ sunbathe — to sit or lie in the sun
 - quiz focus: choosing past continuous for background vs past simple for the interrupting action.
 
 ## Watch out
-- When I arrived, she cooked dinner → When I arrived, she was cooking dinner
+- To say cooking was already in progress: When I arrived, she was cooking dinner. *When I arrived, she cooked dinner* can correctly describe cooking after my arrival.
 - We was waiting for the bus → We were waiting for the bus
 - While we were walk in the city → While we were walking in the city

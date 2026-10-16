@@ -3,7 +3,7 @@
 **Can-do:** I can compress two clauses into one using participle and reduced relative clauses, writing more economically and elegantly.
 
 ## Grammar focus
-Participle clauses replace a full clause with an *-ing* form (active) or an *-ed* form (passive), sharing the subject of the main clause: "**Having finished** the audit, she left." Perfect participles (*having done*) mark a prior action; *being* + past participle gives a passive participle (*Being underfunded, the scheme closed*). Reduced relative clauses drop the relative pronoun and any auxiliary — "the report [that was] published yesterday". These structures tighten prose and vary its rhythm, but the participle's implied subject must match the subject of the main clause; if it doesn't, you produce a dangling modifier that misassigns the action.
+Adverbial participle clauses replace a full clause with an *-ing* form (active) or a past participle (passive), normally sharing the subject of the main clause: "**Having finished** the audit, she left." Perfect participles (*having done*) mark a prior action; *being* + past participle gives a passive participle (*Being underfunded, the scheme closed*). Reduced relative clauses drop the relative pronoun and an appropriate *be* auxiliary — "the report [that was] published yesterday". These structures tighten prose and vary its rhythm, but an adverbial participle's implied subject normally matches the main-clause subject, while a reduced relative modifies its head noun. A mismatched subject in an adverbial participle clause can create a dangling modifier that misassigns the action.
 
 - Faced with mounting debt, the firm filed for bankruptcy.
 - Having reviewed the evidence, the panel reached a verdict.

@@ -42,4 +42,4 @@ nuance — a subtle difference in meaning or tone
 ## Watch out
 - It maybe true. → It may well be true.
 - I am agree it is plausible. → I agree it is plausible.
-- The data suggests strongly a link. → The data appear to suggest a link.
+- It may true. → It may be true. (Do not add hedges unless the intended degree of certainty calls for them.)
