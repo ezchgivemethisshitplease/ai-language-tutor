@@ -462,6 +462,19 @@ class WebTutorTests(unittest.TestCase):
 
 
 class WebChatHTTPTests(unittest.TestCase):
+    def test_port_collision_preserves_the_bind_error_and_existing_host(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            student = Path(temporary) / "student"
+            controller = web_tutor.WebTutor(student, FakeBridge, Path(temporary) / "runtime")
+            with patch.object(serve, "STUDENT", student):
+                first = serve.create_server(tutor=controller)
+                try:
+                    with self.assertRaises(OSError):
+                        serve.create_server(first.server_address[1], tutor=controller)
+                    self.assertFalse(controller.closed)
+                finally:
+                    first.server_close()
+
     def test_initial_setup_auth_static_and_backup(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

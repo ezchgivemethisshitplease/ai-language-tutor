@@ -210,8 +210,12 @@ class TutorServer(ThreadingHTTPServer):
     speech: speech_service.SpeechService
 
     def server_close(self):
-        self.speech.close()
-        self.tutor.close()
+        speech = getattr(self, "speech", None)
+        tutor = getattr(self, "tutor", None)
+        if speech is not None:
+            speech.close()
+        if tutor is not None:
+            tutor.close()
         super().server_close()
 
 
