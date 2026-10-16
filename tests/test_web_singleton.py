@@ -105,8 +105,18 @@ class SingletonTests(unittest.TestCase):
         survivor = alive[0]
         other = second if survivor is first else first
         stdout, stderr = other.communicate(timeout=2)
-        self.assertEqual(other.returncode, 0, stderr)
         control_path = self.student / ".serve.json"
+        # A slow durable publication can outlast the bounded startup wait. In
+        # that case the loser must fail safely, then reuse the ready host on retry.
+        if other.returncode:
+            self.assertEqual(other.returncode, 1, stderr)
+            self.assertIn("startup or shutdown in progress", stderr)
+            self.wait_until(control_path.exists, timeout=15)
+            retry, _ = self.launch(4)
+            stdout, stderr = retry.communicate(timeout=15)
+            self.assertEqual(retry.returncode, 0, stderr)
+        else:
+            self.assertEqual(other.returncode, 0, stderr)
         control = json.loads(control_path.read_text())
         url = f"http://localhost:{control['port']}/"
         self.assertIn(url.rstrip("/"), stdout)
