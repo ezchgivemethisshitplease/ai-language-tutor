@@ -23,7 +23,7 @@ Changes are based on original revision `510fc6daf0d1220ae796af31a65a07a262a753f9
 
 ## Independent second pass
 
-Separate reviewers inspected the new persistence, learning, curriculum and integration code. Fixes made during that review include concurrent outbox acknowledgment loss, learner draft isolation, stale-result replay blockage, premature flashcard completion, lock-order inversion, TTS timeout cleanup, misleading treatment/display of unreviewed alternatives, missing CLI diagnosis input and active-language mutation races. Meaningful regressions cover these boundaries. Formatting, type checks and the full suite were rerun after integration.
+Separate reviewers inspected the new persistence, learning, curriculum and integration code. Fixes made during that review include concurrent outbox acknowledgment loss, learner draft isolation, stale-result replay blockage, premature flashcard completion, lock-order inversion, TTS timeout cleanup, misleading treatment/display of unreviewed alternatives, missing CLI diagnosis input and active-language mutation races and a speaking-completion bypass using non-production audio. Meaningful regressions cover these boundaries. Formatting, type checks and the full suite were rerun after integration.
 
 ## Compatibility and limits
 
