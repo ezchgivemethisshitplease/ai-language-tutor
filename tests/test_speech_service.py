@@ -56,6 +56,19 @@ class FakeSpeech:
 
 
 class SpeechServiceTests(unittest.TestCase):
+    def test_queued_setup_cannot_start_after_server_shutdown(self):
+        engine = FakeSpeech()
+        engine.release.set()
+        service = speech_service.SpeechService()
+        with patch.object(speech_service.threading, "Thread") as thread:
+            service.setup()
+            target = thread.call_args.kwargs["target"]
+        service.close()
+        with patch.object(speech_service.importlib, "import_module", return_value=engine) as load:
+            target()
+        load.assert_not_called()
+        self.assertEqual(engine.setup_calls, 0)
+
     def test_setup_is_async_deduplicated_and_status_tracks_safe_stages(self):
         engine = FakeSpeech()
         service = speech_service.SpeechService(engine)

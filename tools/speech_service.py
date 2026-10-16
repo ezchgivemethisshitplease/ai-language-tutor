@@ -16,9 +16,12 @@ class SpeechService:
         self.closed = False
 
     def _engine(self):
-        if self.engine is None:
-            self.engine = importlib.import_module("speech")
-        return self.engine
+        with self.lock:
+            if self.closed:
+                raise RuntimeError("speech service is closed")
+            if self.engine is None:
+                self.engine = importlib.import_module("speech")
+            return self.engine
 
     def status(self):
         result = self._engine().status()
