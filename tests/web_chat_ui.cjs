@@ -21,15 +21,15 @@ class Element {
   focus(){} remove(){if(this.parentNode){this.parentNode.children=this.parentNode.children.filter(x=>x!==this);this.parentNode=null;}} click(){return this.fire('click');} showModal(){this.open=true;} close(){this.open=false;} reportValidity(){return true;}
   fire(type,event={}){return Promise.all((this.handlers[type]||[]).map(fn=>fn({preventDefault(){},...event})));}
 }
-async function runtime({namespace='one',storage={},auth='chatgpt',existing=null,offline=false,loginUrl='https://auth.openai.com/deviceauth'}={}){
+async function runtime({namespace='one',storage={},auth='chatgpt',existing=null,offline=false,loginUrl='https://auth.openai.com/deviceauth',backup='disabled'}={}){
  const elements=new Map();
  for(const match of html.matchAll(/<([\w-]+)\b([^>]*\bid="([^"]+)"[^>]*)>/g)){const e=new Element(match[1]);e.id=match[3];for(const d of match[2].matchAll(/data-([\w-]+)="([^"]*)"/g))e.dataset[d[1].replace(/-([a-z])/g,(_,x)=>x.toUpperCase())]=d[2];elements.set(e.id,e);}
- const get=id=>elements.get(id);const requests=[];const timers=new Map();let timer=0;let fail=offline;let events=[];
+ const get=id=>elements.get(id);const requests=[];const timers=new Map();let timer=0;let fail=offline;let events=[];let backupStatus=backup;
  let conversation=existing||{id:'conv-one',title:'A saved conversation',messages:[{id:'u1',role:'user',text:'<img src=x onerror=alert(1)>'},{id:'a1',role:'assistant',text:'Exact reply <script>alert(2)</script> [Упражнение](quiz.html) https://example.org/reference. [bad](javascript:alert(1))'}],cursor:2,active:false,turn_id:'turn-one'};
- const status=()=>({initialized:true,profile:{daily_minutes:20,voice_channel:'none'},auth:{status:auth},models:[{id:'model-one',displayName:'One'}],conversations:existing?[{id:conversation.id,title:conversation.title}]:[],active_conversation_id:existing?conversation.id:null});
+ const status=()=>({backup:{status:backupStatus},initialized:true,profile:{daily_minutes:20,voice_channel:'none'},auth:{status:auth},models:[{id:'model-one',displayName:'One'}],conversations:existing?[{id:conversation.id,title:conversation.title}]:[],active_conversation_id:existing?conversation.id:null});
  const context=vm.createContext({document:{getElementById:get,body:new Element('body'),hidden:false,createElement:t=>new Element(t),createDocumentFragment:()=>new Element('#fragment'),querySelector:()=>new Element('main'),querySelectorAll:selector=>[...elements.values()].filter(e=>selector==='[data-prompt]'?'prompt'in e.dataset:'sessionAction'in e.dataset),addEventListener(){}},window:{matchMedia:()=>({matches:false}),addEventListener(){}},Tutor:{ready:Promise.resolve({namespace,token:'token'}),request:async(path,options={})=>{requests.push({path,options});let data;if(path==='/api/web/status')data=status();else if(path.startsWith('/api/web/conversation'))data=conversation;else if(path.startsWith('/api/web/events'))data={events:events.filter(e=>e.seq>Number(new URL(path,'http://localhost:8765').searchParams.get('after'))),cursor:Math.max(conversation.cursor,...events.map(e=>e.seq)),active:conversation.active};else if(path==='/api/web/chat'){if(fail)throw new Error('offline');data={conversation_id:conversation.id,turn_id:null,accepted:true,request_id:JSON.parse(options.body).request_id};}else if(path==='/api/web/interrupt'){data={ok:true};}else if(path==='/api/web/login')data={auth_url:loginUrl,login_id:'login-one'};else throw new Error(path);return{json:async()=>data};}},location:{origin:'http://localhost:8765',href:'http://localhost:8765/index.html',reload(){}},localStorage:{getItem:k=>storage[k]??null,setItem:(k,v)=>{storage[k]=String(v);},removeItem:k=>{delete storage[k];}},crypto:require('node:crypto').webcrypto,navigator:{clipboard:{writeText:async()=>{}}},setTimeout:(fn,delay)=>{const id=++timer;timers.set(id,{fn,delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>0,AbortController,URL,Intl,Date,Map,Set,Number,String,JSON,Array,Object,Promise,Error,encodeURIComponent});
  vm.runInContext(source,context);await context.window.TutorChatReady;
- return{context,get,requests,storage,timers,online(){fail=false;},tick:()=>new Promise(resolve=>setImmediate(resolve)),setConversation:c=>{conversation=c;},setEvents:e=>{events=e;},runPoll:async()=>{const entry=[...timers.entries()].find(([,value])=>value.delay<=5000);assert(entry,'A poll should be scheduled');timers.delete(entry[0]);await entry[1].fn();}};
+ return{context,get,requests,storage,timers,online(){fail=false;},tick:()=>new Promise(resolve=>setImmediate(resolve)),setConversation:c=>{conversation=c;},setEvents:e=>{events=e;},setBackup:value=>{backupStatus=value;},runPoll:async()=>{const entry=[...timers.entries()].find(([,value])=>value.delay<=5000);assert(entry,'A poll should be scheduled');timers.delete(entry[0]);await entry[1].fn();}};
 }
 (async()=>{
  const shared={};const first=await runtime({storage:shared,offline:true});
@@ -40,7 +40,7 @@ async function runtime({namespace='one',storage={},auth='chatgpt',existing=null,
  first.online();await first.get('retry-message').fire('click');await first.tick();await first.tick();const posts=first.requests.filter(x=>x.path==='/api/web/chat');assert.equal(posts.length,2);assert.equal(JSON.parse(posts[1].options.body).request_id,payload.request_id);assert(!Object.keys(shared).some(k=>k.endsWith(':pending')));assert.match(first.get('messages').textContent,/<img src=x onerror=alert\(1\)>/);assert.match(first.get('messages').textContent,/<script>alert\(2\)<\/script>/);
  const disconnected=await runtime({auth:'unauthenticated',loginUrl:'javascript:alert(1)'});assert.equal(disconnected.get('message-input').disabled,true);await disconnected.get('login-button').fire('click');assert.equal(disconnected.get('login-link').href,undefined);assert.equal(disconnected.get('notice').hidden,false);
  const connected=await runtime({auth:'unauthenticated'});await connected.get('login-button').fire('click');assert.equal(connected.get('login-link').href,'https://auth.openai.com/deviceauth');assert.equal(connected.get('login-link').hidden,false);
- 
+
  const descendants=e=>[e,...e.children.flatMap(descendants)];
  const links=descendants(first.get('messages')).filter(e=>e.tagName==='a');
  assert.deepEqual(links.map(e=>e.href),['http://localhost:8765/quiz.html','https://example.org/reference']);
@@ -65,6 +65,23 @@ async function runtime({namespace='one',storage={},auth='chatgpt',existing=null,
  const unsafe=await runtime({auth:'unauthenticated',loginUrl:'https://auth.openai.com.evil.example/device'});
  await unsafe.get('login-button').fire('click');assert.equal(unsafe.get('login-link').href,undefined);
  assert.equal(html.includes('maxlength="16000"'),true);
- console.log('Web chat UI: 7 scenarios passed (explicit retry/null-turn ACK, namespace isolation, literal learner text, safe links, login URL validation, incremental resume, interruption).');
+
+ const warned=await runtime({backup:'warning',offline:true});
+ assert.equal(warned.get('backup-warning').hidden,false);
+ warned.get('message-input').value='A saved answer while the backup disk is missing.';
+ await warned.get('chat-form').fire('submit');await warned.tick();
+ assert.equal(warned.get('backup-warning').hidden,false,'A chat error must not replace the backup warning');
+ warned.online();await warned.get('retry-message').fire('click');await warned.tick();
+ warned.setEvents([{seq:3,type:'turn_completed',turn_id:'finished',status:'completed'}]);
+ warned.setConversation({id:'conv-one',title:'Saved',messages:[],cursor:3,active:false,turn_id:'finished'});
+ await warned.runPoll();await warned.tick();
+ assert.equal(warned.get('backup-warning').hidden,false,'Turn completion must not clear an unresolved backup warning');
+ warned.setBackup('unknown-future-status');await warned.get('refresh-history').fire('click');
+ assert.equal(warned.get('backup-warning').hidden,false,'An unknown status must not hide an existing warning');
+ warned.setBackup('not_due');await warned.get('refresh-history').fire('click');assert.equal(warned.get('backup-warning').hidden,true);
+ warned.setBackup('unavailable');await warned.get('refresh-history').fire('click');assert.equal(warned.get('backup-warning').hidden,false);
+ warned.setBackup('disabled');await warned.get('refresh-history').fire('click');assert.equal(warned.get('backup-warning').hidden,true);
+ console.log('Web chat UI: 8 scenarios passed (explicit retry/null-turn ACK, namespace isolation, literal learner text, safe links, login URL validation, incremental resume, interruption, persistent backup warning).');
+
 
 })().catch(e=>{console.error(e);process.exitCode=1;});

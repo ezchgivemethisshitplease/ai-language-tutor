@@ -244,6 +244,9 @@
   }
   function renderStatus(status) {
     state.status = status;
+    const backupStatus = status.backup?.status;
+    if (['warning', 'unavailable'].includes(backupStatus)) $('backup-warning').hidden = false;
+    else if (['created', 'not_due', 'disabled'].includes(backupStatus)) $('backup-warning').hidden = true;
     const auth = status.auth || {};
     const connected = auth.status === 'chatgpt';
     $('connection-label').textContent = connected ? 'ChatGPT подключён' : auth.status === 'unavailable' ? 'Нет подключения' : 'Нужен вход';
