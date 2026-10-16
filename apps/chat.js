@@ -6,11 +6,13 @@
     session: null, status: null, conversationId: null, messages: new Map(), messageNodes: new Map(), cursor: 0,
     active: false, sending: false, loading: false, pending: null, pollTimer: null,
     pollController: null, generation: 0, pollFailures: 0, loginWaiting: false,
-    refreshPromise: null, replay: null, storageWarning: false, sessionBusy: false
+    refreshPromise: null, replay: null, storageWarning: false, sessionBusy: false,
+    speech: null, speakingMessageId: null, draftRevision: 0, draftSource: 'typed'
   };
   const validText = value => typeof value === 'string' ? value : '';
   const storageKey = suffix => `tutor:${location.origin}:${state.session.namespace}:web:${suffix}`;
   const draftKey = () => storageKey(`draft:${state.conversationId || 'new'}`);
+  const draftSourceKey = () => storageKey(`draft-source:${state.conversationId || 'new'}`);
   function storageWarning() {
     if (state.storageWarning) return;
     state.storageWarning = true;
@@ -29,13 +31,32 @@
   }
   function saveDraft() {
     if (!state.session) return;
-    try { localStorage.setItem(draftKey(), $('message-input').value); }
+    if (!$('message-input').value) state.draftSource = 'typed';
+    try {
+      // Write the conservative provenance first; a storage failure must not
+      // restore a transcript as an allegedly typed composition.
+      if (state.draftSource === 'whisper_transcript') localStorage.setItem(draftSourceKey(), state.draftSource);
+      localStorage.setItem(draftKey(), $('message-input').value);
+      if (state.draftSource === 'typed') localStorage.removeItem(draftSourceKey());
+    }
     catch { storageWarning(); }
   }
   function loadDraft() {
-    try { $('message-input').value = localStorage.getItem(draftKey()) || ''; }
-    catch { $('message-input').value = ''; storageWarning(); }
+    try {
+      $('message-input').value = localStorage.getItem(draftKey()) || '';
+      state.draftSource = $('message-input').value && localStorage.getItem(draftSourceKey()) === 'whisper_transcript' ? 'whisper_transcript' : 'typed';
+    }
+    catch { $('message-input').value = ''; state.draftSource = 'typed'; storageWarning(); }
+    state.draftRevision += 1;
     resizeInput();
+  }
+  function applySpeechDraft(text, {mode, snapshot} = {}) {
+    const input = $('message-input');
+    if (mode === 'if-empty' && (input.value !== '' || snapshot?.context !== (state.conversationId || 'new') || snapshot?.revision !== state.draftRevision)) return false;
+    const result = mode === 'append' && input.value ? `${input.value}\n${text}` : text;
+    if (result.length > 16000) return false;
+    input.value = result; state.draftSource = 'whisper_transcript'; state.draftRevision += 1;
+    saveDraft(); resizeInput(); input.focus(); return true;
   }
   function node(tag, className, text) {
     const element = document.createElement(tag);
@@ -99,6 +120,7 @@
     $('retry-message').disabled = !authReady() || state.sending;
     $('new-conversation').disabled = !state.session || state.sending || state.loading;
     $('messages').setAttribute('aria-busy', state.active ? 'true' : 'false');
+    state.speech?.setComposerAvailable(canWrite && !state.sending);
   }
   function nearBottom() {
     const scroll = $('messages-scroll');
@@ -155,13 +177,23 @@
         article = node('article');
         article.label = node('div', 'message-label'); article.body = node('div', 'message-body');
         article.copy = node('button', 'message-copy', 'Копировать'); article.copy.type = 'button';
-        article.append(article.label, article.body, article.copy);
+        article.read = node('button', 'message-read', 'Озвучить'); article.read.type = 'button';
+        article.actions = node('div', 'message-actions'); article.actions.append(article.copy, article.read);
+        article.append(article.label, article.body, article.actions);
         state.messageNodes.set(message.id, article); $('messages').append(article);
         const id = message.id;
         const copy = article.copy;
         copy.addEventListener('click', async () => {
           try { await navigator.clipboard.writeText(state.messages.get(id)?.text || ''); copy.textContent = 'Скопировано'; }
           catch { showNotice('Не удалось скопировать автоматически. Можно выделить текст сообщения.'); }
+        });
+        article.read.addEventListener('click', () => {
+          if (state.speakingMessageId === id) { state.speech?.stopSpeaking(); return; }
+          state.speech?.speak(state.messages.get(id)?.text || '', speaking => {
+            state.speakingMessageId = speaking ? id : null;
+            article.read.textContent = speaking ? 'Остановить озвучивание' : 'Озвучить';
+            article.read.setAttribute('aria-pressed', String(speaking));
+          });
         });
       }
       article.className = `message ${message.role}${message.pending ? ' pending' : ''}`;
@@ -172,6 +204,7 @@
         article.renderedText = message.text;
       }
       article.copy.hidden = message.role !== 'assistant' || !message.text || state.active;
+      article.read.hidden = message.role !== 'assistant' || !message.text || state.active || !state.speech?.canSpeak();
     }
     $('welcome').hidden = state.messages.size > 0;
     if (shouldScroll) scrollLatest(true);
@@ -240,7 +273,7 @@
     const objectives = status.objectives || status.profile?.objectives || [];
     const objectiveText = Array.isArray(objectives) ? objectives.map(item => typeof item === 'string' ? item : validText(item.text || item.description)).filter(Boolean).join(' · ') : validText(objectives);
     $('learning-objective').textContent = objectiveText || 'Добавьте цель в профиле, чтобы выбирать близкие вам темы.';
-    $('voice-note').textContent = status.profile?.voice_channel === 'external' ? 'Для голосового занятия попросите преподавателя подготовить отдельный проход. Его результат нужно проверить перед записью в прогресс.' : 'Для устной практики нужен голосовой канал. Текстовый ответ не оценивает произношение.';
+    $('voice-note').textContent = status.profile?.voice_channel === 'external' ? 'Для голосового занятия попросите преподавателя подготовить отдельный проход. Его результат нужно проверить перед записью в прогресс.' : 'Голосовой ввод создаёт текстовый черновик. Устную речь и произношение проверяют в отдельном голосовом занятии.';
   }
   function renderStatus(status) {
     state.status = status;
@@ -298,6 +331,7 @@
     state.generation += 1;
   }
   async function openConversation(id, {focus = true} = {}) {
+    state.speech?.stopSpeaking();
     saveDraft(); stopPolling(); state.loading = true; updateControls();
     const generation = state.generation;
     try {
@@ -383,7 +417,7 @@
     try {
       const pending = JSON.parse(stored('pending') || 'null');
       if (!pending || typeof pending !== 'object' || typeof pending.request_id !== 'string' || pending.request_id.length > 200 || typeof pending.message !== 'string' || !pending.message.trim() || pending.message.length > 16000 || !(pending.conversation_id === null || typeof pending.conversation_id === 'string')) return null;
-      return {request_id: pending.request_id, message: pending.message, conversation_id: pending.conversation_id, ...(typeof pending.model === 'string' ? {model:pending.model} : {})};
+      return {request_id: pending.request_id, message: pending.message, conversation_id: pending.conversation_id, input_source: pending.input_source === 'whisper_transcript' ? 'whisper_transcript' : 'typed', ...(typeof pending.model === 'string' ? {model:pending.model} : {})};
     } catch { return null; }
   }
   function renderPending() {
@@ -395,22 +429,38 @@
     if (!state.pending || state.sending || !authReady()) return;
     const payload = {...state.pending};
     const originDraft = storageKey(`draft:${payload.conversation_id || 'new'}`);
+    const originSource = storageKey(`draft-source:${payload.conversation_id || 'new'}`);
     state.sending = true; clearNotice(); renderPending();
     upsertMessage(`pending:${payload.request_id}`, 'user', payload.message, true); renderMessages(true);
     $('turn-status').textContent = 'Отправляю…';
-    let acknowledged = false;
+    let acknowledged = false, acknowledgedId = null;
     try {
       const result = await request('/api/web/chat', payload);
       const accepted = (result.accepted === true && result.request_id === payload.request_id) || (typeof result.turn_id === 'string' && result.turn_id.length > 0);
       if (typeof result.conversation_id !== 'string' || !accepted) throw new Error('Chat not acknowledged');
       state.pending = null; store('pending', null);
-      acknowledged = true;
-      try { localStorage.removeItem(originDraft); } catch { storageWarning(); }
-      $('message-input').value = '';
-      state.active = true; state.conversationId = result.conversation_id; store('conversation', result.conversation_id);
+      acknowledged = true; acknowledgedId = result.conversation_id;
+      const sameComposer = state.conversationId === payload.conversation_id;
+      const unchanged = sameComposer && $('message-input').value === payload.message;
+      if (unchanged) {
+        try { localStorage.removeItem(originDraft); localStorage.removeItem(originSource); } catch { storageWarning(); }
+        $('message-input').value = ''; state.draftSource = 'typed'; state.draftRevision += 1;
+      } else {
+        saveDraft();
+        if (!sameComposer) {
+          try {
+            if (localStorage.getItem(originDraft) === payload.message) { localStorage.removeItem(originDraft); localStorage.removeItem(originSource); }
+          } catch { storageWarning(); }
+        }
+      }
+      // Carry a newly edited draft into the just-created conversation. A retry
+      // made from another conversation keeps that other draft in its own scope.
+      if (payload.conversation_id === null && sameComposer) { state.conversationId = result.conversation_id; saveDraft(); }
+      state.active = true; store('conversation', result.conversation_id);
       await openConversation(result.conversation_id, {focus:false});
       refreshStatus().catch(() => {});
     } catch (error) {
+      if (acknowledged && acknowledgedId !== state.conversationId) { saveDraft(); state.conversationId = acknowledgedId; loadDraft(); }
       const optimistic = state.messages.get(`pending:${payload.request_id}`);
       if (optimistic) { state.messages.delete(optimistic.id); renderMessages(); }
       $('turn-status').textContent = '';
@@ -500,6 +550,12 @@
   }
   async function boot() {
     state.session = await Tutor.ready;
+    if (window.TutorSpeech) state.speech = window.TutorSpeech.create({
+      request: (path, options) => Tutor.request(path, options),
+      getDraft: () => ({text:$('message-input').value, context:state.conversationId || 'new', revision:state.draftRevision}),
+      applyDraft: applySpeechDraft,
+      notice: text => showNotice(text)
+    });
     $('today-label').textContent = new Intl.DateTimeFormat('ru', {day:'numeric',month:'long',weekday:'long'}).format(new Date()).toLocaleUpperCase('ru');
     state.pending = pendingFromStorage();
     await refreshStatus();
@@ -520,11 +576,11 @@
     const message = $('message-input').value;
     if (!message.trim() || state.active || state.sending || state.pending || !authReady()) return;
     if (message.length > 16000) { showNotice('В одном сообщении можно отправить до 16 000 символов. Разделите текст на части.'); return; }
-    state.pending = {conversation_id:state.conversationId, message, request_id:crypto.randomUUID()};
+    state.pending = {conversation_id:state.conversationId, message, input_source:state.draftSource, request_id:crypto.randomUUID()};
     if ($('model-select').value) state.pending.model = $('model-select').value;
     store('pending', JSON.stringify(state.pending)); saveDraft(); sendPending();
   });
-  $('message-input').addEventListener('input', () => { saveDraft(); resizeInput(); });
+  $('message-input').addEventListener('input', () => { state.draftRevision += 1; saveDraft(); resizeInput(); });
   $('message-input').addEventListener('keydown', event => {
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); $('chat-form').requestSubmit(); }
   });
@@ -534,7 +590,7 @@
   $('retry-message').addEventListener('click', sendPending);
   $('keep-draft').addEventListener('click', () => {
     if (!state.pending || state.sending) return;
-    $('message-input').value = state.pending.message; saveDraft(); state.pending = null; store('pending', null); renderPending(); resizeInput();
+    $('message-input').value = state.pending.message; state.draftSource = state.pending.input_source || 'typed'; state.draftRevision += 1; saveDraft(); state.pending = null; store('pending', null); renderPending(); resizeInput();
     showNotice('Текст оставлен в черновике. Перед новой отправкой проверьте историю: сервер мог принять предыдущее сообщение.');
   });
   $('stop-button').addEventListener('click', async () => {
@@ -552,6 +608,7 @@
   document.querySelectorAll('[data-session-action]').forEach(button => button.addEventListener('click', () => sessionAction(button.dataset.sessionAction)));
   document.querySelectorAll('[data-prompt]').forEach(button => button.addEventListener('click', () => {
     $('message-input').value = button.dataset.prompt; saveDraft(); resizeInput();
+    state.draftRevision += 1;
     if (!state.status?.initialized) openSettings();
     else if (!authReady()) showNotice('Сначала подключите преподавателя через ChatGPT. Сообщение осталось в черновике.');
     else $('message-input').focus();
@@ -572,7 +629,7 @@
   window.addEventListener('online', () => { if (state.conversationId) schedulePoll(0); refreshStatus().catch(() => {}); });
   window.addEventListener('offline', () => { $('connection-label').textContent = 'Нет сети'; showNotice('Соединение недоступно. Текст остаётся в черновике; отправка возобновится только по вашему действию.'); });
   window.addEventListener('focus', () => { if (state.session) { refreshStatus().catch(() => {}); if (state.conversationId) schedulePoll(0); } });
-  window.addEventListener('beforeunload', saveDraft);
+  window.addEventListener('beforeunload', () => { saveDraft(); state.speech?.dispose(); });
   window.TutorChatReady = boot().catch(error => {
     showNotice(errorMessage(error), [['Загрузить заново', () => location.reload()]], 'error');
     $('connection-label').textContent = 'Нет подключения'; $('account-description').textContent = 'Не удалось связаться с локальным сервером. Обновите страницу после восстановления подключения.';

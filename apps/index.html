@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="chat.css">
   <script src="client.js" defer></script>
+  <script src="speech.js" defer></script>
   <script src="chat.js" defer></script>
 </head>
 <body>
@@ -69,10 +70,21 @@
         <div class="composer-region">
           <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><div id="notice-actions"></div></div>
           <div id="pending-notice" class="pending-notice" hidden><span id="pending-description">Отправка не подтверждена. Сообщение сохранено в этом браузере.</span><div><button id="retry-message">Повторить отправку</button><button id="keep-draft">Оставить черновик</button></div></div>
+          <section id="speech-panel" class="speech-panel" aria-label="Голосовой ввод" hidden>
+            <div class="speech-heading"><b>Голосовой ввод</b><button id="speech-cancel" type="button">Закрыть</button></div>
+            <p id="speech-status" class="speech-status" role="status">Проверяем распознавание речи…</p>
+            <div class="speech-preferences"><label for="speech-language">Язык записи</label><select id="speech-language"><option value="auto">Определить автоматически</option><option value="en">Английский</option><option value="ru">Русский</option></select><label for="speech-read-language">Голос ответа</label><select id="speech-read-language"><option value="auto">По языку текста</option><option value="en">Английский</option><option value="ru">Русский</option></select></div>
+            <div id="speech-recording" class="speech-recording" hidden><span class="recording-dot" aria-hidden="true"></span><span>Идёт запись</span><time id="speech-timer">00:00</time><button id="speech-stop" type="button">Стоп и распознать</button></div>
+            <audio id="speech-preview" class="speech-preview" controls preload="none" hidden></audio>
+            <div id="speech-result" class="speech-result" hidden><label for="speech-transcript">Распознанный текст</label><textarea id="speech-transcript" rows="3" maxlength="16000"></textarea><button id="speech-append" type="button">Добавить к черновику</button></div>
+            <div class="speech-actions"><button id="speech-retry" type="button" hidden>Повторить распознавание</button><button id="speech-new" type="button" hidden>Новая запись</button><button id="speech-setup" type="button" hidden>Установить голосовой ввод</button><button id="speech-refresh" type="button">Проверить доступность</button></div>
+            <details id="speech-guide" class="speech-guide" hidden><summary>Ручная установка</summary><code id="speech-setup-command"></code></details>
+            <p class="speech-privacy">Речь распознаётся на этом компьютере и попадает в редактируемый черновик. Отправляете его вы. Это ввод текста, без оценки произношения. Для озвучивания ответа используются локальные голоса браузера.</p>
+          </section>
           <form id="chat-form" class="composer">
             <label class="sr-only" for="message-input">Сообщение преподавателю</label>
             <textarea id="message-input" rows="2" maxlength="16000" placeholder="Напишите преподавателю…" autocomplete="off" disabled></textarea>
-            <div class="composer-toolbar"><div class="model-field"><label class="sr-only" for="model-select">Модель преподавателя</label><select id="model-select" disabled><option value="">Модель по умолчанию</option></select></div><span id="turn-status" class="turn-status" role="status"></span><button type="button" class="stop-button" id="stop-button" hidden><span aria-hidden="true">■</span> Остановить</button><button type="submit" class="send-button" id="send-button" disabled aria-label="Отправить сообщение"><span aria-hidden="true">↑</span></button></div>
+            <div class="composer-toolbar"><button type="button" class="speech-record-button" id="speech-record" aria-label="Голосовой ввод" title="Голосовой ввод" disabled><svg width="17" height="20" viewBox="0 0 20 24" fill="none" aria-hidden="true"><rect x="7" y="2" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M4 10v2a6 6 0 0 0 12 0v-2M10 18v4M6 22h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button><button type="button" class="speech-options-button" id="speech-options" aria-label="Настроить голосовой ввод" title="Настроить голосовой ввод">Голос</button><div class="model-field"><label class="sr-only" for="model-select">Модель преподавателя</label><select id="model-select" disabled><option value="">Модель по умолчанию</option></select></div><span id="turn-status" class="turn-status" role="status"></span><button type="button" class="stop-button" id="stop-button" hidden><span aria-hidden="true">■</span> Остановить</button><button type="submit" class="send-button" id="send-button" disabled aria-label="Отправить сообщение"><span aria-hidden="true">↑</span></button></div>
           </form>
           <p class="composer-note"><span>Enter — отправить · Shift + Enter — новая строка</span><span id="draft-status">Черновик сохраняется в этом браузере.</span></p>
         </div>
@@ -87,7 +99,7 @@
         <div class="lesson-divider"></div>
         <h3>Ваш ориентир</h3><p id="learning-objective" class="context-copy">Добавьте цель в профиле, чтобы выбирать близкие вам темы.</p>
         <div class="practice-card"><span class="practice-icon" aria-hidden="true">Aa</span><h3>Вспомнить знакомое</h3><p>Карточки и упражнения открываются отдельно. Результаты сохраняются в вашем прогрессе.</p><a href="flashcards.html">Открыть карточки <span aria-hidden="true">↗</span></a></div>
-        <p class="voice-note" id="voice-note">Для устной практики нужен голосовой канал. Текстовый ответ не оценивает произношение.</p>
+        <p class="voice-note" id="voice-note">Голосовой ввод создаёт текстовый черновик. Устную речь и произношение проверяют в отдельном голосовом занятии.</p>
       </aside>
     </div>
   </main>
@@ -98,7 +110,7 @@
       <label for="native-language">Родной язык</label><input id="native-language" name="native_language" value="Русский" maxlength="80" required><p class="field-help">Укажите свой родной язык. Объяснения по-русски доступны на любом уровне.</p>
       <label for="daily-minutes">Минут в день</label><div class="minutes-control"><input id="daily-minutes" name="daily_minutes" type="number" min="5" max="240" step="1" value="20" required><span>Небольшое занятие тоже считается.</span></div>
       <label for="objectives-input">Зачем вам английский?</label><textarea id="objectives-input" name="objectives" rows="3" maxlength="2000" placeholder="Для работы, поездок, общения… По одной цели на строку."></textarea>
-      <label for="voice-channel">Устная практика</label><select id="voice-channel" name="voice_channel"><option value="none">Пока в текстовом чате</option><option value="external">С отдельным голосовым чатом</option></select><p class="field-help">Преподаватель поможет подготовить голосовое занятие. Микрофон здесь не записывается.</p>
+      <label for="voice-channel">Устная практика</label><select id="voice-channel" name="voice_channel"><option value="none">Пока в текстовом чате</option><option value="external">С отдельным голосовым чатом</option></select><p class="field-help">Голосовой ввод доступен по кнопке микрофона. Для отдельного голосового занятия преподаватель подготовит задания.</p>
       <p id="settings-error" class="field-error" role="alert" hidden></p>
       <div class="dialog-footer"><button type="button" class="button subtle" id="cancel-settings">Отмена</button><button type="submit" class="button primary" id="save-settings">Сохранить</button></div>
     </form>

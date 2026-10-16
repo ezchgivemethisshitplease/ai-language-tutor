@@ -89,6 +89,9 @@ button { border: 0; background: none; }
 .message.pending .message-label::after { content: 'Отправляется'; font-size: 9px; font-weight: 400; }
 .message-copy { display: block; margin-top: 8px; padding: 3px 0; color: var(--ink-faint); font-size: 10px; opacity: 0; }
 .message:hover .message-copy, .message-copy:focus-visible { opacity: 1; }
+.message-actions { display: flex; align-items: center; gap: 17px; }
+.message-read { margin-top: 8px; padding: 3px 0; color: var(--ink-faint); font-size: 10px; }
+.message-read[aria-pressed="true"] { color: var(--accent-strong); }
 .jump-latest { position: absolute; bottom: 188px; left: 50%; transform: translateX(-50%); padding: 9px 15px; border-radius: 99px; border: 1px solid var(--line); box-shadow: var(--shadow-1); background: var(--surface); color: var(--ink-soft); font-size: 11px; z-index: 2; white-space: nowrap; }
 .composer-region { flex: none; padding: 12px 30px 15px; background: var(--bg); width: 100%; max-width: 910px; margin: 0 auto; }
 .composer { background: var(--surface); border: 1px solid var(--line); border-radius: 17px; box-shadow: 0 3px 15px rgba(60,48,32,.025); padding: 16px 16px 12px; }
@@ -97,6 +100,33 @@ button { border: 0; background: none; }
 .composer textarea:focus-visible { outline: none; }
 textarea::placeholder { color: var(--ink-faint); }
 .composer-toolbar { display: flex; align-items: center; gap: 9px; margin-top: 8px; min-height: 32px; }
+.speech-record-button { height: 32px; width: 32px; flex: none; display: grid; place-items: center; border-radius: 8px; background: var(--surface-2); color: var(--ink-soft); }
+.speech-record-button:hover { background: var(--accent-soft); color: var(--accent-strong); }
+.speech-record-button.recording { background: var(--error-soft); color: var(--error); }
+.speech-options-button { padding: 5px 0; color: var(--ink-faint); font-size: 10px; }
+.speech-panel { margin-bottom: 10px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); padding: 13px 15px; max-height: 42vh; overflow-y: auto; }
+.speech-heading { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.speech-heading b { font-size: 12px; font-weight: 600; }
+.speech-heading button { padding: 4px 0 4px 8px; color: var(--ink-faint); font-size: 10px; }
+.speech-status { font-size: 12px; color: var(--ink-soft); line-height: 1.65; margin: 10px 0; }
+.speech-preferences { display: flex; gap: 6px 9px; align-items: center; flex-wrap: wrap; font-size: 10px; color: var(--ink-faint); margin: 10px 0; }
+.speech-preferences select { font-size: 10px; padding: 5px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); max-width: 190px; }
+.speech-recording { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--error); padding: 9px 0; }
+.recording-dot { height: 7px; width: 7px; border-radius: 50%; background: var(--error); animation: speech-pulse 1.2s infinite; }
+.speech-recording time { font-variant-numeric: tabular-nums; margin-left: auto; }
+.speech-recording button, .speech-actions button, .speech-result button { padding: 8px 10px; border-radius: 7px; background: var(--surface-2); color: var(--ink-soft); font-size: 10px; }
+.speech-recording button { background: var(--accent-soft); color: var(--accent-strong); }
+.speech-preview { display: block; height: 34px; width: 100%; margin: 10px 0; }
+.speech-result { margin: 12px 0; }
+.speech-result label { display: block; font-size: 11px; margin: 0 0 6px; color: var(--ink-soft); }
+.speech-result textarea { width: 100%; resize: vertical; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 10px; font-size: 13px; line-height: 1.6; }
+.speech-result button { margin-top: 7px; }
+.speech-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.speech-privacy { font-size: 9px; color: var(--ink-faint); line-height: 1.65; margin: 11px 0 0; }
+.speech-guide { font-size: 10px; margin-top: 12px; color: var(--ink-soft); }
+.speech-guide summary { cursor: pointer; }
+.speech-guide code { display: block; white-space: pre-wrap; overflow-wrap: anywhere; padding: 10px; margin-top: 6px; background: var(--surface-2); border-radius: 7px; font-size: 10px; }
+@keyframes speech-pulse { 50% { opacity: .35; } }
 .model-field { max-width: 50%; min-width: 0; }
 .model-field select { width: 100%; background: transparent; border: 0; padding: 4px 18px 4px 0; color: var(--ink-soft); font-size: 10px; text-overflow: ellipsis; }
 .turn-status { margin-left: auto; color: var(--ink-faint); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -154,4 +184,5 @@ dialog::backdrop { background: rgba(31,27,23,.35); backdrop-filter: blur(2px); }
 @media (max-width: 760px) { .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 270px; z-index: 15; transform: translateX(-100%); transition: transform .2s var(--ease); padding: 24px 18px 16px; box-shadow: var(--shadow-2); } body.nav-open .sidebar { transform: translateX(0); } .nav-scrim { position: fixed; z-index: 14; inset: 0; width: 100%; height: 100%; background: rgba(31,27,23,.3); } .mobile-menu { display: grid; } .workspace-header { min-height: 72px; height: 72px; padding: 0 14px; gap: 10px; } .course-heading .eyebrow { display: none; } .course-heading h1 { font-size: 16px; margin: 0; } .connection-indicator { display: none; } .lesson-toggle { padding: 9px; font-size: 10px; } .lesson-panel { top: 72px; width: min(310px,90vw); } .account-notice, .setup-notice { margin: 12px 15px 0; padding: 12px; flex-wrap: wrap; gap: 10px; } .account-notice > div, .setup-notice > div { flex: 1 1 170px; } .account-notice .button, .setup-notice .button { font-size: 10px; } .welcome { padding: 0 23px; margin-top: 35px; } .welcome h2 { font-size: 28px; } .welcome-description { font-size: 16px; max-width: 32ch; } .suggestions { margin-top: 25px; } .messages { padding: 23px 20px 24px; } .message-body { font-size: 17px; } .message.user { max-width: 92%; } .message-copy { opacity: 1; } .composer-region { padding: 10px 14px 12px; } .composer { border-radius: 14px; padding: 13px 13px 10px; } .composer textarea { font-size: 16px; } .composer-note { font-size: 9px; justify-content: center; } .composer-note span:first-child { display: none; } .jump-latest { bottom: 170px; } }
 @media (max-height: 700px) { .sidebar { padding-top: 19px; } .new-chat { margin-top: 20px; margin-bottom: 13px; } .activity-nav { gap: 0; } .nav-link { min-height: 35px; padding-top: 7px; padding-bottom: 7px; } .history-heading { margin-top: 17px; } .welcome { margin-top: 27px; } .welcome-mark { margin-bottom: 16px; } .suggestions { margin-top: 22px; } }
 @media (max-width: 760px) { .backup-warning { margin: 12px 15px 0; } }
+@media (max-width: 420px) { .speech-options-button { display: none; } .model-field { max-width: 40%; } .composer-toolbar { gap: 7px; } .speech-panel { padding: 12px; } .speech-result textarea { font-size: 16px; } }
 @media (prefers-reduced-motion: reduce) { .messages-scroll { scroll-behavior: auto; } }

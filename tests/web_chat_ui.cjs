@@ -21,15 +21,15 @@ class Element {
   focus(){} remove(){if(this.parentNode){this.parentNode.children=this.parentNode.children.filter(x=>x!==this);this.parentNode=null;}} click(){return this.fire('click');} showModal(){this.open=true;} close(){this.open=false;} reportValidity(){return true;}
   fire(type,event={}){return Promise.all((this.handlers[type]||[]).map(fn=>fn({preventDefault(){},...event})));}
 }
-async function runtime({namespace='one',storage={},auth='chatgpt',existing=null,offline=false,loginUrl='https://auth.openai.com/deviceauth',backup='disabled'}={}){
+async function runtime({namespace='one',storage={},auth='chatgpt',existing=null,offline=false,loginUrl='https://auth.openai.com/deviceauth',backup='disabled',speech=false}={}){
  const elements=new Map();
  for(const match of html.matchAll(/<([\w-]+)\b([^>]*\bid="([^"]+)"[^>]*)>/g)){const e=new Element(match[1]);e.id=match[3];for(const d of match[2].matchAll(/data-([\w-]+)="([^"]*)"/g))e.dataset[d[1].replace(/-([a-z])/g,(_,x)=>x.toUpperCase())]=d[2];elements.set(e.id,e);}
- const get=id=>elements.get(id);const requests=[];const timers=new Map();let timer=0;let fail=offline;let events=[];let backupStatus=backup;
+ const get=id=>elements.get(id);const requests=[];const timers=new Map();let timer=0;let fail=offline;let events=[];let backupStatus=backup;let speechOptions=null;
  let conversation=existing||{id:'conv-one',title:'A saved conversation',messages:[{id:'u1',role:'user',text:'<img src=x onerror=alert(1)>'},{id:'a1',role:'assistant',text:'Exact reply <script>alert(2)</script> [Упражнение](quiz.html) https://example.org/reference. [bad](javascript:alert(1))'}],cursor:2,active:false,turn_id:'turn-one'};
  const status=()=>({backup:{status:backupStatus},initialized:true,profile:{daily_minutes:20,voice_channel:'none'},auth:{status:auth},models:[{id:'model-one',displayName:'One'}],conversations:existing?[{id:conversation.id,title:conversation.title}]:[],active_conversation_id:existing?conversation.id:null});
- const context=vm.createContext({document:{getElementById:get,body:new Element('body'),hidden:false,createElement:t=>new Element(t),createDocumentFragment:()=>new Element('#fragment'),querySelector:()=>new Element('main'),querySelectorAll:selector=>[...elements.values()].filter(e=>selector==='[data-prompt]'?'prompt'in e.dataset:'sessionAction'in e.dataset),addEventListener(){}},window:{matchMedia:()=>({matches:false}),addEventListener(){}},Tutor:{ready:Promise.resolve({namespace,token:'token'}),request:async(path,options={})=>{requests.push({path,options});let data;if(path==='/api/web/status')data=status();else if(path.startsWith('/api/web/conversation'))data=conversation;else if(path.startsWith('/api/web/events'))data={events:events.filter(e=>e.seq>Number(new URL(path,'http://localhost:8765').searchParams.get('after'))),cursor:Math.max(conversation.cursor,...events.map(e=>e.seq)),active:conversation.active};else if(path==='/api/web/chat'){if(fail)throw new Error('offline');data={conversation_id:conversation.id,turn_id:null,accepted:true,request_id:JSON.parse(options.body).request_id};}else if(path==='/api/web/interrupt'){data={ok:true};}else if(path==='/api/web/login')data={auth_url:loginUrl,login_id:'login-one'};else throw new Error(path);return{json:async()=>data};}},location:{origin:'http://localhost:8765',href:'http://localhost:8765/index.html',reload(){}},localStorage:{getItem:k=>storage[k]??null,setItem:(k,v)=>{storage[k]=String(v);},removeItem:k=>{delete storage[k];}},crypto:require('node:crypto').webcrypto,navigator:{clipboard:{writeText:async()=>{}}},setTimeout:(fn,delay)=>{const id=++timer;timers.set(id,{fn,delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>0,AbortController,URL,Intl,Date,Map,Set,Number,String,JSON,Array,Object,Promise,Error,encodeURIComponent});
+ const context=vm.createContext({document:{getElementById:get,body:new Element('body'),hidden:false,createElement:t=>new Element(t),createDocumentFragment:()=>new Element('#fragment'),querySelector:()=>new Element('main'),querySelectorAll:selector=>[...elements.values()].filter(e=>selector==='[data-prompt]'?'prompt'in e.dataset:'sessionAction'in e.dataset),addEventListener(){}},window:{...(speech?{TutorSpeech:{create(options){speechOptions=options;return{setComposerAvailable(){},canSpeak:()=>false,stopSpeaking(){},dispose(){}};}}}:{}),matchMedia:()=>({matches:false}),addEventListener(){}},Tutor:{ready:Promise.resolve({namespace,token:'token'}),request:async(path,options={})=>{requests.push({path,options});let data;if(path==='/api/web/status')data=status();else if(path.startsWith('/api/web/conversation'))data=conversation;else if(path.startsWith('/api/web/events'))data={events:events.filter(e=>e.seq>Number(new URL(path,'http://localhost:8765').searchParams.get('after'))),cursor:Math.max(conversation.cursor,...events.map(e=>e.seq)),active:conversation.active};else if(path==='/api/web/chat'){if(fail)throw new Error('offline');data={conversation_id:conversation.id,turn_id:null,accepted:true,request_id:JSON.parse(options.body).request_id};}else if(path==='/api/web/interrupt'){data={ok:true};}else if(path==='/api/web/login')data={auth_url:loginUrl,login_id:'login-one'};else throw new Error(path);return{json:async()=>data};}},location:{origin:'http://localhost:8765',href:'http://localhost:8765/index.html',reload(){}},localStorage:{getItem:k=>storage[k]??null,setItem:(k,v)=>{storage[k]=String(v);},removeItem:k=>{delete storage[k];}},crypto:require('node:crypto').webcrypto,navigator:{clipboard:{writeText:async()=>{}}},setTimeout:(fn,delay)=>{const id=++timer;timers.set(id,{fn,delay});return id;},clearTimeout:id=>timers.delete(id),setInterval:()=>0,AbortController,URL,Intl,Date,Map,Set,Number,String,JSON,Array,Object,Promise,Error,encodeURIComponent});
  vm.runInContext(source,context);await context.window.TutorChatReady;
- return{context,get,requests,storage,timers,online(){fail=false;},tick:()=>new Promise(resolve=>setImmediate(resolve)),setConversation:c=>{conversation=c;},setEvents:e=>{events=e;},setBackup:value=>{backupStatus=value;},runPoll:async()=>{const entry=[...timers.entries()].find(([,value])=>value.delay<=5000);assert(entry,'A poll should be scheduled');timers.delete(entry[0]);await entry[1].fn();}};
+ return{context,get,requests,storage,timers,online(){fail=false;},tick:()=>new Promise(resolve=>setImmediate(resolve)),setConversation:c=>{conversation=c;},setEvents:e=>{events=e;},setBackup:value=>{backupStatus=value;},applySpeech:text=>speechOptions.applyDraft(text,{mode:'append'}),runPoll:async()=>{const entry=[...timers.entries()].find(([,value])=>value.delay<=5000);assert(entry,'A poll should be scheduled');timers.delete(entry[0]);await entry[1].fn();}};
 }
 (async()=>{
  const shared={};const first=await runtime({storage:shared,offline:true});
@@ -81,7 +81,26 @@ async function runtime({namespace='one',storage={},auth='chatgpt',existing=null,
  warned.setBackup('not_due');await warned.get('refresh-history').fire('click');assert.equal(warned.get('backup-warning').hidden,true);
  warned.setBackup('unavailable');await warned.get('refresh-history').fire('click');assert.equal(warned.get('backup-warning').hidden,false);
  warned.setBackup('disabled');await warned.get('refresh-history').fire('click');assert.equal(warned.get('backup-warning').hidden,true);
- console.log('Web chat UI: 8 scenarios passed (explicit retry/null-turn ACK, namespace isolation, literal learner text, safe links, login URL validation, incremental resume, interruption, persistent backup warning).');
+
+ const speechStorage={}; const dictated=await runtime({speech:true,offline:true,storage:speechStorage});
+ assert.equal(dictated.applySpeech('A spoken answer.'),true);
+ dictated.get('message-input').value='A spoken answer, edited.';await dictated.get('message-input').fire('input');
+ await dictated.get('chat-form').fire('submit');await dictated.tick();
+ const voiceRequest=JSON.parse(dictated.requests.find(r=>r.path==='/api/web/chat').options.body);
+ assert.equal(voiceRequest.input_source,'whisper_transcript');
+ const recoveredVoice=await runtime({speech:true,storage:speechStorage});
+ assert.equal(recoveredVoice.get('message-input').value,'A spoken answer, edited.');
+ assert.equal(recoveredVoice.requests.filter(r=>r.path==='/api/web/chat').length,0);
+ await recoveredVoice.get('retry-message').fire('click');await recoveredVoice.tick();
+ const voiceRetry=JSON.parse(recoveredVoice.requests.find(r=>r.path==='/api/web/chat').options.body);
+ assert.equal(voiceRetry.input_source,'whisper_transcript');assert.equal(voiceRetry.request_id,voiceRequest.request_id);
+ recoveredVoice.get('message-input').value='';await recoveredVoice.get('message-input').fire('input');
+ recoveredVoice.get('message-input').value='An independently typed answer.';await recoveredVoice.get('message-input').fire('input');
+ await recoveredVoice.get('chat-form').fire('submit');await recoveredVoice.tick();
+ const typedRequest=JSON.parse(recoveredVoice.requests.filter(r=>r.path==='/api/web/chat').at(-1).options.body);
+ assert.equal(typedRequest.input_source,'typed');
+ console.log('Web chat UI: 9 scenarios passed (explicit retry/null-turn ACK, namespace isolation, literal learner text, safe links, login URL validation, incremental resume, interruption, persistent backup warning, transcript provenance across edits/reload/retry).');
+
 
 
 })().catch(e=>{console.error(e);process.exitCode=1;});
