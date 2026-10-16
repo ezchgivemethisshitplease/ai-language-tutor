@@ -14,7 +14,16 @@
     const response = await nativeFetch(path, {...options, headers: {
       ...options.headers, 'X-Tutor-Token': session.token, 'X-Tutor-Namespace': session.namespace
     }});
-    if (!response.ok) { const error = new Error(`HTTP ${response.status}`); error.status = response.status; throw error; }
+    if (!response.ok) {
+      const error = new Error(`HTTP ${response.status}`); error.status = response.status;
+      if (String(path).startsWith('/api/speech/')) {
+        try { const data = await response.json();
+          if (typeof data.message === 'string' && data.message.length <= 1000) error.detail = data.message;
+          if (typeof data.error === 'string') error.code = data.error;
+        } catch { /* Preserve the HTTP status when the server response is incomplete. */ }
+      }
+      throw error;
+    }
     return response;
   }
   function status(message, retry, id = 'save-status') {

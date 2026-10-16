@@ -110,6 +110,8 @@ def validate_history(data):
                 raise ValueError("invalid message identity/text")
             if len(message["text"]) > 100000:
                 raise ValueError("message too large")
+            if message.get("input_source", "typed") not in {"typed", "whisper_transcript"}:
+                raise ValueError("invalid input source")
             seen.add(mid)
         if not isinstance(conversation.get("exercises", {}), dict):
             raise ValueError("invalid prepared exercises")
@@ -135,7 +137,11 @@ def instructions():
         "returned learner view verbatim for task content, hide answers/scripts. For the next "
         "human answer call attempt with its response_message_id BEFORE feedback or hints. "
         "Never send rewritten/invented response text. A repair after help must have hints_used "
-        "true. Review uncertain/open work with source llm; no human attestation. Complete actual "
+        "true. Human input_source whisper_transcript means locally recognized speech explicitly "
+        "confirmed as text by the learner; it is not acoustic evidence or independent written "
+        "composition. Do not assess writing production from such a message. The model receives "
+        "no audio. "
+        "Review uncertain/open work with source llm; no human attestation. Complete actual "
         "planned steps only. Prepared activities have browser links returned by the tool. "
         "Flashcard recall grades come only from the learner in the flashcard page. Text cannot "
         "establish listening/speaking/pronunciation evidence. In this web adapter listening "
@@ -437,6 +443,9 @@ class WebTutor:
     def chat(self, body):
         text = activity.text(body.get("message"), "message", MAX_MESSAGE)
         request_id = identifier(body.get("request_id"))
+        input_source = body.get("input_source", "typed")
+        if input_source not in {"typed", "whisper_transcript"}:
+            raise ValueError("invalid input source")
         cid = body.get("conversation_id")
         model = body.get("model") or None
         with self.lock:
@@ -448,6 +457,7 @@ class WebTutor:
                     if (
                         receipt["text"] != text
                         or receipt.get("model") != model
+                        or receipt.get("input_source", "typed") != input_source
                         or (cid and old["id"] != cid)
                     ):
                         raise ValueError("request id reused with changed input")
@@ -486,8 +496,15 @@ class WebTutor:
             if len(c["messages"]) >= MAX_MESSAGES - 50:
                 raise ValueError("start a new conversation; history is retained")
             mid = uuid.uuid4().hex
-            c["messages"].append({"id": mid, "role": "user", "text": text})
-            c["requests"][request_id] = {"text": text, "model": model, "message_id": mid}
+            c["messages"].append(
+                {"id": mid, "role": "user", "text": text, "input_source": input_source}
+            )
+            c["requests"][request_id] = {
+                "text": text,
+                "model": model,
+                "message_id": mid,
+                "input_source": input_source,
+            }
             c.update(
                 active=True,
                 turn_id=None,
@@ -535,6 +552,9 @@ class WebTutor:
                     "response_message_id": mid,
                     "message": human,
                     "learner_status": self._engine("status"),
+                    "input_source": next(
+                        m.get("input_source", "typed") for m in c["messages"] if m["id"] == mid
+                    ),
                 }
                 if c.get("cancel_requested"):
                     c["active"] = False
@@ -842,6 +862,15 @@ class WebTutor:
                     "response must follow task presentation and be the current human message"
                 )
             message = next(m for m in c["messages"] if m["id"] == mid and m["role"] == "user")
+            if (
+                message.get("input_source") == "whisper_transcript"
+                and entry["exercise"]["domain"] == "writing"
+            ):
+                return {
+                    "recorded": False,
+                    "reason": "speech_transcript_is_not_independent_writing",
+                    "instruction": "Ask for a typed writing response, or continue oral-style conversation without claiming a writing score. No attempt was saved.",
+                }
             if next(i for i, m in enumerate(c["messages"]) if m["id"] == mid) <= next(
                 i for i, m in enumerate(c["messages"]) if m["id"] == entry["after_message_id"]
             ):

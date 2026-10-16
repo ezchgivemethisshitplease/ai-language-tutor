@@ -29,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import activity
 import backup
 import srs
+import speech_service
 import storage
 import tts
 import web_tutor
@@ -52,6 +53,7 @@ def namespace(directory=None):
 
 
 MAX_BODY = 256 * 1024
+MAX_AUDIO_BODY = 12 * 1024 * 1024
 read_json = storage.load
 
 
@@ -205,8 +207,10 @@ def progress_payload():
 class TutorServer(ThreadingHTTPServer):
     shutdown_token: str
     tutor: web_tutor.WebTutor
+    speech: speech_service.SpeechService
 
     def server_close(self):
+        self.speech.close()
         self.tutor.close()
         super().server_close()
 
@@ -272,6 +276,10 @@ class Handler(SimpleHTTPRequestHandler):
                     {"ok": True} if self._authorized(parsed.query) else {"error": "forbidden"},
                     200 if self._authorized(parsed.query) else 403,
                 )
+            if route == "/api/speech/status":
+                if not self._authorized(parsed.query):
+                    return self._json({"error": "token required"}, 403)
+                return self._json(self.server.speech.status())
             if route.startswith("/api/web/"):
                 if not self._authorized(parsed.query):
                     return self._json({"error": "token required"}, 403)
@@ -365,6 +373,73 @@ class Handler(SimpleHTTPRequestHandler):
         # Avoid SimpleHTTPRequestHandler bypassing the static allowlist.
         self._json({"error": "method not supported"}, 405)
 
+    def _transcribe(self):
+        length = self.headers.get("Content-Length", "")
+        if (
+            self.headers.get("Transfer-Encoding")
+            or not length.isdecimal()
+            or not 0 < int(length) <= MAX_AUDIO_BODY
+        ):
+            return self._json(
+                {"error": "too_large", "message": "Запись должна быть не больше 12 МиБ."}, 413
+            )
+        previous_timeout = self.connection.gettimeout()
+        try:
+            self.connection.settimeout(30)
+            data = self.rfile.read(int(length))
+            if len(data) != int(length):
+                raise ValueError("incomplete audio upload")
+            self.connection.settimeout(previous_timeout)
+            result = self.server.speech.transcribe(
+                data,
+                self.headers.get("Content-Type", ""),
+                self.headers.get("X-Speech-Language", "auto"),
+            )
+            return self._json(result)
+        except (TimeoutError, ConnectionError):
+            return self._json(
+                {"error": "timeout", "message": "Передача записи прервалась. Повторите отправку."},
+                408,
+            )
+        except Exception as error:
+            statuses = {
+                "unavailable": 503,
+                "busy": 409,
+                "invalid_audio": 422,
+                "too_large": 413,
+                "too_long": 422,
+                "timeout": 504,
+                "setup_failed": 503,
+                "transcription_failed": 422,
+                "canceled": 409,
+            }
+            code = getattr(error, "code", None)
+            message = getattr(error, "message", None)
+            if (
+                isinstance(code, str)
+                and code in statuses
+                and isinstance(message, str)
+                and len(message) <= 1000
+            ):
+                return self._json({"error": code, "message": message}, statuses[code])
+            if isinstance(error, ValueError):
+                return self._json(
+                    {
+                        "error": "invalid_audio",
+                        "message": "Не удалось прочитать запись или язык распознавания.",
+                    },
+                    422,
+                )
+            return self._json(
+                {
+                    "error": "unavailable",
+                    "message": "Распознавание пока недоступно. Проверьте подготовку Whisper. Текстовый чат работает.",
+                },
+                503,
+            )
+        finally:
+            self.connection.settimeout(previous_timeout)
+
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
         if not self._origin_ok() or not self._authorized(parsed.query):
@@ -375,12 +450,14 @@ class Handler(SimpleHTTPRequestHandler):
             return
         try:
             directory = lang_dir()
-            if (directory is None and not parsed.path.startswith("/api/web/")) or self.headers.get(
-                "X-Tutor-Namespace"
-            ) != namespace(directory):
+            if (
+                directory is None and not parsed.path.startswith(("/api/web/", "/api/speech/"))
+            ) or self.headers.get("X-Tutor-Namespace") != namespace(directory):
                 return self._json({"error": "learner changed; reload before submitting"}, 409)
         except (OSError, ValueError):
             return self._json({"error": "invalid learner path"}, 409)
+        if parsed.path == "/api/speech/transcribe":
+            return self._transcribe()
         if self.headers.get_content_type() != "application/json":
             return self._json({"error": "application/json required"}, 415)
         raw_length = self.headers.get("Content-Length", "")
@@ -390,6 +467,10 @@ class Handler(SimpleHTTPRequestHandler):
             body = storage.decode(self.rfile.read(int(raw_length)))
             if not isinstance(body, dict):
                 raise ValueError("object required")
+            if parsed.path == "/api/speech/setup":
+                if body:
+                    raise ValueError("speech setup takes no options")
+                return self._json(self.server.speech.setup(), 202)
             if parsed.path.startswith("/api/web/"):
                 route = parsed.path.removeprefix("/api/web/")
                 tutor = self.server.tutor
@@ -491,10 +572,11 @@ class Handler(SimpleHTTPRequestHandler):
         pass  # No learner content, TTS text, or tokens in request logs.
 
 
-def create_server(port=0, tutor=None):
+def create_server(port=0, tutor=None, speech=None):
     server = TutorServer(("127.0.0.1", port), Handler)
     server.shutdown_token = secrets.token_urlsafe(32)
     server.tutor = tutor or web_tutor.WebTutor(STUDENT)
+    server.speech = speech or speech_service.SpeechService()
     return server
 
 

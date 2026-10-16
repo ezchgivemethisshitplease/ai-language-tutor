@@ -168,6 +168,49 @@ class WebTutorTests(unittest.TestCase):
         self.assertEqual(state["active_session_id"], session_id)
         self.assertEqual(self.tutor.conversation(cid), before)
 
+    def test_whisper_provenance_survives_retry_and_cannot_establish_written_production(self):
+        self.setup_learner()
+        request = {
+            "message": "Начнём",
+            "request_id": "voice-first",
+            "input_source": "whisper_transcript",
+        }
+        cid = self.tutor.chat(request)["conversation_id"]
+        self.wait_for_turn(cid)
+        self.assertEqual(
+            self.tutor.conversation(cid)["messages"][0]["input_source"], "whisper_transcript"
+        )
+        self.assertTrue(self.tutor.chat(request)["duplicate"])
+        with self.assertRaises(ValueError):
+            self.tutor.chat({**request, "input_source": "typed"})
+        c = self.tutor.data["conversations"][cid]
+        exercise = {
+            "id": "voice-not-writing",
+            "type": "short_writing",
+            "skill_id": "a1-01",
+            "level": "A1",
+            "domain": "writing",
+            "prompt": "Write about yourself.",
+            "rubric": {"clarity": "The written response is clear."},
+        }
+        self.tutor._action(c, "present", {"exercise": exercise})
+        c["current_message_id"] = "voice-writing-response"
+        c["messages"].append(
+            {
+                "id": c["current_message_id"],
+                "role": "user",
+                "text": "I am at home.",
+                "input_source": "whisper_transcript",
+            }
+        )
+        result = self.tutor._action(
+            c,
+            "attempt",
+            {"exercise_id": exercise["id"], "response_message_id": c["current_message_id"]},
+        )
+        self.assertFalse(result["recorded"])
+        self.assertEqual(self.tutor._state()["observations"], [])
+
     def test_streaming_human_response_and_canonical_grading(self):
         cid = self.begin()
         exact = "Am  \n"
