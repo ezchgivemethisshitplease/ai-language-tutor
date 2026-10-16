@@ -81,8 +81,8 @@ def locked(path, timeout=15):
             if sys.platform == "win32":
                 import msvcrt
 
-                if os.fstat(fd).st_size == 0:
-                    os.write(fd, b"\0")
+                # Byte-range locking may extend past EOF. Writing a sentinel
+                # before acquiring the lock races another process on Windows.
                 while True:
                     try:
                         os.lseek(fd, 0, os.SEEK_SET)

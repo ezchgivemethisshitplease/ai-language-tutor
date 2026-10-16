@@ -115,9 +115,18 @@ for _ in range(12):
             )
             for _ in range(4)
         ]
-        for process in children:
-            stdout, stderr = process.communicate(timeout=30)
-            self.assertEqual(process.returncode, 0, stderr.decode())
+        results = []
+        try:
+            for process in children:
+                stdout, stderr = process.communicate(timeout=30)
+                results.append((process.returncode, stderr.decode("utf-8", errors="replace")))
+        finally:
+            for process in children:
+                if process.poll() is None:
+                    process.kill()
+                process.wait(timeout=5)
+        for returncode, stderr in results:
+            self.assertEqual(returncode, 0, stderr)
         self.assertEqual(storage.load(self.path, {}), {"count": 48})
 
     def test_export_import_validator_and_symlink_rejection(self):

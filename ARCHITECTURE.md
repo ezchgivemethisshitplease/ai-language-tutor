@@ -39,7 +39,7 @@ No optimizer is fitted. Exported histories support later analysis, but adding an
 
 ## Decision 2: preserve JSON and serialize mutations
 
-The original file layout is useful for a local agent. Replacing it with a database would impose migration/inspection cost without evidence that this workload needs it. A common storage layer now serializes read/modify/write operations with a stable sidecar lock. Thread locks combine with `flock` on POSIX and `msvcrt.locking` on Windows.
+The original file layout is useful for a local agent. Replacing it with a database would impose migration/inspection cost without evidence that this workload needs it. A common storage layer now serializes read/modify/write operations with a stable sidecar lock. Thread locks combine with `flock` on POSIX and `msvcrt.locking` on Windows. Windows byte-range locks can extend past EOF, so no racy sentinel write is required; this follows [the CRT contract](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/locking?view=msvc-170).
 
 Writes serialize with finite JSON values, write a temporary file, flush it, replace the destination and sync the directory where supported. macOS additionally uses full fsync when available. The previous valid JSON is written atomically to `.bak`. A failed operation never silently substitutes an empty learner; explicit recovery validates the backup and preserves current bytes. These follow the semantics of [Python persistence APIs](https://docs.python.org/3/library/os.html#os.replace). Windows has no portable Python directory-fsync equivalent; filesystem/hardware durability still has practical limits.
 
