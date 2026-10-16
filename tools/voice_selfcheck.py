@@ -19,6 +19,8 @@ required_sections = (
     "## LESSON REPORT JSON",
 )
 required_report_fields = (
+    "pass_id",
+    "completed_steps",
     "lesson",
     "completed",
     "partial_reason",

@@ -157,14 +157,21 @@ def progress_payload():
                 errors.append({"count": int(match[1]), "label": match[2], "example": match[3]})
     learner = read_json(d / "learner.json", None)
     level = p.get("level")
+    mastered_units = 0
     if learner:
         import learning
 
         learning.validate_state(learner)
         level = learner["proficiency"]["working_level"]
+        mastered_units = sum(
+            value.get("mastered", False)
+            for key, value in learner["estimates"]["skills"].items()
+            if key.startswith(level.lower() + "-")
+        )
         errors = [
-            {"count": value["count"], "label": key, "example": ""}
+            {"count": value.get("confirmed_count", 0), "label": key, "example": ""}
             for key, value in learner["errors"].items()
+            if value.get("confirmed_count", 0) > 0
         ]
     errors.sort(key=lambda value: -value["count"])
     history = [entry["known_words"] for entry in p.get("history", []) if "known_words" in entry]
@@ -173,7 +180,8 @@ def progress_payload():
         "language": d.name,
         "level": level,
         "unit": p.get("unit", 1),
-        "levelPct": 0,
+        "levelPct": round(mastered_units / 12 * 100),
+        "masteredUnits": mastered_units,
         "knownWords": known,
         "dueCount": len(due_cards()),
         "topErrors": errors[:3],

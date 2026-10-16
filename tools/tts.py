@@ -26,7 +26,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CACHE = ROOT / "student" / ".tts-cache"
+CACHE = Path(os.environ.get("TUTOR_STUDENT_DIR", str(ROOT / "student"))) / ".tts-cache"
 
 DEFAULT_VOICE = {
     "edge": "en-US-AndrewNeural",

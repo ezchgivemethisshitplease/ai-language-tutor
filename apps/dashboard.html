@@ -40,14 +40,14 @@
 </head>
 <body>
 <header>
-  <div class="brand"><b>Tutor</b><span>Home</span></div>
+  <div class="brand"><b>Tutor</b><span>Прогресс</span></div>
   <span class="chip" id="level-chip">–</span>
 </header>
 <main>
   <section class="row">
     <div class="tile">
       <span style="font-size:26px">🔥</span>
-      <div><div class="big" id="streak">0</div><div class="lbl">day streak</div></div>
+      <div><div class="big" id="streak">0</div><div class="lbl">дней занятий подряд</div></div>
     </div>
     <div class="tile">
       <div style="flex:1">
@@ -59,35 +59,35 @@
       </div>
     </div>
     <div class="tile">
-      <div><div class="big" id="unit">–</div><div class="lbl">current unit</div></div>
+      <div><div class="big" id="unit">–</div><div class="lbl">разделов освоено</div></div>
     </div>
   </section>
   <section class="panel">
     <div class="panel-head">
-      <h2>Vocabulary</h2>
-      <span class="kw"><span id="known">0</span> <small>words known</small></span>
+      <h2>Словарь</h2>
+      <span class="kw"><span id="known">0</span> <small>записей в старом списке</small></span>
     </div>
-    <svg id="chart" viewBox="0 0 600 150" style="width:100%;height:auto;display:block" role="img" aria-label="Known words over time"></svg>
-    <div class="axis"><span id="axis-from">start</span><span>today</span></div>
+    <svg id="chart" viewBox="0 0 600 150" style="width:100%;height:auto;display:block" role="img" aria-label="История старого списка слов"></svg>
+    <div class="axis"><span id="axis-from">начало</span><span>сегодня</span></div>
   </section>
   <section class="grid2">
     <div class="panel" style="display:flex;flex-direction:column;gap:12px">
-      <h2>Due today</h2>
+      <h2>К повторению сейчас</h2>
       <div style="display:flex;align-items:baseline;gap:8px">
         <span class="due-num" id="due">0</span>
-        <span class="muted">cards ready for review</span>
+        <span class="muted">карточек готовы к повторению</span>
       </div>
-      <a class="btn-soft" href="flashcards.html">Review cards</a>
+      <a class="btn-soft" href="flashcards.html">Повторить карточки</a>
     </div>
     <div class="panel" style="display:flex;flex-direction:column;gap:10px">
-      <h2>Recurring errors</h2>
-      <div id="errors"><span class="muted">Nothing recurring yet — that's a good sign.</span></div>
+      <h2>Повторяющиеся ошибки</h2>
+      <div id="errors"><span class="muted">Пока недостаточно наблюдений.</span></div>
     </div>
   </section>
   <div class="cta">
-    <span>Your tutor runs today’s session — say</span>
+    <span>Для начала занятия напишите</span>
     <code>“session”</code>
-    <span>in your AI agent</span>
+    <span>в чате тьютора</span>
   </div>
 </main>
 <script src="client.js"></script>
@@ -102,15 +102,15 @@
     ]};
   const $ = id => document.getElementById(id);
   const esc = s => { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
-  const NEXT = { A1: 'A2', A2: 'B1', B1: 'B2', B2: 'C1', C1: 'C2' };
+
 
   function render(d) {
     $('streak').textContent = d.streak ?? 0;
     const lvl = d.level || '–';
     $('level').textContent = lvl; $('level-chip').textContent = lvl;
-    $('level-next').textContent = NEXT[lvl] ? `${d.levelPct ?? 0}% to ${NEXT[lvl]}` : '';
+    $('level-next').textContent = 'Рабочий уровень, без сертификации CEFR';
     $('level-bar').style.width = (d.levelPct ?? 0) + '%';
-    $('unit').textContent = d.unit ?? '–';
+    $('unit').textContent = d.masteredUnits ?? 0;
     $('known').textContent = d.knownWords ?? 0;
     $('due').textContent = d.dueCount ?? 0;
     const h = (d.history && d.history.length > 1) ? d.history : [0, d.knownWords ?? 0];
@@ -129,8 +129,15 @@
     }
   }
 
-  fetch('/api/progress').then(r => r.ok ? r.json() : null)
-    .then(d => render(d || DEMO)).catch(() => render(DEMO));
+  (async () => {
+    try {
+      if (new URLSearchParams(location.search).get('demo') === '1') {
+        render(DEMO); Tutor.status('Демонстрационные данные');
+      } else {
+        const response = await fetch('/api/progress'); render(await response.json());
+      }
+    } catch (error) { Tutor.status('Прогресс не загружен. Проверьте сервер и данные.', () => location.reload()); }
+  })();
 })();
 </script>
 </body>

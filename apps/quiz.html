@@ -16,6 +16,8 @@
   .dots span { width: 9px; height: 9px; border-radius: 50%; background: var(--surface-2); transition: background .2s var(--ease); }
   .dots .cur { background: var(--ink-soft); }
   .dots .ok { background: var(--success); }
+  .dots .pending { background: var(--warning); }
+  .fb-box.pending { background: var(--warning-soft); color: var(--warning); }
   .dots .bad { background: var(--error); }
   .qcard { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-1); padding: 26px 22px; animation: tut-rise .2s var(--ease); }
   .qtype { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 12px; }
@@ -82,7 +84,7 @@
       <circle cx="55" cy="55" r="46" fill="none" stroke="var(--surface-2)" stroke-width="10"></circle>
       <circle id="ring-fg" cx="55" cy="55" r="46" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round" transform="rotate(-90 55 55)"></circle>
       <text id="ring-num" x="55" y="52" text-anchor="middle" style="font-family:var(--font-display);font-weight:700;font-size:26px" fill="var(--ink)"></text>
-      <text x="55" y="72" text-anchor="middle" style="font-size:11px;font-weight:600" fill="var(--ink-faint)">correct</text>
+      <text x="55" y="72" text-anchor="middle" style="font-size:11px;font-weight:600" fill="var(--ink-faint)">принято</text>
     </svg>
     <div class="review" id="review"></div>
     <div class="added hidden" id="added"></div>
@@ -108,7 +110,7 @@
 
   function renderDots() {
     $('dots').innerHTML = quiz.questions.map((_, d) => {
-      const cls = d < results.length ? (results[d].correct ? 'ok' : 'bad') : d === i ? 'cur' : '';
+      const cls = d < results.length ? (results[d].correct === null ? 'pending' : results[d].correct ? 'ok' : 'bad') : d === i ? 'cur' : '';
       return `<span class="${cls}"></span>`;
     }).join('');
   }
@@ -155,14 +157,14 @@
     renderDots();
     $('check').classList.add('hidden');
     const box = $('fb-box');
-    box.className = 'fb-box ' + (correct ? 'ok' : 'bad');
+    box.className = 'fb-box ' + (correct === null ? 'pending' : correct ? 'ok' : 'bad');
     $('fb-mark').textContent = correct === null ? '?' : correct ? '✓' : '✗';
     const fix = correct ? '' :
       q.type === 'choice' ? `Correct answer: ${q.options[q.correct]}. ` :
       q.type === 'gap' ? `Correct answer: ${primaryAns(q)}. ` :
       `Correct order: ${q.display} `;
     $('fb-text').textContent = correct === null ? 'Вариант требует проверки: возможна другая правильная формулировка. ' + (q.explain || '') : fix + (q.explain || '');
-    $('next').textContent = i + 1 >= quiz.questions.length ? 'Результаты' : 'Next';
+    $('next').textContent = i + 1 >= quiz.questions.length ? 'Результаты' : 'Далее';
     $('feedback').classList.remove('hidden');
   }
 
@@ -170,7 +172,7 @@
     const q = quiz.questions[i];
     const val = $('gap').value.trim();
     const ok = (q.answers ?? [q.answer]).map(norm).includes(norm(val)) ? true : q.exhaustive === true ? false : null;
-    $('gap').classList.add(ok ? 'ok' : 'bad');
+    if (ok !== null) $('gap').classList.add(ok ? 'ok' : 'bad');
     $('gap').disabled = true;
     feedback(ok, q, val);
   }
@@ -215,7 +217,7 @@
     const pending = results.filter(r => r.correct === null).length;
     Tutor.status(`${score}: принято; ${pending}: требуют проверки. Это результат заданий, не оценка CEFR.`);
     $('review').innerHTML = results.map(r => {
-      const s = r.q.type === 'reorder' ? r.q.display : r.q.type === 'gap' ? r.q.prompt.replace('___', primaryAns(r.q)) : r.q.prompt;
+      const s = r.q.type === 'reorder' ? r.response : r.q.prompt.replace('___', r.q.type === 'choice' ? r.q.options[r.response] : r.response);
       const c = r.correct === null ? '<div class="c">Нужна проверка по контексту</div>' : r.correct ? '' : `<div class="c">→ ${esc(r.q.type === 'choice' ? r.q.options[r.q.correct] + ' — ' + r.q.explain : r.q.explain)}</div>`;
       return `<div class="rrow"><span class="mark" style="color:var(--${r.correct === null ? 'warning' : r.correct ? 'success' : 'error'})">${r.correct === null ? '?' : r.correct ? '✓' : '✗'}</span><div><div class="s">${esc(s)}</div>${c}</div></div>`;
     }).join('');
