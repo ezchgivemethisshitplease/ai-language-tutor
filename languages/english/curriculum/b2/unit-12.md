@@ -23,7 +23,7 @@ context — the situation that helps explain a meaning
 proficiency — a high degree of skill or competence
 revise — to study material again to prepare for a test
 assess — to judge the quality or level of something
-distractor — a wrong answer option designed to mislead
+distractor — a plausible incorrect option in a choice question
 benchmark — a standard used to measure or compare against
 
 ## Functions & phrases
