@@ -73,6 +73,7 @@
     <span class="col"><span id="collected">0</span> words collected</span>
   </div>
 </footer>
+<script src="client.js"></script>
 <script>
 (() => {
   const DEMO = {
@@ -100,10 +101,13 @@
   const esc = s => { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
 
   function postEvent(payload) {
-    const body = JSON.stringify(payload); // snapshot before later clicks mutate the arrays
-    eventQueue = eventQueue.then(() => fetch('/api/text', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true,
-    })).catch(() => {});
+    const snapshot = JSON.parse(JSON.stringify(payload));
+    // Persist immediately; separate batch IDs make concurrent selections independent.
+    eventQueue = Tutor.post('/api/text', {...snapshot, activity_id: story.activity_id});
+    eventQueue.catch(() => Tutor.status('Слово не сохранено. Повторите отправку.', async () => {
+      try { const replay = await Tutor.flush(); if (replay.conflicts) throw new Error("Unresolved result"); location.reload(); }
+      catch (error) { Tutor.status('Сохранение пока недоступно.', () => location.reload()); }
+    }));
   }
 
   let premiumTTS = true, currentAudio = null;
@@ -235,10 +239,17 @@
     $('readbar').style.width = $('pct').textContent + '%';
   }, { passive: true });
 
-  fetch('/api/text').then(r => r.ok ? r.json() : null).then(d => {
-    if (d && Array.isArray(d.paragraphs)) { story = d; story.glossary = story.glossary || {}; live = true; }
-    render();
-  }).catch(() => render());
+  (async () => {
+    try {
+      if (new URLSearchParams(location.search).get('demo') === '1') {
+        Tutor.status('Демонстрация: результаты не сохраняются.');
+      } else {
+        await Tutor.flush(); const response = await fetch('/api/text');
+        story = await response.json(); story.glossary = story.glossary || {}; live = true;
+      }
+      render();
+    } catch (error) { Tutor.status('Текст не загружен. Проверьте сервер и файл занятия.', () => location.reload()); }
+  })();
 })();
 </script>
 </body>

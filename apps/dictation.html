@@ -29,28 +29,33 @@
 </header>
 <main>
   <h1 id="title"></h1>
-  <p class="how">Listen as many times as you need — the player has play, scrub and (right-click) loop.
-     Write each sentence <b>in the chat</b>, then open “show text” to check yourself. Never the other way round.</p>
+  <p class="how">Прослушайте предложение и запишите его <b>в чате</b>. Затем откройте текст и сравните. Если плеер недоступен, используйте голос браузера.</p>
   <div id="items"><p class="empty">Loading…</p></div>
 </main>
+<script src="client.js"></script>
 <script>
-fetch('/api/dictation').then(r => r.ok ? r.json() : null).then(d => {
-  if (!d) { document.getElementById('items').innerHTML =
-    '<p class="empty">No dictation prepared. The tutor writes <code>student/dictation-current.json</code> first.</p>'; return; }
-  document.title = 'Tutor — ' + (d.title || 'Dictation');
-  document.getElementById('title').textContent = d.title || 'Dictation';
-  document.getElementById('items').innerHTML = (d.sentences || []).map((s, i) => `
-    <div class="item">
-      <div class="n">${d.label || 'Sentence'} ${i + 1}</div>
-      <audio controls preload="none" src="/api/tts?text=${encodeURIComponent(s.en)}"></audio>
-      <details>
-        <summary>show text</summary>
-        <div class="en">${s.en}</div>
-        <div class="es">${s.es || ''}</div>
-        ${s.note ? `<div class="note">${s.note}</div>` : ''}
-      </details>
-    </div>`).join('');
-});
+(async () => {
+  try {
+    const response = await fetch('/api/dictation'); const d = await response.json();
+    document.title = 'Tutor — ' + d.title;
+    document.getElementById('title').textContent = d.title;
+    const items = await Promise.all(d.sentences.map(async (s, i) => {
+      const src = await Tutor.audioUrl(s.en);
+      return `<div class="item"><div class="n">${Tutor.escape(d.label || 'Предложение')} ${i+1}</div>
+        <audio controls preload="none" src="${Tutor.escape(src)}"></audio>
+        <button data-speak="${i}">Озвучить голосом браузера</button>
+        <details><summary>Показать текст</summary><div class="en">${Tutor.escape(s.en)}</div>
+        <div class="es">${Tutor.escape(s.l1 || s.es || '')}</div>
+        ${s.note ? `<div class="note">${Tutor.escape(s.note)}</div>` : ''}</details></div>`;
+    }));
+    document.getElementById('items').innerHTML = items.join('');
+    document.getElementById('items').addEventListener('click', event => {
+      const button = event.target.closest('[data-speak]'); if (!button) return;
+      const utterance = new SpeechSynthesisUtterance(d.sentences[+button.dataset.speak].en);
+      utterance.lang = 'en-US'; speechSynthesis.cancel(); speechSynthesis.speak(utterance);
+    });
+  } catch (error) { Tutor.status('Диктант не загружен. Сначала подготовьте задание.', () => location.reload()); }
+})();
 </script>
 </body>
 </html>

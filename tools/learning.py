@@ -5,6 +5,7 @@ The thresholds below are conservative *product heuristics*, not validated CEFR
 cut scores, mastery probabilities or a calibrated psychometric model. Raw
 observations are immutable evidence; estimates can always be reconstructed.
 """
+
 from __future__ import annotations
 
 import copy
@@ -19,15 +20,41 @@ SCHEMA_VERSION = 1
 LEVELS = ("A1", "A2", "B1", "B2", "C1")
 DOMAINS = ("reading", "listening", "writing", "speaking", "grammar", "vocabulary", "pronunciation")
 OPEN_TYPES = {"dialogue", "short_writing", "extended_writing", "spoken_response"}
-CLOSED_TYPES = {"cloze", "translation", "transformation", "reorder", "error_correction",
-                "reading_comprehension", "listening_comprehension", "minimal_pairs", "choice", "gap"}
-JUDGMENTS = {"incorrect", "correct", "correct_alternative", "unnatural", "stylistically_inappropriate", "contextually_inappropriate"}
+CLOSED_TYPES = {
+    "cloze",
+    "translation",
+    "transformation",
+    "reorder",
+    "error_correction",
+    "reading_comprehension",
+    "listening_comprehension",
+    "minimal_pairs",
+    "choice",
+    "gap",
+}
+JUDGMENTS = {
+    "incorrect",
+    "correct",
+    "correct_alternative",
+    "unnatural",
+    "stylistically_inappropriate",
+    "contextually_inappropriate",
+}
 # Diversity and spacing prevent one easy item, retries or hints from gating progress.
-POLICY = {"min_distinct_items": 4, "min_sessions": 3, "min_dates": 2,
-          "min_success_rate": 0.8, "min_span_days": 7, "min_domains": 2,
-          "min_production_items": 1, "review_after_days": 7,
-          "assessment_min_items_per_domain": 4, "assessment_min_dates": 2,
-          "assessment_success_rate": 0.8, "assessment_max_age_days": 90}
+POLICY = {
+    "min_distinct_items": 4,
+    "min_sessions": 3,
+    "min_dates": 2,
+    "min_success_rate": 0.8,
+    "min_span_days": 7,
+    "min_domains": 2,
+    "min_production_items": 1,
+    "review_after_days": 7,
+    "assessment_min_items_per_domain": 4,
+    "assessment_min_dates": 2,
+    "assessment_success_rate": 0.8,
+    "assessment_max_age_days": 90,
+}
 
 
 def _day(value: str | date | None = None) -> str:
@@ -63,12 +90,20 @@ def _strings(value: Any, name: str, *, nonempty: bool = False) -> list[str]:
 
 
 def new_state(native_language: str = "russian") -> dict:
-    return {"schema_version": SCHEMA_VERSION,
-            "native_language": _text(native_language, "native_language", 80).lower(),
-            "target_language": "english", "profile": {"daily_minutes": 30, "voice_channel": "none"},
-            "proficiency": {"working_level": "A1", "status": "unassessed", "calibrated": False},
-            "observations": [], "estimates": {"skills": {}, "grammar": {}, "vocabulary": {}},
-            "errors": {}, "sessions": {}, "active_session_id": None, "objectives": [], "legacy": {}}
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "native_language": _text(native_language, "native_language", 80).lower(),
+        "target_language": "english",
+        "profile": {"daily_minutes": 30, "voice_channel": "none"},
+        "proficiency": {"working_level": "A1", "status": "unassessed", "calibrated": False},
+        "observations": [],
+        "estimates": {"skills": {}, "grammar": {}, "vocabulary": {}},
+        "errors": {},
+        "sessions": {},
+        "active_session_id": None,
+        "objectives": [],
+        "legacy": {},
+    }
 
 
 def migrate_legacy(progress: dict, native_language: str = "russian") -> dict:
@@ -84,7 +119,11 @@ def migrate_legacy(progress: dict, native_language: str = "russian") -> dict:
 
 def validate_state(state: dict) -> None:
     """Reject malformed canonical state rather than repairing silently."""
-    if not isinstance(state, dict) or type(state.get("schema_version")) is not int or state.get("schema_version") != SCHEMA_VERSION:
+    if (
+        not isinstance(state, dict)
+        or type(state.get("schema_version")) is not int
+        or state.get("schema_version") != SCHEMA_VERSION
+    ):
         raise ValueError("unsupported learner schema_version")
     for key in ("native_language", "target_language"):
         _text(state.get(key), key, 80)
@@ -95,7 +134,11 @@ def validate_state(state: dict) -> None:
     if type(minutes) is not int or not 5 <= minutes <= 240:
         raise ValueError("daily_minutes must be an integer from 5 to 240")
     proficiency = state.get("proficiency")
-    if not isinstance(proficiency, dict) or proficiency.get("working_level") not in LEVELS or proficiency.get("calibrated") is not False:
+    if (
+        not isinstance(proficiency, dict)
+        or proficiency.get("working_level") not in LEVELS
+        or proficiency.get("calibrated") is not False
+    ):
         raise ValueError("invalid or unsupported calibrated proficiency claim")
     _strings(state.get("objectives"), "objectives")
     if not isinstance(state.get("legacy"), dict):
@@ -121,11 +164,19 @@ def validate_state(state: dict) -> None:
         if type(observation.get("hints_used")) is not bool:
             raise ValueError("invalid hints_used")
         grade = observation.get("grade")
-        if not isinstance(grade, dict) or grade.get("status") not in {"correct", "incorrect", "needs_review"}:
+        if not isinstance(grade, dict) or grade.get("status") not in {
+            "correct",
+            "incorrect",
+            "needs_review",
+        }:
             raise ValueError("invalid observation grade")
         if grade.get("source") not in {"deterministic", "human", "llm", "pending"}:
             raise ValueError("invalid grade source")
-        if grade.get("score") is not None and (type(grade["score"]) not in {float, int} or not math.isfinite(grade["score"]) or not 0 <= grade["score"] <= 1):
+        if grade.get("score") is not None and (
+            type(grade["score"]) not in {float, int}
+            or not math.isfinite(grade["score"])
+            or not 0 <= grade["score"] <= 1
+        ):
             raise ValueError("invalid observation score")
         _strings(observation.get("error_tags", []), "error_tags")
     active_ids = []
@@ -146,7 +197,9 @@ def validate_state(state: dict) -> None:
             raise ValueError("session observation index mismatch")
         if type(session.get("speaking_debt")) is not bool:
             raise ValueError("speaking_debt must be boolean")
-        if "sequence" in session and (type(session["sequence"]) is not int or session["sequence"] < 1):
+        if "sequence" in session and (
+            type(session["sequence"]) is not int or session["sequence"] < 1
+        ):
             raise ValueError("invalid session sequence")
         _strings(session.get("deferred_voice_skills", []), "deferred_voice_skills")
         settlements = session.get("debt_settlements", [])
@@ -154,18 +207,29 @@ def validate_state(state: dict) -> None:
             raise ValueError("invalid speaking debt settlements")
         settled_skills = set()
         for settlement in settlements:
-            if not isinstance(settlement, dict) or set(settlement) != {"skill_id", "observation_id"}:
+            if not isinstance(settlement, dict) or set(settlement) != {
+                "skill_id",
+                "observation_id",
+            }:
                 raise ValueError("invalid speaking debt settlement")
             skill = settlement["skill_id"]
             if skill not in session.get("deferred_voice_skills", []) or skill in settled_skills:
                 raise ValueError("invalid or duplicate settled skill")
-            evidence = next((o for o in observations if o["id"] == settlement["observation_id"]), None)
-            if evidence is None or not _debt_evidence_eligible(state, session, evidence) or evidence["exercise"]["skill_id"] != skill:
+            evidence = next(
+                (o for o in observations if o["id"] == settlement["observation_id"]), None
+            )
+            if (
+                evidence is None
+                or not _debt_evidence_eligible(state, session, evidence)
+                or evidence["exercise"]["skill_id"] != skill
+            ):
                 raise ValueError("speaking debt settlement lacks matching later speech evidence")
             settled_skills.add(skill)
         if settlements and session["status"] not in {"completed", "abandoned"}:
             raise ValueError("active session cannot contain a settled historical debt")
-        if settlements and session["speaking_debt"] != bool(set(session["deferred_voice_skills"]) - settled_skills):
+        if settlements and session["speaking_debt"] != bool(
+            set(session["deferred_voice_skills"]) - settled_skills
+        ):
             raise ValueError("speaking debt flag disagrees with settlements")
         if session["status"] in {"active", "interrupted"}:
             active_ids.append(sid)
@@ -178,7 +242,9 @@ def validate_state(state: dict) -> None:
     if len(active_ids) > 1 or state.get("active_session_id") != expected_active:
         raise ValueError("active session index mismatch")
     estimates = state.get("estimates")
-    if not isinstance(estimates, dict) or any(not isinstance(estimates.get(k), dict) for k in ("skills", "grammar", "vocabulary")):
+    if not isinstance(estimates, dict) or any(
+        not isinstance(estimates.get(k), dict) for k in ("skills", "grammar", "vocabulary")
+    ):
         raise ValueError("invalid estimates")
     # Derived mastery is checked against evidence: a hand-edited estimate cannot unlock units.
     if estimates != _derive_estimates(observations):
@@ -196,19 +262,32 @@ def validate_state(state: dict) -> None:
         if not isinstance(error, dict) or error.get("count") != expected_counts[tag]:
             raise ValueError("invalid recurring error count")
         _day(_text(error.get("last_seen"), "error.last_seen", 10))
-        if error.get("confirmed_count") != sum(tag in o.get("error_tags", []) and _eligible(o) for o in observations):
+        if error.get("confirmed_count") != sum(
+            tag in o.get("error_tags", []) and _eligible(o) for o in observations
+        ):
             raise ValueError("invalid confirmed recurring error count")
-        confirmed_dates = [o["date"] for o in observations if tag in o.get("error_tags", []) and _eligible(o)]
+        confirmed_dates = [
+            o["date"] for o in observations if tag in o.get("error_tags", []) and _eligible(o)
+        ]
         if error.get("confirmed_last_seen") != max(confirmed_dates, default=None):
             raise ValueError("invalid confirmed error date")
-        if set(error.get("observation_ids", [])) != {o["id"] for o in observations if tag in o.get("error_tags", [])}:
+        if set(error.get("observation_ids", [])) != {
+            o["id"] for o in observations if tag in o.get("error_tags", [])
+        }:
             raise ValueError("invalid error observation references")
-        if set(error.get("skill_ids", [])) != {o["exercise"]["skill_id"] for o in observations if tag in o.get("error_tags", [])}:
+        if set(error.get("skill_ids", [])) != {
+            o["exercise"]["skill_id"] for o in observations if tag in o.get("error_tags", [])
+        }:
             raise ValueError("invalid error skills")
 
 
 def validate_catalog(catalog: dict) -> None:
-    if not isinstance(catalog, dict) or catalog.get("schema_version") != 1 or not isinstance(catalog.get("units"), list) or not catalog["units"]:
+    if (
+        not isinstance(catalog, dict)
+        or catalog.get("schema_version") != 1
+        or not isinstance(catalog.get("units"), list)
+        or not catalog["units"]
+    ):
         raise ValueError("invalid curriculum catalog")
     ids = set()
     for unit in catalog["units"]:
@@ -225,6 +304,7 @@ def validate_catalog(catalog: dict) -> None:
             raise ValueError("unknown curriculum domain")
     edges = {u["id"]: u["prerequisites"] for u in catalog["units"]}
     visiting, visited = set(), set()
+
     def visit(uid: str) -> None:
         if uid in visiting:
             raise ValueError("curriculum prerequisite cycle")
@@ -237,6 +317,7 @@ def validate_catalog(catalog: dict) -> None:
             visit(parent)
         visiting.remove(uid)
         visited.add(uid)
+
     for uid in edges:
         visit(uid)
 
@@ -244,16 +325,42 @@ def validate_catalog(catalog: dict) -> None:
 def validate_exercise(exercise: Any) -> None:
     if not isinstance(exercise, dict):
         raise ValueError("exercise must be an object")
-    allowed = {"id", "type", "skill_id", "level", "domain", "prompt", "answers", "options", "rubric", "error_tags", "grammar_tags", "vocabulary", "mode", "step_id", "normalization", "audio_evidence", "exhaustive", "context", "explanation_ru"}
+    allowed = {
+        "id",
+        "type",
+        "skill_id",
+        "level",
+        "domain",
+        "prompt",
+        "answers",
+        "options",
+        "rubric",
+        "error_tags",
+        "grammar_tags",
+        "vocabulary",
+        "mode",
+        "step_id",
+        "normalization",
+        "audio_evidence",
+        "exhaustive",
+        "context",
+        "explanation_ru",
+    }
     if set(exercise) - allowed:
-        raise ValueError("unsupported exercise fields: " + ", ".join(sorted(set(exercise) - allowed)))
+        raise ValueError(
+            "unsupported exercise fields: " + ", ".join(sorted(set(exercise) - allowed))
+        )
     for key in ("id", "skill_id", "prompt"):
         _text(exercise.get(key), key)
     curricular_id = re.fullmatch(r"(a1|a2|b1|b2|c1)-[0-9]{2}", exercise["skill_id"])
     if curricular_id and curricular_id.group(1).upper() != exercise.get("level"):
         raise ValueError("exercise level must match its curriculum skill")
     typ = exercise.get("type")
-    if typ not in OPEN_TYPES | CLOSED_TYPES or exercise.get("level") not in LEVELS or exercise.get("domain") not in DOMAINS:
+    if (
+        typ not in OPEN_TYPES | CLOSED_TYPES
+        or exercise.get("level") not in LEVELS
+        or exercise.get("domain") not in DOMAINS
+    ):
         raise ValueError("unknown exercise type, level or domain")
     mode = exercise.get("mode", "voice-required" if typ == "spoken_response" else "chat")
     if mode not in {"chat", "voice-required"}:
@@ -282,7 +389,11 @@ def validate_exercise(exercise: Any) -> None:
     if "exhaustive" in exercise and type(exercise["exhaustive"]) is not bool:
         raise ValueError("exhaustive must be boolean")
     normalization = exercise.get("normalization", {})
-    if not isinstance(normalization, dict) or set(normalization) - {"case_sensitive", "ignore_terminal_punctuation"} or any(type(v) is not bool for v in normalization.values()):
+    if (
+        not isinstance(normalization, dict)
+        or set(normalization) - {"case_sensitive", "ignore_terminal_punctuation"}
+        or any(type(v) is not bool for v in normalization.values())
+    ):
         raise ValueError("invalid answer normalization")
     for key in ("audio_evidence", "step_id", "context", "explanation_ru"):
         if key in exercise:
@@ -304,18 +415,44 @@ def grade_answer(exercise: dict, response: str) -> dict:
     if not isinstance(response, str) or len(response) > 20000:
         raise ValueError("response must be text (max 20000)")
     if exercise["type"] in OPEN_TYPES:
-        return {"status": "needs_review", "score": None, "source": "pending", "reason": "Open production needs contextual rubric review; no exact-match penalty."}
+        return {
+            "status": "needs_review",
+            "score": None,
+            "source": "pending",
+            "reason": "Open production needs contextual rubric review; no exact-match penalty.",
+        }
     normalized = _normalize(response, exercise)
     for accepted in exercise["answers"]:
         if normalized == _normalize(accepted, exercise):
-            return {"status": "correct", "score": 1.0, "source": "deterministic", "accepted_answer": accepted}
+            return {
+                "status": "correct",
+                "score": 1.0,
+                "source": "deterministic",
+                "accepted_answer": accepted,
+            }
     if not response.strip() or exercise.get("exhaustive", False) or "options" in exercise:
-        return {"status": "incorrect", "score": 0.0, "source": "deterministic", "reason": "Not an accepted answer for this constrained task."}
-    return {"status": "needs_review", "score": None, "source": "pending", "reason": "Unlisted wording may be a valid alternative; review meaning and context."}
+        return {
+            "status": "incorrect",
+            "score": 0.0,
+            "source": "deterministic",
+            "reason": "Not an accepted answer for this constrained task.",
+        }
+    return {
+        "status": "needs_review",
+        "score": None,
+        "source": "pending",
+        "reason": "Unlisted wording may be a valid alternative; review meaning and context.",
+    }
 
 
 def _review_grade(exercise: dict, review: dict) -> dict:
-    if not isinstance(review, dict) or set(review) - {"source", "judgment", "criteria", "rationale", "audio_evidence"}:
+    if not isinstance(review, dict) or set(review) - {
+        "source",
+        "judgment",
+        "criteria",
+        "rationale",
+        "audio_evidence",
+    }:
         raise ValueError("invalid rubric review")
     if review.get("source") not in {"human", "llm"} or review.get("judgment") not in JUDGMENTS:
         raise ValueError("review requires human/llm source and explicit judgment")
@@ -324,7 +461,10 @@ def _review_grade(exercise: dict, review: dict) -> dict:
     criteria = review.get("criteria")
     if not isinstance(criteria, dict) or set(criteria) != set(rubric):
         raise ValueError("review must score every rubric criterion")
-    if any(type(v) not in {int, float} or not math.isfinite(v) or not 0 <= v <= 1 for v in criteria.values()):
+    if any(
+        type(v) not in {int, float} or not math.isfinite(v) or not 0 <= v <= 1
+        for v in criteria.values()
+    ):
         raise ValueError("rubric scores must be finite numbers from 0 to 1")
     needs_audio = exercise["domain"] in {"speaking", "pronunciation", "listening"}
     if needs_audio and not (exercise.get("audio_evidence") or review.get("audio_evidence")):
@@ -335,16 +475,28 @@ def _review_grade(exercise: dict, review: dict) -> dict:
         raise ValueError("incorrect judgment contradicts rubric score")
     if judgment in {"correct", "correct_alternative"} and score < 0.8:
         raise ValueError("correct judgment contradicts rubric score")
-    return {"status": "correct" if judgment in {"correct", "correct_alternative"} else "incorrect",
-            "score": score, "source": review["source"], "judgment": judgment,
-            "criteria": copy.deepcopy(criteria), "rationale": review["rationale"],
-            "audio_evidence": review.get("audio_evidence", exercise.get("audio_evidence"))}
+    return {
+        "status": "correct" if judgment in {"correct", "correct_alternative"} else "incorrect",
+        "score": score,
+        "source": review["source"],
+        "judgment": judgment,
+        "criteria": copy.deepcopy(criteria),
+        "rationale": review["rationale"],
+        "audio_evidence": review.get("audio_evidence", exercise.get("audio_evidence")),
+    }
 
 
 def _eligible(observation: dict) -> bool:
     exercise, grade = observation["exercise"], observation["grade"]
-    audio_ok = exercise["domain"] not in {"speaking", "pronunciation", "listening"} or bool(exercise.get("audio_evidence") or grade.get("audio_evidence"))
-    return not observation["hints_used"] and grade["source"] in {"deterministic", "human"} and grade["score"] is not None and audio_ok
+    audio_ok = exercise["domain"] not in {"speaking", "pronunciation", "listening"} or bool(
+        exercise.get("audio_evidence") or grade.get("audio_evidence")
+    )
+    return (
+        not observation["hints_used"]
+        and grade["source"] in {"deterministic", "human"}
+        and grade["score"] is not None
+        and audio_ok
+    )
 
 
 def _summary(observations: list[dict]) -> dict:
@@ -371,21 +523,57 @@ def _summary(observations: list[dict]) -> dict:
     if distinct_items:
         n = distinct_items
         z = 1.96
-        center = (rate + z*z/(2*n)) / (1 + z*z/n)
-        half = z * math.sqrt(rate*(1-rate)/n + z*z/(4*n*n)) / (1+z*z/n)
-        interval = [round(max(0, center-half), 4), round(min(1, center+half), 4)]
+        center = (rate + z * z / (2 * n)) / (1 + z * z / n)
+        half = z * math.sqrt(rate * (1 - rate) / n + z * z / (4 * n * n)) / (1 + z * z / n)
+        interval = [round(max(0, center - half), 4), round(min(1, center + half), 4)]
     latest = max((o["date"] for o in evidence), default=None)
     earliest = min((o["date"] for o in evidence), default=None)
-    span = (date.fromisoformat(latest) - date.fromisoformat(earliest)).days if latest and earliest else 0
+    span = (
+        (date.fromisoformat(latest) - date.fromisoformat(earliest)).days
+        if latest and earliest
+        else 0
+    )
     domains = len({o["exercise"]["domain"] for o in evidence})
-    production_items = len({o["exercise"]["id"] for o in distinct if o["grade"]["status"] == "correct" and o["exercise"]["domain"] in {"writing", "speaking"} and o["exercise"]["type"] in OPEN_TYPES | {"transformation", "error_correction", "reorder", "translation"}})
-    mastered = (count > 0 and distinct_items >= POLICY["min_distinct_items"] and sessions >= POLICY["min_sessions"] and dates >= POLICY["min_dates"] and rate >= POLICY["min_success_rate"] and span >= POLICY["min_span_days"] and domains >= POLICY["min_domains"] and production_items >= POLICY["min_production_items"])
-    return {"observations": len(observations), "eligible_attempts": count, "distinct_items": distinct_items,
-            "sessions": sessions, "dates": dates, "span_days": span, "domains_sampled": domains,
-            "production_items": production_items, "success_rate": round(rate, 4) if distinct_items else None,
-            "observed_success_interval": interval, "mastered": mastered,
-            "last_observed": latest, "review_due": (date.fromisoformat(latest) + timedelta(days=POLICY["review_after_days"])).isoformat() if latest else None,
-            "calibrated": False}
+    production_items = len(
+        {
+            o["exercise"]["id"]
+            for o in distinct
+            if o["grade"]["status"] == "correct"
+            and o["exercise"]["domain"] in {"writing", "speaking"}
+            and o["exercise"]["type"]
+            in OPEN_TYPES | {"transformation", "error_correction", "reorder", "translation"}
+        }
+    )
+    mastered = (
+        count > 0
+        and distinct_items >= POLICY["min_distinct_items"]
+        and sessions >= POLICY["min_sessions"]
+        and dates >= POLICY["min_dates"]
+        and rate >= POLICY["min_success_rate"]
+        and span >= POLICY["min_span_days"]
+        and domains >= POLICY["min_domains"]
+        and production_items >= POLICY["min_production_items"]
+    )
+    return {
+        "observations": len(observations),
+        "eligible_attempts": count,
+        "distinct_items": distinct_items,
+        "sessions": sessions,
+        "dates": dates,
+        "span_days": span,
+        "domains_sampled": domains,
+        "production_items": production_items,
+        "success_rate": round(rate, 4) if distinct_items else None,
+        "observed_success_interval": interval,
+        "mastered": mastered,
+        "last_observed": latest,
+        "review_due": (
+            date.fromisoformat(latest) + timedelta(days=POLICY["review_after_days"])
+        ).isoformat()
+        if latest
+        else None,
+        "calibrated": False,
+    }
 
 
 def _derive_estimates(observations: list[dict]) -> dict:
@@ -396,7 +584,10 @@ def _derive_estimates(observations: list[dict]) -> dict:
         for group, field in (("grammar", "grammar_tags"), ("vocabulary", "vocabulary")):
             for tag in exercise.get(field, []):
                 groups[group].setdefault(tag, []).append(o)
-    return {group: {key: _summary(items) for key, items in values.items()} for group, values in groups.items()}
+    return {
+        group: {key: _summary(items) for key, items in values.items()}
+        for group, values in groups.items()
+    }
 
 
 def rebuild_estimates(state: dict) -> None:
@@ -412,20 +603,41 @@ def language_policy(state: dict, explicit_l1: bool = False) -> dict:
         support = "requested_l1"
     else:
         # Observed performance only: declared/legacy CEFR does not remove L1 support.
-        demonstrated = [o for o in state["observations"] if _eligible(o) and o["grade"]["status"] == "correct"]
+        demonstrated = [
+            o for o in state["observations"] if _eligible(o) and o["grade"]["status"] == "correct"
+        ]
         level = "A1"
         for candidate in LEVELS:
             samples = [o for o in demonstrated if o["exercise"]["level"] == candidate]
-            if len({o["exercise"]["id"] for o in samples}) >= 4 and len({o["exercise"]["domain"] for o in samples}) >= 2 and len({o["session_id"] for o in samples}) >= 2:
+            if (
+                len({o["exercise"]["id"] for o in samples}) >= 4
+                and len({o["exercise"]["domain"] for o in samples}) >= 2
+                and len({o["session_id"] for o in samples}) >= 2
+            ):
                 level = candidate
         instruction = state["native_language"] if level == "A1" else "english"
-        support = "l1_explanation" if level == "A1" else "brief_l1_available" if level in {"A2", "B1"} else "l1_rescue_available"
-    return {"instruction_language": instruction, "support": support, "material_language": state["target_language"],
-            "explicit_l1_override_available": True, "basis": "unassisted observed performance; heuristic, not CEFR certification"}
+        support = (
+            "l1_explanation"
+            if level == "A1"
+            else "brief_l1_available"
+            if level in {"A2", "B1"}
+            else "l1_rescue_available"
+        )
+    return {
+        "instruction_language": instruction,
+        "support": support,
+        "material_language": state["target_language"],
+        "explicit_l1_override_available": True,
+        "basis": "unassisted observed performance; heuristic, not CEFR certification",
+    }
 
 
 def _validate_plan(session_plan: Any) -> None:
-    if not isinstance(session_plan, dict) or not isinstance(session_plan.get("steps"), list) or not session_plan["steps"]:
+    if (
+        not isinstance(session_plan, dict)
+        or not isinstance(session_plan.get("steps"), list)
+        or not session_plan["steps"]
+    ):
         raise ValueError("session plan requires steps")
     _day(_text(session_plan.get("date"), "plan.date", 10))
     _strings(session_plan.get("deferred_voice_skills", []), "deferred_voice_skills")
@@ -446,8 +658,14 @@ def _validate_plan(session_plan: Any) -> None:
             raise ValueError("invalid step minutes")
 
 
-def plan(state: dict, catalog: dict, due_count: int = 0, today: str | date | None = None,
-         minutes: int | None = None, voice_available: bool | None = None) -> dict:
+def plan(
+    state: dict,
+    catalog: dict,
+    due_count: int = 0,
+    today: str | date | None = None,
+    minutes: int | None = None,
+    voice_available: bool | None = None,
+) -> dict:
     validate_state(state)
     validate_catalog(catalog)
     day = _day(today)
@@ -456,7 +674,11 @@ def plan(state: dict, catalog: dict, due_count: int = 0, today: str | date | Non
     budget = state["profile"]["daily_minutes"] if minutes is None else minutes
     if type(budget) is not int or not 5 <= budget <= 240:
         raise ValueError("minutes must be integer from 5 to 240")
-    voice = state["profile"]["voice_channel"] == "external" if voice_available is None else voice_available
+    voice = (
+        state["profile"]["voice_channel"] == "external"
+        if voice_available is None
+        else voice_available
+    )
     if type(voice) is not bool:
         raise ValueError("voice_available must be boolean")
     estimates = _derive_estimates(state["observations"])["skills"]
@@ -467,33 +689,79 @@ def plan(state: dict, catalog: dict, due_count: int = 0, today: str | date | Non
     for error in state["errors"].values():
         if error.get("confirmed_count", 0) < 3:
             continue
-        recovered = {o["session_id"] for o in state["observations"] if _eligible(o) and o["grade"]["status"] == "correct" and o["date"] > error["confirmed_last_seen"] and o["exercise"]["skill_id"] in error["skill_ids"]}
+        recovered = {
+            o["session_id"]
+            for o in state["observations"]
+            if _eligible(o)
+            and o["grade"]["status"] == "correct"
+            and o["date"] > error["confirmed_last_seen"]
+            and o["exercise"]["skill_id"] in error["skill_ids"]
+        }
         if len(recovered) < 2:
             unresolved.append(error)
     recurrent = {skill for error in unresolved for skill in error["skill_ids"]}
-    available = [u for u in catalog["units"] if set(u["prerequisites"]) <= mastered and u["id"] not in mastered and LEVELS.index(u["level"]) <= LEVELS.index(state["proficiency"]["working_level"])]
-    recurring_units = [units[s] for s in recurrent if s in units and set(units[s]["prerequisites"]) <= mastered]
-    overdue = [units[s] for s, e in estimates.items() if s in units and e["mastered"] and e["review_due"] <= day]
+    available = [
+        u
+        for u in catalog["units"]
+        if set(u["prerequisites"]) <= mastered
+        and u["id"] not in mastered
+        and LEVELS.index(u["level"]) <= LEVELS.index(state["proficiency"]["working_level"])
+    ]
+    recurring_units = [
+        units[s] for s in recurrent if s in units and set(units[s]["prerequisites"]) <= mastered
+    ]
+    overdue = [
+        units[s]
+        for s, e in estimates.items()
+        if s in units and e["mastered"] and e["review_due"] <= day
+    ]
     candidates = {u["id"]: u for u in recurring_units + overdue + available}
-    recent = [o for o in state["observations"] if 0 <= (date.fromisoformat(day)-date.fromisoformat(o["date"])).days < 7]
+    recent = [
+        o
+        for o in state["observations"]
+        if 0 <= (date.fromisoformat(day) - date.fromisoformat(o["date"])).days < 7
+    ]
     counts = {domain: sum(o["exercise"]["domain"] == domain for o in recent) for domain in DOMAINS}
+
     def key(unit: dict) -> tuple:
         uid = unit["id"]
-        return (0 if uid in recurrent else 1 if unit in overdue else 2, LEVELS.index(unit["level"]), min(counts[d] for d in unit["domains"]), uid)
+        return (
+            0 if uid in recurrent else 1 if unit in overdue else 2,
+            LEVELS.index(unit["level"]),
+            min(counts[d] for d in unit["domains"]),
+            uid,
+        )
+
     ranked = sorted(candidates.values(), key=key)
     steps = []
     remaining = budget - 2
     if due_count:
         review_minutes = min(10, max(1, remaining // 3), due_count)
-        steps.append({"id": "review", "type": "srs_review", "mode": "chat", "minutes": review_minutes,
-                      "count": min(due_count, 30), "reason": "due retrieval before new material"})
+        steps.append(
+            {
+                "id": "review",
+                "type": "srs_review",
+                "mode": "chat",
+                "minutes": review_minutes,
+                "count": min(due_count, 30),
+                "reason": "due retrieval before new material",
+            }
+        )
         remaining -= review_minutes
-    selected = ranked[:1 if budget < 45 else 2]
+    selected = ranked[: 1 if budget < 45 else 2]
     debt = any(s.get("speaking_debt") for s in state["sessions"].values())
     deferred_voice_skills: list[str] = []
     if not selected:
         # No silent unlocking if a malformed or disconnected curriculum blocks progress.
-        steps.append({"id": "cumulative", "type": "cumulative_review", "mode": "chat", "minutes": max(1, remaining), "reason": "review demonstrated skills; no eligible new unit"})
+        steps.append(
+            {
+                "id": "cumulative",
+                "type": "cumulative_review",
+                "mode": "chat",
+                "minutes": max(1, remaining),
+                "reason": "review demonstrated skills; no eligible new unit",
+            }
+        )
     else:
         allocation = max(1, remaining // len(selected))
         for i, unit in enumerate(selected):
@@ -504,20 +772,62 @@ def plan(state: dict, catalog: dict, due_count: int = 0, today: str | date | Non
                 debt = True
                 deferred_voice_skills.append(unit["id"])
             uid = unit["id"]
-            reason = "recurring_error" if uid in recurrent else "scheduled_retrieval" if unit in overdue else "prerequisites_met"
-            steps.append({"id": f"learn-{i+1}", "type": "remedial_lesson" if uid in recurrent else "retrieval_check" if unit in overdue else "skill_practice",
-                          "skill_id": uid, "domain": domain, "level": unit["level"], "mode": "voice-required" if domain in {"speaking", "pronunciation"} else "chat",
-                          "minutes": allocation, "reason": reason, "title": unit["title"],
-                          "error_tags": sorted(tag for tag, e in state["errors"].items() if uid in e["skill_ids"] and e.get("confirmed_count", 0) >= 3),
-                          "exercise_types": unit.get("exercise_types", [])})
-    steps.append({"id": "wrap", "type": "reflection", "mode": "chat", "minutes": 2, "reason": "reflect and choose next objective"})
-    result = {"date": day, "steps": steps, "speaking_debt": debt, "deferred_voice_skills": deferred_voice_skills, "new_card_limit": 0 if due_count > 30 else 15,
-              "language_policy": language_policy(state), "policy": copy.deepcopy(POLICY), "calibrated": False}
+            reason = (
+                "recurring_error"
+                if uid in recurrent
+                else "scheduled_retrieval"
+                if unit in overdue
+                else "prerequisites_met"
+            )
+            steps.append(
+                {
+                    "id": f"learn-{i + 1}",
+                    "type": "remedial_lesson"
+                    if uid in recurrent
+                    else "retrieval_check"
+                    if unit in overdue
+                    else "skill_practice",
+                    "skill_id": uid,
+                    "domain": domain,
+                    "level": unit["level"],
+                    "mode": "voice-required" if domain in {"speaking", "pronunciation"} else "chat",
+                    "minutes": allocation,
+                    "reason": reason,
+                    "title": unit["title"],
+                    "error_tags": sorted(
+                        tag
+                        for tag, e in state["errors"].items()
+                        if uid in e["skill_ids"] and e.get("confirmed_count", 0) >= 3
+                    ),
+                    "exercise_types": unit.get("exercise_types", []),
+                }
+            )
+    steps.append(
+        {
+            "id": "wrap",
+            "type": "reflection",
+            "mode": "chat",
+            "minutes": 2,
+            "reason": "reflect and choose next objective",
+        }
+    )
+    result = {
+        "date": day,
+        "steps": steps,
+        "speaking_debt": debt,
+        "deferred_voice_skills": deferred_voice_skills,
+        "new_card_limit": 0 if due_count > 30 else 15,
+        "language_policy": language_policy(state),
+        "policy": copy.deepcopy(POLICY),
+        "calibrated": False,
+    }
     _validate_plan(result)
     return result
 
 
-def start_session(state: dict, session_plan: dict, today: str | date | None = None, session_id: str | None = None) -> dict:
+def start_session(
+    state: dict, session_plan: dict, today: str | date | None = None, session_id: str | None = None
+) -> dict:
     validate_state(state)
     _validate_plan(session_plan)
     if state["active_session_id"] is not None:
@@ -526,11 +836,21 @@ def start_session(state: dict, session_plan: dict, today: str | date | None = No
     if sid in state["sessions"]:
         raise ValueError("session_id already exists")
     sequence = max((s.get("sequence", 0) for s in state["sessions"].values()), default=0) + 1
-    session = {"id": sid, "status": "active", "started_on": _day(today or session_plan["date"]), "sequence": sequence,
-               "plan": copy.deepcopy(session_plan), "completed_steps": [], "deferred_steps": [],
-               "observation_ids": [], "deferred_voice_skills": copy.deepcopy(session_plan.get("deferred_voice_skills", [])),
-               "debt_settlements": [],
-               "speaking_debt": bool(session_plan.get("deferred_voice_skills", session_plan.get("speaking_debt", False)))}
+    session = {
+        "id": sid,
+        "status": "active",
+        "started_on": _day(today or session_plan["date"]),
+        "sequence": sequence,
+        "plan": copy.deepcopy(session_plan),
+        "completed_steps": [],
+        "deferred_steps": [],
+        "observation_ids": [],
+        "deferred_voice_skills": copy.deepcopy(session_plan.get("deferred_voice_skills", [])),
+        "debt_settlements": [],
+        "speaking_debt": bool(
+            session_plan.get("deferred_voice_skills", session_plan.get("speaking_debt", False))
+        ),
+    }
     state["sessions"][sid] = session
     state["active_session_id"] = sid
     return copy.deepcopy(session)
@@ -564,16 +884,26 @@ def complete_step(state: dict, session_id: str, step_id: str, deferred: bool = F
         raise ValueError("unknown planned step")
     if type(deferred) is not bool:
         raise ValueError("deferred must be boolean")
+    if deferred and step["mode"] != "voice-required":
+        raise ValueError("only voice-required steps may be deferred")
     if step_id in session["completed_steps"] or step_id in session["deferred_steps"]:
         return copy.deepcopy(session)
     if step["mode"] == "voice-required":
-        evidence = [o for o in state["observations"] if o["session_id"] == session_id and o["exercise"].get("step_id") == step_id and (o["exercise"].get("audio_evidence") or o["grade"].get("audio_evidence"))]
+        evidence = [
+            o
+            for o in state["observations"]
+            if o["session_id"] == session_id
+            and o["exercise"].get("step_id") == step_id
+            and (o["exercise"].get("audio_evidence") or o["grade"].get("audio_evidence"))
+        ]
         if not deferred and not evidence:
             raise ValueError("voice step requires actual audio evidence or explicit deferral")
     session["deferred_steps" if deferred else "completed_steps"].append(step_id)
     if deferred and step["mode"] == "voice-required":
         session["speaking_debt"] = True
-        if step.get("skill_id") and step["skill_id"] not in session.setdefault("deferred_voice_skills", []):
+        if step.get("skill_id") and step["skill_id"] not in session.setdefault(
+            "deferred_voice_skills", []
+        ):
             session["deferred_voice_skills"].append(step["skill_id"])
     return copy.deepcopy(session)
 
@@ -582,7 +912,9 @@ def finish_session(state: dict, session_id: str, allow_incomplete: bool = False)
     session = _session(state, session_id, {"active", "interrupted"})
     if type(allow_incomplete) is not bool:
         raise ValueError("allow_incomplete must be boolean")
-    pending = {s["id"] for s in session["plan"]["steps"]} - set(session["completed_steps"] + session["deferred_steps"])
+    pending = {s["id"] for s in session["plan"]["steps"]} - set(
+        session["completed_steps"] + session["deferred_steps"]
+    )
     if pending and not allow_incomplete:
         raise ValueError("session has unfinished steps: " + ", ".join(sorted(pending)))
     if allow_incomplete and pending:
@@ -591,7 +923,9 @@ def finish_session(state: dict, session_id: str, allow_incomplete: bool = False)
         for step in session["plan"]["steps"]:
             if step["mode"] == "voice-required" and step["id"] in pending:
                 session["speaking_debt"] = True
-                if step.get("skill_id") and step["skill_id"] not in session.setdefault("deferred_voice_skills", []):
+                if step.get("skill_id") and step["skill_id"] not in session.setdefault(
+                    "deferred_voice_skills", []
+                ):
                     session["deferred_voice_skills"].append(step["skill_id"])
     else:
         session["status"] = "completed"
@@ -599,11 +933,21 @@ def finish_session(state: dict, session_id: str, allow_incomplete: bool = False)
     return copy.deepcopy(session)
 
 
-def record_attempt(state: dict, session_id: str, exercise: dict, response: str, *,
-                   attempt_id: str | None = None, hints_used: bool = False, review: dict | None = None,
-                   observed_at: str | date | None = None, error_kb: dict | None = None,
-                   error_tags: list[str] | None = None, catalog: dict | None = None,
-                   today: str | date | None = None) -> dict:
+def record_attempt(
+    state: dict,
+    session_id: str,
+    exercise: dict,
+    response: str,
+    *,
+    attempt_id: str | None = None,
+    hints_used: bool = False,
+    review: dict | None = None,
+    observed_at: str | date | None = None,
+    error_kb: dict | None = None,
+    error_tags: list[str] | None = None,
+    catalog: dict | None = None,
+    today: str | date | None = None,
+) -> dict:
     """Record first-hand task evidence; LLM judgments remain explicitly provisional.
 
     attempt_id is an idempotency key: identical retries return existing evidence,
@@ -626,13 +970,19 @@ def record_attempt(state: dict, session_id: str, exercise: dict, response: str, 
         kb = {entry["id"]: entry for entry in error_kb["errors"]}
         if not set(tags) <= set(kb):
             raise ValueError("unknown L1 error tag")
-        if any(kb[tag].get("evidence_required") == "audio" for tag in tags) and not (exercise.get("audio_evidence") or (review or {}).get("audio_evidence")):
+        if any(kb[tag].get("evidence_required") == "audio" for tag in tags) and not (
+            exercise.get("audio_evidence") or (review or {}).get("audio_evidence")
+        ):
             raise ValueError("pronunciation diagnosis requires actual audio evidence")
     elif tags:
         raise ValueError("diagnosed error tags require a validated knowledge base")
     if "step_id" in exercise:
-        planned = next((s for s in session["plan"]["steps"] if s["id"] == exercise["step_id"]), None)
-        if planned is None or (planned.get("skill_id") and planned["skill_id"] != exercise["skill_id"]):
+        planned = next(
+            (s for s in session["plan"]["steps"] if s["id"] == exercise["step_id"]), None
+        )
+        if planned is None or (
+            planned.get("skill_id") and planned["skill_id"] != exercise["skill_id"]
+        ):
             raise ValueError("exercise does not match planned step")
     grade = grade_answer(exercise, response)
     if review is not None:
@@ -645,8 +995,16 @@ def record_attempt(state: dict, session_id: str, exercise: dict, response: str, 
     if day > _day(today):
         raise ValueError("attempt cannot be in the future")
     oid = str(uuid.uuid4()) if attempt_id is None else _text(attempt_id, "attempt_id", 200)
-    observation = {"id": oid, "session_id": session_id, "date": day, "exercise": copy.deepcopy(exercise),
-                   "response": response, "hints_used": hints_used, "grade": grade, "error_tags": tags}
+    observation = {
+        "id": oid,
+        "session_id": session_id,
+        "date": day,
+        "exercise": copy.deepcopy(exercise),
+        "response": response,
+        "hints_used": hints_used,
+        "grade": grade,
+        "error_tags": tags,
+    }
     existing = next((o for o in state["observations"] if o["id"] == oid), None)
     if existing is not None:
         if existing != observation:
@@ -655,7 +1013,11 @@ def record_attempt(state: dict, session_id: str, exercise: dict, response: str, 
     # Do not permit the same stable item ID to change meaning or difficulty.
     for previous in state["observations"]:
         if previous["exercise"]["id"] == exercise["id"]:
-            old = {k: v for k, v in previous["exercise"].items() if k not in {"step_id", "audio_evidence"}}
+            old = {
+                k: v
+                for k, v in previous["exercise"].items()
+                if k not in {"step_id", "audio_evidence"}
+            }
             new = {k: v for k, v in exercise.items() if k not in {"step_id", "audio_evidence"}}
             if old != new:
                 raise ValueError("stable exercise id has a different definition")
@@ -663,7 +1025,18 @@ def record_attempt(state: dict, session_id: str, exercise: dict, response: str, 
     state["observations"].append(observation)
     session["observation_ids"].append(oid)
     for tag in tags:
-        error = state["errors"].setdefault(tag, {"count": 0, "confirmed_count": 0, "confirmed_last_seen": None, "first_seen": day, "last_seen": day, "skill_ids": [], "observation_ids": []})
+        error = state["errors"].setdefault(
+            tag,
+            {
+                "count": 0,
+                "confirmed_count": 0,
+                "confirmed_last_seen": None,
+                "first_seen": day,
+                "last_seen": day,
+                "skill_ids": [],
+                "observation_ids": [],
+            },
+        )
         error["count"] += 1
         if _eligible(observation):
             error["confirmed_count"] += 1
@@ -676,51 +1049,91 @@ def record_attempt(state: dict, session_id: str, exercise: dict, response: str, 
     return copy.deepcopy(observation)
 
 
-def feedback(observation: dict, error_kb: dict | None = None, native_language: str = "russian") -> dict:
+def feedback(
+    observation: dict, error_kb: dict | None = None, native_language: str = "russian"
+) -> dict:
     """Specific KB-backed remediation; no automatic diagnosis from substring cues."""
     grade = observation["grade"]
     russian = native_language.lower() in {"russian", "ru", "русский"}
-    messages = {"correct": "Ответ принят. Используйте эту конструкцию в новом контексте.",
-                "incorrect": "Попробуйте исправить ответ. Сравните смысл и форму с условием.",
-                "needs_review": "Нужна проверка по контексту: другой вариант формулировки может быть правильным."}
-    result = {"status": grade["status"], "message": messages[grade["status"]] if russian else {"correct": "Answer accepted. Use the form in a new context.", "incorrect": "Try a correction using the task context.", "needs_review": "Contextual review needed: alternative wording may be valid."}[grade["status"]], "remediation": []}
+    messages = {
+        "correct": "Ответ принят. Используйте эту конструкцию в новом контексте.",
+        "incorrect": "Попробуйте исправить ответ. Сравните смысл и форму с условием.",
+        "needs_review": "Нужна проверка по контексту: другой вариант формулировки может быть правильным.",
+    }
+    result = {
+        "status": grade["status"],
+        "message": messages[grade["status"]]
+        if russian
+        else {
+            "correct": "Answer accepted. Use the form in a new context.",
+            "incorrect": "Try a correction using the task context.",
+            "needs_review": "Contextual review needed: alternative wording may be valid.",
+        }[grade["status"]],
+        "remediation": [],
+    }
     kb = {e["id"]: e for e in (error_kb or {}).get("errors", [])}
     for tag in observation.get("error_tags", []):
         if tag in kb:
             entry = kb[tag]
-            result["remediation"].append({"error_tag": tag, "feedback": entry.get("feedback_ru", "") if russian else "Revisit the contrasting examples.",
-                                          "explanation": entry.get("explanation_ru", "") if russian else "",
-                                          "examples": entry.get("examples", []), "exercise_types": entry.get("exercise_types", []),
-                                          "remedial_tags": entry.get("remedial_tags", []), "skill_ids": entry.get("skill_ids", [])})
+            result["remediation"].append(
+                {
+                    "error_tag": tag,
+                    "feedback": entry.get("feedback_ru", "")
+                    if russian
+                    else "Revisit the contrasting examples.",
+                    "explanation": entry.get("explanation_ru", "") if russian else "",
+                    "examples": entry.get("examples", []),
+                    "exercise_types": entry.get("exercise_types", []),
+                    "remedial_tags": entry.get("remedial_tags", []),
+                    "skill_ids": entry.get("skill_ids", []),
+                }
+            )
     if grade.get("judgment"):
         result["judgment"] = grade["judgment"]
         result["rationale"] = grade["rationale"]
     return result
 
 
-def assessment_summary(state: dict, level: str | None = None, today: str | date | None = None) -> dict:
+def assessment_summary(
+    state: dict, level: str | None = None, today: str | date | None = None
+) -> dict:
     validate_state(state)
     if level is not None and level not in LEVELS:
         raise ValueError("unknown assessment level")
     day = _day(today)
-    cutoff = (date.fromisoformat(day) - timedelta(days=POLICY["assessment_max_age_days"])).isoformat()
-    relevant = [o for o in state["observations"] if (level is None or o["exercise"]["level"] == level) and cutoff <= o["date"] <= day]
+    cutoff = (
+        date.fromisoformat(day) - timedelta(days=POLICY["assessment_max_age_days"])
+    ).isoformat()
+    relevant = [
+        o
+        for o in state["observations"]
+        if (level is None or o["exercise"]["level"] == level) and cutoff <= o["date"] <= day
+    ]
     domains = {d: _summary([o for o in relevant if o["exercise"]["domain"] == d]) for d in DOMAINS}
     assessed = [d for d, summary in domains.items() if summary["eligible_attempts"]]
     required = {"reading", "listening", "writing", "speaking"}
     missing = sorted(required - set(assessed))
-    return {"level_sampled": level, "domains": domains, "unassessed_domains": sorted(set(DOMAINS)-set(assessed)),
-            "missing_core_domains": missing, "status": "insufficient_evidence" if missing else "provisional_profile",
-            "calibrated": False, "cefr_certification": False, "window_days": POLICY["assessment_max_age_days"],
-            "warning_ru": "Это предварительный профиль по выполненным заданиям, а не подтверждённый уровень CEFR. Непроверенные навыки остаются неизвестными."}
+    return {
+        "level_sampled": level,
+        "domains": domains,
+        "unassessed_domains": sorted(set(DOMAINS) - set(assessed)),
+        "missing_core_domains": missing,
+        "status": "insufficient_evidence" if missing else "provisional_profile",
+        "calibrated": False,
+        "cefr_certification": False,
+        "window_days": POLICY["assessment_max_age_days"],
+        "warning_ru": "Это предварительный профиль по выполненным заданиям, а не подтверждённый уровень CEFR. Непроверенные навыки остаются неизвестными.",
+    }
 
 
-def promotion_eligibility(state: dict, catalog: dict, target_level: str, today: str | date | None = None) -> dict:
+def promotion_eligibility(
+    state: dict, catalog: dict, target_level: str, today: str | date | None = None
+) -> dict:
     """Readiness for an internal curriculum step, never a CEFR certificate/promotion."""
     validate_catalog(catalog)
     if target_level not in LEVELS or target_level == "A1":
         raise ValueError("target_level must be A2..C1")
-    current = LEVELS[LEVELS.index(target_level)-1]
+    current = LEVELS[LEVELS.index(target_level) - 1]
     summary = assessment_summary(state, current, today)
     reasons = []
     units = [u["id"] for u in catalog["units"] if u["level"] == current]
@@ -730,16 +1143,29 @@ def promotion_eligibility(state: dict, catalog: dict, target_level: str, today: 
         reasons.append("curriculum_mastery_incomplete")
     for domain in ("reading", "listening", "writing", "speaking"):
         evidence = summary["domains"][domain]
-        if evidence["distinct_items"] < POLICY["assessment_min_items_per_domain"] or evidence["dates"] < POLICY["assessment_min_dates"] or (evidence["success_rate"] or 0) < POLICY["assessment_success_rate"]:
+        if (
+            evidence["distinct_items"] < POLICY["assessment_min_items_per_domain"]
+            or evidence["dates"] < POLICY["assessment_min_dates"]
+            or (evidence["success_rate"] or 0) < POLICY["assessment_success_rate"]
+        ):
             reasons.append("insufficient_" + domain + "_evidence")
     if state["proficiency"]["working_level"] != current:
         reasons.append("target_is_not_next_working_level")
-    return {"eligible": not reasons, "target_level": target_level, "reasons": reasons, "pending_units": pending,
-            "action": "human_review_required" if not reasons else "collect_missing_evidence",
-            "automatic_promotion": False, "calibrated": False, "cefr_certification": False}
+    return {
+        "eligible": not reasons,
+        "target_level": target_level,
+        "reasons": reasons,
+        "pending_units": pending,
+        "action": "human_review_required" if not reasons else "collect_missing_evidence",
+        "automatic_promotion": False,
+        "calibrated": False,
+        "cefr_certification": False,
+    }
 
 
-def assessment_items(state: dict, bank: dict, level: str | None = None, limit: int = 6) -> list[dict]:
+def assessment_items(
+    state: dict, bank: dict, level: str | None = None, limit: int = 6
+) -> list[dict]:
     """Return unseen, domain-balanced authored tasks without fabricating placement.
 
     A caller may sample a different level explicitly. The bank is intentionally
@@ -749,7 +1175,12 @@ def assessment_items(state: dict, bank: dict, level: str | None = None, limit: i
     chosen_level = level or state["proficiency"]["working_level"]
     if chosen_level not in LEVELS or type(limit) is not int or not 1 <= limit <= 50:
         raise ValueError("invalid assessment level or limit")
-    if not isinstance(bank, dict) or bank.get("schema_version") != 1 or not isinstance(bank.get("items"), list) or bank.get("calibrated") is not False:
+    if (
+        not isinstance(bank, dict)
+        or bank.get("schema_version") != 1
+        or not isinstance(bank.get("items"), list)
+        or bank.get("calibrated") is not False
+    ):
         raise ValueError("unsupported or falsely calibrated assessment bank")
     ids = set()
     for item in bank["items"]:
@@ -761,30 +1192,45 @@ def assessment_items(state: dict, bank: dict, level: str | None = None, limit: i
     items = [item for item in bank["items"] if item["level"] == chosen_level]
     selected: list[dict] = []
     while items and len(selected) < limit:
-        domain_counts = {domain: sum(item["domain"] == domain for item in selected) for domain in DOMAINS}
-        item = min(items, key=lambda item: (item["id"] in seen, domain_counts[item["domain"]], item["id"]))
+        domain_counts = {
+            domain: sum(item["domain"] == domain for item in selected) for domain in DOMAINS
+        }
+        item = min(
+            items, key=lambda item: (item["id"] in seen, domain_counts[item["domain"]], item["id"])
+        )
         items.remove(item)
         selected.append(item)
     return copy.deepcopy(selected)
 
 
-def accept_progression(state: dict, catalog: dict, target_level: str, review: dict,
-                       today: str | date | None = None) -> dict:
+def accept_progression(
+    state: dict, catalog: dict, target_level: str, review: dict, today: str | date | None = None
+) -> dict:
     """Record an explicitly human-reviewed internal curriculum transition.
 
     This is a local record of reviewer attestation, not identity verification or
     independent certification. Automated/LLM-only recommendations cannot pass.
     """
-    if not isinstance(review, dict) or set(review) != {"source", "reviewer", "rationale", "evidence_reference"} or review.get("source") != "human":
+    if (
+        not isinstance(review, dict)
+        or set(review) != {"source", "reviewer", "rationale", "evidence_reference"}
+        or review.get("source") != "human"
+    ):
         raise ValueError("progression requires an explicit human review")
     for key in ("reviewer", "rationale", "evidence_reference"):
         _text(review.get(key), key)
     eligibility = promotion_eligibility(state, catalog, target_level, today)
     if not eligibility["eligible"]:
         raise ValueError("progression evidence incomplete: " + ", ".join(eligibility["reasons"]))
-    decision = {"date": _day(today), "from_level": state["proficiency"]["working_level"],
-                "to_level": target_level, "review": copy.deepcopy(review), "eligibility": eligibility,
-                "observations_considered": len(state["observations"]), "cefr_certification": False}
+    decision = {
+        "date": _day(today),
+        "from_level": state["proficiency"]["working_level"],
+        "to_level": target_level,
+        "review": copy.deepcopy(review),
+        "eligibility": eligibility,
+        "observations_considered": len(state["observations"]),
+        "cefr_certification": False,
+    }
     proficiency = state["proficiency"]
     proficiency.setdefault("decisions", []).append(decision)
     proficiency["working_level"] = target_level
@@ -807,9 +1253,16 @@ def _debt_evidence_eligible(state: dict, origin: dict, observation: dict) -> boo
         later = evidence_session["sequence"] > origin["sequence"]
     else:
         later = observation["date"] > origin["started_on"]
-    return (later and _eligible(observation) and exercise["domain"] in {"speaking", "pronunciation"}
-            and exercise.get("mode", "voice-required" if exercise["type"] == "spoken_response" else "chat") == "voice-required"
-            and bool(exercise.get("audio_evidence") or observation["grade"].get("audio_evidence")))
+    return (
+        later
+        and _eligible(observation)
+        and exercise["domain"] in {"speaking", "pronunciation"}
+        and exercise.get(
+            "mode", "voice-required" if exercise["type"] == "spoken_response" else "chat"
+        )
+        == "voice-required"
+        and bool(exercise.get("audio_evidence") or observation["grade"].get("audio_evidence"))
+    )
 
 
 def settle_speaking_debt(state: dict, origin_session_id: str, observation_id: str) -> dict:

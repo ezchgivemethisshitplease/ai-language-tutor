@@ -3,6 +3,7 @@
 Locks are advisory: all application writers must use this module. Each file is
 an independent transaction; this is not a multi-file database or network store.
 """
+
 from contextlib import contextmanager
 from copy import deepcopy
 import errno
@@ -14,13 +15,14 @@ import sys
 import tempfile
 import threading
 import time
+from typing import Any
 
 
 class StorageError(ValueError):
     """Stored data is invalid or cannot be changed safely."""
 
 
-_locks = {}
+_locks: dict[str, Any] = {}
 _locks_guard = threading.Lock()
 _held = threading.local()
 
@@ -37,11 +39,17 @@ def _unique_object(pairs):
 def decode(raw, path="JSON"):
     """Reject truncated JSON, duplicate keys and nonstandard NaN/Infinity."""
     try:
-        return json.loads(raw, object_pairs_hook=_unique_object,
-                          parse_constant=lambda value: (_ for _ in ()).throw(
-                              StorageError(f"non-finite number: {value}")))
+        return json.loads(
+            raw,
+            object_pairs_hook=_unique_object,
+            parse_constant=lambda value: (_ for _ in ()).throw(
+                StorageError(f"non-finite number: {value}")
+            ),
+        )
     except (ValueError, UnicodeError) as exc:
-        raise StorageError(f"invalid JSON in {path}: {exc}; restore a verified backup explicitly") from exc
+        raise StorageError(
+            f"invalid JSON in {path}: {exc}; restore a verified backup explicitly"
+        ) from exc
 
 
 def _path(path):
@@ -59,7 +67,7 @@ def locked(path, timeout=15):
     with _locks_guard:
         lock = _locks.setdefault(str(path), threading.RLock())
     with lock:
-        held = getattr(_held, "paths", set())
+        held: set[str] = getattr(_held, "paths", set())
         if str(path) in held:
             yield path
             return
@@ -70,8 +78,9 @@ def locked(path, timeout=15):
         acquired = False
         try:
             deadline = time.monotonic() + timeout
-            if os.name == "nt":
+            if sys.platform == "win32":
                 import msvcrt
+
                 if os.fstat(fd).st_size == 0:
                     os.write(fd, b"\0")
                 while True:
@@ -81,17 +90,18 @@ def locked(path, timeout=15):
                         break
                     except OSError:
                         if time.monotonic() >= deadline:
-                            raise StorageError(f"timed out locking {path}")
+                            raise StorageError(f"timed out locking {path}") from None
                         time.sleep(0.02)
             else:
                 import fcntl
+
                 while True:
                     try:
                         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
                         break
                     except BlockingIOError:
                         if time.monotonic() >= deadline:
-                            raise StorageError(f"timed out locking {path}")
+                            raise StorageError(f"timed out locking {path}") from None
                         time.sleep(0.02)
             acquired = True
             _held.paths = held | {str(path)}
@@ -99,7 +109,7 @@ def locked(path, timeout=15):
         finally:
             _held.paths = held
             if acquired:
-                if os.name == "nt":
+                if sys.platform == "win32":
                     os.lseek(fd, 0, os.SEEK_SET)
                     msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
                 else:
@@ -122,7 +132,9 @@ def load(path, default):
 
 def _encode(data):
     try:
-        return (json.dumps(data, indent=2, ensure_ascii=False, allow_nan=False) + "\n").encode("utf-8")
+        return (json.dumps(data, indent=2, ensure_ascii=False, allow_nan=False) + "\n").encode(
+            "utf-8"
+        )
     except (TypeError, ValueError) as exc:
         raise StorageError(f"data is not valid JSON: {exc}") from exc
 
@@ -153,6 +165,7 @@ def _atomic_bytes(path, raw):
             os.fsync(handle.fileno())
             if os.name == "posix" and sys.platform == "darwin":
                 import fcntl
+
                 # macOS fsync may flush only to a drive's volatile cache.
                 if hasattr(fcntl, "F_FULLFSYNC"):
                     fcntl.fcntl(handle.fileno(), fcntl.F_FULLFSYNC)

@@ -1,28 +1,13 @@
 #!/usr/bin/env python3
-"""Local server for the HTML apps. Stdlib only.
+"""Loopback-only browser activities. Run with the project's virtual environment.
 
-Serves apps/ statically plus a tiny JSON API over student/ data.
-On every result POST it writes student/.event-<app>.json so the tutor can
-wait on that file and resume the session automatically.
-
-Usage:
-  python3 tools/serve.py [port]  start (default port 8765)
-  python3 tools/serve.py status  check this project's server
-  python3 tools/serve.py stop    stop this project's server
-  python3 tools/serve.py selfcheck
-
-API:
-  GET  /api/deck      due cards
-  POST /api/deck      {"results":[{"id":..,"grade":1-4},..]} -> grades cards, event
-  GET  /api/progress  streak/level/vocab/errors summary for the dashboard
-  GET  /api/quiz      contents of student/quiz-current.json (tutor writes it)
-  POST /api/quiz      quiz results -> event
-  GET  /api/text      contents of student/reading-current.json (tutor writes it)
-  POST /api/text      {"addWord": ..} -> queued for the tutor, event
-  GET  /api/dictation contents of student/dictation-current.json (tutor writes it)
-  GET  /api/img/<f>   card image from student/<lang>/img/
+python tools/serve.py [port|status|stop|selfcheck]
+The local service is single-user and is not an internet deployment server.
 """
+
+import hashlib
 import json
+import mimetypes
 import os
 import re
 import secrets
@@ -32,31 +17,43 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import date, datetime
+from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from typing import Any, cast
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import activity
 import srs
+import storage
 import tts
 
 ROOT = Path(__file__).resolve().parent.parent
-STUDENT = ROOT / "student"
+STUDENT = srs.STUDENT
 APPS = ROOT / "apps"
 CONTROL = STUDENT / ".serve.json"
 
 
-def read_json(path, default):
-    return json.loads(path.read_text()) if path.exists() else default
+def namespace(directory=None):
+    resolved = directory if directory is not None else lang_dir()
+    active = resolved.name if resolved is not None else "uninitialized"
+    return hashlib.sha256(f"{STUDENT.resolve()}:{active}".encode()).hexdigest()[:16]
+
+
+MAX_BODY = 256 * 1024
+read_json = storage.load
 
 
 def read_control():
     try:
         data = read_json(CONTROL, None)
-    except (OSError, json.JSONDecodeError):
+    except (OSError, ValueError):
         return None
-    if not isinstance(data, dict) or not isinstance(data.get("port"), int) \
-            or not isinstance(data.get("token"), str):
+    if (
+        not isinstance(data, dict)
+        or type(data.get("port")) is not int
+        or not isinstance(data.get("token"), str)
+    ):
         return None
     return data
 
@@ -65,9 +62,8 @@ def control_request(action, method="GET", timeout=2):
     data = read_control()
     if data is None:
         raise RuntimeError("no server control file")
-    token = urllib.parse.quote(data["token"])
-    url = f"http://127.0.0.1:{data['port']}/api/{action}?token={token}"
-    request = urllib.request.Request(url, method=method)
+    url = f"http://127.0.0.1:{data['port']}/api/{action}"
+    request = urllib.request.Request(url, method=method, headers={"X-Tutor-Token": data["token"]})
     with urllib.request.urlopen(request, timeout=timeout) as response:
         return json.loads(response.read())
 
@@ -75,7 +71,7 @@ def control_request(action, method="GET", timeout=2):
 def server_status():
     try:
         result = control_request("health")
-    except (OSError, RuntimeError, urllib.error.URLError, json.JSONDecodeError):
+    except (OSError, RuntimeError, ValueError):
         return None
     return read_control() if result.get("ok") else None
 
@@ -86,30 +82,32 @@ def stop_server():
         return 0
     try:
         control_request("shutdown", method="POST")
-    except (OSError, RuntimeError, urllib.error.URLError, json.JSONDecodeError) as exc:
-        print(f"server did not respond; control file kept: {exc}", file=sys.stderr)
+    except (OSError, RuntimeError, ValueError):
+        print("server did not respond; control file kept", file=sys.stderr)
         return 1
     for _ in range(40):
         if not CONTROL.exists():
-            break
+            print("server stopped")
+            return 0
         time.sleep(0.05)
-    if CONTROL.exists():
-        print("shutdown requested but not confirmed", file=sys.stderr)
-        return 1
-    print("server stopped")
-    return 0
+    print("shutdown requested but not confirmed", file=sys.stderr)
+    return 1
 
 
 def write_event(app, payload):
-    STUDENT.mkdir(exist_ok=True)
-    out = {"app": app, "at": datetime.now().isoformat(timespec="seconds"), **payload}
-    (STUDENT / f".event-{app}.json").write_text(
-        json.dumps(out, indent=2, ensure_ascii=False) + "\n")
+    # Server metadata cannot be overridden by imported learner content.
+    out = {**payload, "app": app, "at": datetime.now(timezone.utc).isoformat()}
+    storage.save(STUDENT / f".event-{app}.json", out)
 
 
 def lang_dir():
-    """Active language folder, or None when no student data exists yet."""
     try:
+        if (
+            not STUDENT.exists()
+            or not (STUDENT / "active.txt").exists()
+            and not any(p.is_dir() and not p.name.startswith(".") for p in STUDENT.iterdir())
+        ):
+            return None
         return srs.lang_dir()
     except SystemExit:
         return None
@@ -117,170 +115,341 @@ def lang_dir():
 
 def due_cards(limit=None):
     d = lang_dir()
-    if d is None:
-        return []
-    deck = read_json(d / "cards.json", {"cards": []})["cards"]
-    today = date.today().isoformat()
-    due = [c for c in deck if c.get("due") is None or c["due"] <= today]
-    # most-overdue reviews first, brand-new cards last
-    due.sort(key=lambda c: (c.get("due") is None, c.get("due") or ""))
-    return due[:limit] if limit else due
+    cards = srs.due_cards(d / "cards.json") if d else []
+    return cards[:limit] if limit is not None else cards
 
 
 def progress_payload():
     d = lang_dir()
     if d is None:
-        return {"streak": 0, "language": None, "level": None, "unit": 1,
-                "levelPct": 0, "knownWords": 0, "dueCount": 0,
-                "topErrors": [], "history": [0]}
-    p = read_json(d / "progress.json",
-                  {"streak": 0, "level": None, "unit": 1, "history": []})
+        return {
+            "streak": 0,
+            "language": None,
+            "level": None,
+            "unit": 1,
+            "levelPct": 0,
+            "knownWords": 0,
+            "dueCount": 0,
+            "topErrors": [],
+            "history": [0],
+        }
+    p = read_json(d / "progress.json", {"history": []})
+    if not isinstance(p, dict):
+        raise ValueError("invalid legacy progress")
     known_path = d / "known_words.txt"
-    known = len([l for l in known_path.read_text().splitlines() if l.strip()]) \
-        if known_path.exists() else 0
-    errors = []
+    known = (
+        len(
+            {
+                line.strip().casefold()
+                for line in known_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            }
+        )
+        if known_path.exists()
+        else 0
+    )
+    errors: list[dict[str, Any]] = []
     err_path = d / "errors.md"
     if err_path.exists():
-        for line in err_path.read_text().splitlines():
-            m = re.match(r"^(\d+)[x×]\s*\|\s*([^|]+?)\s*\|\s*(.+)$", line.strip())
-            if m:
-                errors.append({"count": int(m.group(1)), "label": m.group(2),
-                               "example": m.group(3)})
-    errors.sort(key=lambda e: -e["count"])
-    history = [h["known_words"] for h in p.get("history", []) if "known_words" in h]
+        for line in err_path.read_text(encoding="utf-8").splitlines():
+            match = re.match(r"^(\d+)[x×]\s*\|\s*([^|]+?)\s*\|\s*(.+)$", line.strip())
+            if match:
+                errors.append({"count": int(match[1]), "label": match[2], "example": match[3]})
+    learner = read_json(d / "learner.json", None)
+    level = p.get("level")
+    if learner:
+        import learning
+
+        learning.validate_state(learner)
+        level = learner["proficiency"]["working_level"]
+        errors = [
+            {"count": value["count"], "label": key, "example": ""}
+            for key, value in learner["errors"].items()
+        ]
+    errors.sort(key=lambda value: -value["count"])
+    history = [entry["known_words"] for entry in p.get("history", []) if "known_words" in entry]
     return {
-        "streak": p.get("streak", 0), "language": d.name, "level": p.get("level"),
-        "unit": p.get("unit", 1), "levelPct": round((p.get("unit", 1) - 1) / 12 * 100),
-        "knownWords": known, "dueCount": len(due_cards()),
-        "topErrors": errors[:3], "history": history or [known],
+        "streak": p.get("streak", 0),
+        "language": d.name,
+        "level": level,
+        "unit": p.get("unit", 1),
+        "levelPct": 0,
+        "knownWords": known,
+        "dueCount": len(due_cards()),
+        "topErrors": errors[:3],
+        "history": history or [known],
+        "calibrated": False,
+        "legacyVocabularyUnverified": True,
     }
 
 
+class TutorServer(ThreadingHTTPServer):
+    shutdown_token: str
+
+
 class Handler(SimpleHTTPRequestHandler):
+    server: TutorServer
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(APPS), **kwargs)
 
+    def end_headers(self):
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'",
+        )
+        super().end_headers()
+
     def _json(self, data, status=200):
-        body = json.dumps(data, ensure_ascii=False).encode()
+        body = json.dumps(data, ensure_ascii=False, allow_nan=False).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
 
+    def _origin_ok(self):
+        port = cast(tuple, self.server.server_address)[1]
+        hosts = {f"localhost:{port}", f"127.0.0.1:{port}"}
+        host = self.headers.get("Host", "")
+        origin = self.headers.get("Origin")
+        return (
+            host in hosts
+            and self.headers.get("Sec-Fetch-Site") not in {"cross-site"}
+            and (origin is None or origin == f"http://{host}")
+        )
+
+    def _authorized(self, query):
+        token = self.headers.get("X-Tutor-Token", "")
+        if not token:
+            token = (urllib.parse.parse_qs(query).get("token") or [""])[0]
+        return secrets.compare_digest(token, self.server.shutdown_token)
+
+    def _activity(self, kind):
+        filename = {"quiz": "quiz", "text": "reading", "dictation": "dictation"}[kind]
+        data = read_json(STUDENT / f"{filename}-current.json", None)
+        return activity.validate(kind, data) if data is not None else None
+
     def do_GET(self):
+        if not self._origin_ok():
+            return self._json({"error": "forbidden origin or host"}, 403)
         parsed = urllib.parse.urlparse(self.path)
-        if parsed.path == "/api/health":
-            token = (urllib.parse.parse_qs(parsed.query).get("token") or [""])[0]
-            if not secrets.compare_digest(token, self.server.shutdown_token):
-                return self._json({"error": "forbidden"}, 403)
-            return self._json({"ok": True})
-        if self.path.startswith("/api/tts"):
-            qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
-            text = (qs.get("text") or [""])[0].strip()
-            try:
-                path = tts.synth(text) if text else None
-            except Exception:
-                path = None
-            if path is None:  # no premium provider or synth failed -> app falls back to browser voice
-                self.send_response(204)
-                self.end_headers()
-                return
-            body = path.read_bytes()
-            self.send_response(200)
-            self.send_header("Content-Type", "audio/mpeg")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
-        elif self.path == "/api/deck":
-            # ponytail: fixed 30-card session cap; make it configurable if anyone asks
-            self._json({"cards": due_cards(limit=30), "totalDue": len(due_cards())})
-        elif self.path == "/api/progress":
-            self._json(progress_payload())
-        elif self.path == "/api/quiz":
-            quiz = read_json(STUDENT / "quiz-current.json", None)
-            self._json(quiz or {"error": "no quiz prepared"}, 200 if quiz else 404)
-        elif self.path == "/api/text":
-            text = read_json(STUDENT / "reading-current.json", None)
-            self._json(text or {"error": "no text prepared"}, 200 if text else 404)
-        elif self.path == "/api/dictation":
-            dic = read_json(STUDENT / "dictation-current.json", None)
-            self._json(dic or {"error": "no dictation prepared"}, 200 if dic else 404)
-        elif self.path.startswith("/api/img/"):
-            d = lang_dir()
-            name = Path(urllib.parse.unquote(self.path[len("/api/img/"):])).name  # basename only — no traversal
-            f = d / "img" / name if d else None
-            if f and f.is_file():
-                body = f.read_bytes()
-                self.send_response(200)
-                self.send_header("Content-Type", "image/jpeg")
-                self.send_header("Content-Length", str(len(body)))
-                self.end_headers()
-                self.wfile.write(body)
-            else:
-                self._json({"error": "no image"}, 404)
-        else:
-            super().do_GET()
+        route = parsed.path
+        try:
+            if route == "/api/session":
+                return self._json(
+                    {"token": self.server.shutdown_token, "locale": "ru", "namespace": namespace()}
+                )
+            if route == "/api/health":
+                return self._json(
+                    {"ok": True} if self._authorized(parsed.query) else {"error": "forbidden"},
+                    200 if self._authorized(parsed.query) else 403,
+                )
+            if route == "/api/tts":
+                if not self._authorized(parsed.query):
+                    return self._json({"error": "token required"}, 403)
+                text = (urllib.parse.parse_qs(parsed.query).get("text") or [""])[0]
+                if not text.strip() or len(text) > 2000:
+                    raise ValueError("TTS needs 1–2000 characters")
+                path = tts.synth(text)
+                if path is None:
+                    self.send_response(204)
+                    self.end_headers()
+                    return
+                return self._bytes(path, mimetypes.guess_type(path)[0] or "audio/mpeg")
+            if route == "/api/deck":
+                return self._json({"cards": due_cards(30), "totalDue": len(due_cards())})
+            if route == "/api/progress":
+                return self._json(progress_payload())
+            if route in {"/api/quiz", "/api/text", "/api/dictation"}:
+                data = self._activity(route.split("/")[-1])
+                return self._json(
+                    {**data, "activity_id": activity.identity(data)}
+                    if data
+                    else {"error": "activity not prepared"},
+                    200 if data else 404,
+                )
+            if route.startswith("/api/img/"):
+                d = lang_dir()
+                name = urllib.parse.unquote(route[len("/api/img/") :])
+                if not d or Path(name).name != name or not name:
+                    raise ValueError("invalid image name")
+                path = d / "img" / name
+                if not path.resolve().is_relative_to((d / "img").resolve()) or path.is_symlink():
+                    raise ValueError("invalid image path")
+                return self._bytes(
+                    path, mimetypes.guess_type(path)[0] or "application/octet-stream"
+                )
+            if route.startswith("/api/"):
+                return self._json({"error": "unknown endpoint"}, 404)
+            # Do not expose directory listings or follow static symlinks outside apps/.
+            path = (APPS / urllib.parse.unquote(route).lstrip("/")).resolve()
+            if not path.is_relative_to(APPS.resolve()) or path.suffix not in {
+                ".html",
+                ".css",
+                ".js",
+            }:
+                return self._json({"error": "not found"}, 404)
+            return super().do_GET()
+        except (ValueError, KeyError, TypeError):
+            return self._json({"error": "invalid or corrupt data; validate before continuing"}, 409)
+        except (OSError, RuntimeError):
+            return self._json(
+                {"error": "operation failed; data retained; check local configuration"}, 503
+            )
+
+    def _bytes(self, path, content_type):
+        if not path.is_file():
+            return self._json({"error": "not found"}, 404)
+        body = path.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def do_HEAD(self):
+        # Avoid SimpleHTTPRequestHandler bypassing the static allowlist.
+        self._json({"error": "method not supported"}, 405)
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
+        if not self._origin_ok() or not self._authorized(parsed.query):
+            return self._json({"error": "same-origin session token required"}, 403)
         if parsed.path == "/api/shutdown":
-            token = (urllib.parse.parse_qs(parsed.query).get("token") or [""])[0]
-            if not secrets.compare_digest(token, self.server.shutdown_token):
-                return self._json({"error": "forbidden"}, 403)
             self._json({"ok": True})
             threading.Thread(target=self.server.shutdown, daemon=True).start()
             return
-        length = int(self.headers.get("Content-Length", 0))
         try:
-            body = json.loads(self.rfile.read(length) or b"{}")
-        except json.JSONDecodeError:
-            return self._json({"error": "bad json"}, 400)
-        if self.path == "/api/deck":
-            d = lang_dir()
-            if d is None:
-                return self._json({"error": "no student data yet"}, 400)
-            data = read_json(d / "cards.json", {"cards": []})
-            today = date.today()
-            graded = 0
-            for r in body.get("results", []):
-                for card in data["cards"]:
-                    if card.get("id") == r.get("id"):
-                        srs.review(card, int(r["grade"]), today)
-                        graded += 1
-            srs.save(d / "cards.json", data)
-            write_event("flashcards", {"graded": graded, **body})
-            self._json({"ok": True, "graded": graded})
-        elif self.path == "/api/quiz":
-            write_event("quiz", body)
-            self._json({"ok": True})
-        elif self.path == "/api/text":
-            write_event("reader", body)
-            self._json({"ok": True})
-        else:
-            self._json({"error": "unknown endpoint"}, 404)
+            directory = lang_dir()
+            if directory is None or self.headers.get("X-Tutor-Namespace") != namespace(directory):
+                return self._json({"error": "learner changed; reload before submitting"}, 409)
+        except (OSError, ValueError):
+            return self._json({"error": "invalid learner path"}, 409)
+        if self.headers.get_content_type() != "application/json":
+            return self._json({"error": "application/json required"}, 415)
+        raw_length = self.headers.get("Content-Length", "")
+        if not raw_length.isdecimal() or not 0 < int(raw_length) <= MAX_BODY:
+            return self._json({"error": "invalid request size"}, 413)
+        try:
+            body = storage.decode(self.rfile.read(int(raw_length)))
+            if not isinstance(body, dict):
+                raise ValueError("object required")
+            if parsed.path == "/api/deck":
+                d = directory
+                if not d:
+                    raise ValueError("no learner")
+                batch_id = activity.text(body.get("batch_id"), "batch_id", 128)
+                receipt = srs.apply_reviews(
+                    d / "cards.json", body.get("results"), batch_id=batch_id
+                )
+                return self._json({"ok": True, "receipt": receipt})
+            if parsed.path in {"/api/quiz", "/api/text", "/api/deck/complete"}:
+                kind = (
+                    "flashcards"
+                    if parsed.path.endswith("/complete")
+                    else parsed.path.split("/")[-1]
+                )
+                batch_id = activity.text(body.get("batch_id"), "batch_id", 128)
+                # Lock order is cards before activity-results, matching export_bundle.
+                known = set()
+                if kind == "flashcards":
+                    deck = read_json(directory / "cards.json", {"cards": []})
+                    known = {
+                        r["review_id"]
+                        for card in deck["cards"]
+                        for r in card.get("review_history", [])
+                    }
+                with storage.transaction(
+                    STUDENT / "activity-results.json", {"receipts": {}}
+                ) as store:
+                    fingerprint = activity.identity(body)
+                    previous = store["receipts"].get(batch_id)
+                    if previous:
+                        if previous["fingerprint"] != fingerprint or previous["activity"] != kind:
+                            raise ValueError("batch ID reused with different data")
+                        result = previous["result"]
+                    else:
+                        if kind == "flashcards":
+                            ids = body.get("review_ids")
+                            if (
+                                not isinstance(ids, list)
+                                or len(ids) > 300
+                                or any(not isinstance(rid, str) for rid in ids)
+                            ):
+                                raise ValueError("invalid review IDs")
+                            if not set(ids) <= known or len(ids) != len(set(ids)):
+                                raise ValueError("reviews were not saved")
+                            result = {"completed": True, "reviews": len(ids)}
+                        else:
+                            data = self._activity(kind)
+                            if data is None or body.get("activity_id") != activity.identity(data):
+                                raise ValueError("stale activity")
+                            if kind == "quiz":
+                                result = activity.score_quiz(data, body.get("answers"))
+                            else:
+                                field = "addWord" if "addWord" in body else "askWord"
+                                word = activity.text(body.get(field), "word", 100).lower()
+                                if field == "addWord" and word not in data.get("glossary", {}):
+                                    raise ValueError("word outside glossary")
+                                if field == "askWord" and word not in {
+                                    w.lower()
+                                    for w in re.findall(r"[^\W\d_]+", " ".join(data["paragraphs"]))
+                                }:
+                                    raise ValueError("word outside reading")
+                                result = {field: word, "title": data["title"]}
+                        store["receipts"][batch_id] = {
+                            "fingerprint": fingerprint,
+                            "activity": kind,
+                            "activity_id": body.get("activity_id"),
+                            "result": result,
+                            "at": datetime.now(timezone.utc).isoformat(),
+                        }
+                write_event(
+                    "reader" if kind == "text" else kind,
+                    {"batch_id": batch_id, "activity_id": body.get("activity_id"), **result},
+                )
+                return self._json({"ok": True, **result})
+            return self._json({"error": "unknown endpoint"}, 404)
+        except (ValueError, KeyError, TypeError):
+            return self._json({"error": "invalid result or corrupt data; nothing graded"}, 400)
+        except (OSError, RuntimeError):
+            return self._json({"error": "save not confirmed; retry with the same batch ID"}, 503)
 
-    def log_message(self, fmt, *args):  # keep the terminal quiet
-        pass
+    def log_message(self, fmt, *args):
+        pass  # No learner content, TTS text, or tokens in request logs.
+
+
+def create_server(port=0):
+    server = TutorServer(("127.0.0.1", port), Handler)
+    server.shutdown_token = secrets.token_urlsafe(32)
+    return server
 
 
 def selfcheck():
-    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
-    server.shutdown_token = secrets.token_urlsafe(24)
-    port = server.server_address[1]
+    server = create_server()
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
-    token = urllib.parse.quote(server.shutdown_token)
-    with urllib.request.urlopen(
-            f"http://127.0.0.1:{port}/api/health?token={token}", timeout=2) as response:
-        assert json.loads(response.read()) == {"ok": True}
-    request = urllib.request.Request(
-        f"http://127.0.0.1:{port}/api/shutdown?token={token}", method="POST")
-    with urllib.request.urlopen(request, timeout=2) as response:
-        assert json.loads(response.read()) == {"ok": True}
-    thread.join(timeout=2)
-    server.server_close()
-    assert not thread.is_alive()
+    try:
+        base = f"http://127.0.0.1:{server.server_address[1]}"
+        headers = {"X-Tutor-Token": server.shutdown_token}
+        with urllib.request.urlopen(
+            urllib.request.Request(base + "/api/health", headers=headers), timeout=2
+        ) as r:
+            assert json.loads(r.read()) == {"ok": True}
+        with urllib.request.urlopen(
+            urllib.request.Request(base + "/api/shutdown", headers=headers, method="POST"),
+            timeout=2,
+        ) as r:
+            assert json.loads(r.read()) == {"ok": True}
+        thread.join(timeout=2)
+        assert not thread.is_alive()
+    finally:
+        server.shutdown()
+        server.server_close()
     print("server selfcheck OK")
 
 
@@ -290,30 +459,35 @@ def main():
         raise SystemExit(stop_server())
     if command == "status":
         data = server_status()
-        print(f"server running on http://localhost:{data['port']}" if data else "server not running")
+        print(
+            f"server running on http://localhost:{data['port']}" if data else "server not running"
+        )
         raise SystemExit(0 if data else 1)
     if command == "selfcheck":
-        selfcheck()
-        return
-
+        return selfcheck()
     running = server_status()
     if running:
         print(f"server already running on http://localhost:{running['port']}")
         return
+    # Do not silently overwrite a corrupt/stale control file: explicit stop or cleanup is needed.
     if CONTROL.exists():
-        CONTROL.unlink()
-
-    port = int(command) if command else 8765
-    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    server.shutdown_token = secrets.token_urlsafe(24)
-    port = server.server_address[1]
-    STUDENT.mkdir(exist_ok=True)
-    CONTROL.write_text(json.dumps({
-        "pid": os.getpid(), "port": port, "token": server.shutdown_token,
-        "root": str(ROOT),
-    }, indent=2) + "\n")
-    print(f"serving apps/ on http://localhost:{port} — run 'python3 tools/serve.py stop' to stop",
-          flush=True)
+        raise SystemExit(
+            "stale/corrupt control file: inspect student/.serve.json before removing it"
+        )
+    server = create_server(int(command) if command else 8765)
+    storage.save(
+        CONTROL,
+        {
+            "pid": os.getpid(),
+            "port": server.server_address[1],
+            "token": server.shutdown_token,
+            "root": str(ROOT),
+        },
+    )
+    print(
+        f"serving apps/ on http://localhost:{server.server_address[1]} — python tools/serve.py stop",
+        flush=True,
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -323,6 +497,7 @@ def main():
         current = read_control()
         if current and secrets.compare_digest(current["token"], server.shutdown_token):
             CONTROL.unlink(missing_ok=True)
+            CONTROL.with_suffix(CONTROL.suffix + ".bak").unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

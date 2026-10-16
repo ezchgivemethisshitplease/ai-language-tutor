@@ -5,25 +5,28 @@ Commands: due, grade <id> <1-4>, add (JSON on stdin), img <id> <query>,
           streak, stats, export <file>, import <file>, selfcheck.
 Install dependencies with: python -m pip install -r requirements.txt
 """
+
 from copy import deepcopy
 from datetime import date, datetime, time, timedelta, timezone
 from functools import lru_cache
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 import re
 import sys
 import unicodedata
 import uuid
+from typing import Any, cast
 
 try:
     from . import storage
 except ImportError:
-    import storage
+    import storage  # type: ignore[no-redef]  # Direct-script and package imports share this module.
 
 ROOT = Path(__file__).resolve().parent.parent
-STUDENT = ROOT / "student"
+STUDENT = Path(os.environ.get("TUTOR_STUDENT_DIR", str(ROOT / "student")))
 SCHEMA_VERSION = 2
 FSRS_VERSION = "6.3.2"
 load = storage.load
@@ -50,11 +53,20 @@ def lang_dir():
         if not result.is_dir():
             raise ValueError(f"active language folder does not exist: {result.name}")
         return result
-    folders = [path for path in STUDENT.iterdir()
-               if path.is_dir() and not path.name.startswith(".") and not path.is_symlink()] if STUDENT.exists() else []
+    folders = (
+        [
+            path
+            for path in STUDENT.iterdir()
+            if path.is_dir() and not path.name.startswith(".") and not path.is_symlink()
+        ]
+        if STUDENT.exists()
+        else []
+    )
     if len(folders) == 1:
         return language_dir(folders[0].name)
-    raise ValueError("no active language folder; write its name to student/active.txt (e.g. english)")
+    raise ValueError(
+        "no active language folder; write its name to student/active.txt (e.g. english)"
+    )
 
 
 def cards_path():
@@ -76,7 +88,9 @@ def _when(value=None):
         return datetime.combine(value, time.min, timezone.utc)
     if isinstance(value, str):
         try:
-            return _when(date.fromisoformat(value) if len(value) == 10 else datetime.fromisoformat(value))
+            return _when(
+                date.fromisoformat(value) if len(value) == 10 else datetime.fromisoformat(value)
+            )
         except ValueError as exc:
             raise ValueError("expected an ISO date or timezone-aware datetime") from exc
     raise ValueError("expected a date or timezone-aware datetime")
@@ -107,9 +121,13 @@ def scheduler():
         from fsrs import Scheduler
         from importlib.metadata import version
     except ImportError as exc:
-        raise RuntimeError("FSRS is required; run python -m pip install -r requirements.txt") from exc
+        raise RuntimeError(
+            "FSRS is required; run python -m pip install -r requirements.txt"
+        ) from exc
     if version("fsrs") != FSRS_VERSION:
-        raise RuntimeError(f"expected fsrs=={FSRS_VERSION}; run python -m pip install -r requirements.txt")
+        raise RuntimeError(
+            f"expected fsrs=={FSRS_VERSION}; run python -m pip install -r requirements.txt"
+        )
     # Fuzzing is disabled for reproducible schedules and regression tests.
     return Scheduler(enable_fuzzing=False)
 
@@ -117,6 +135,8 @@ def scheduler():
 def _fsrs_card(card):
     scheduler()  # Actionable dependency/version error before importing classes.
     from fsrs import Card, State
+    from fsrs.card import CardDict
+
     if "fsrs" in card:
         data = card["fsrs"]
         if not isinstance(data, dict):
@@ -127,24 +147,32 @@ def _fsrs_card(card):
             if data.get(field) is not None:
                 _number(data[field], field, low, high)
         try:
-            result = Card.from_dict(data)
+            result = Card.from_dict(cast(CardDict, data))
         except (KeyError, ValueError, TypeError, OverflowError) as exc:
             raise ValueError("invalid canonical FSRS card state") from exc
-        for field in (result.due, result.last_review):
-            if field is not None:
-                _when(field)
+        for timestamp in (result.due, result.last_review):
+            if timestamp is not None:
+                _when(timestamp)
         result.due = _when(result.due)
         result.last_review = _when(result.last_review) if result.last_review else None
         if result.stability is not None:
             _number(result.stability, "stability", 0.001)
         if result.difficulty is not None:
             _number(result.difficulty, "difficulty", 1, 10)
-        if result.last_review is not None and (result.stability is None or result.difficulty is None):
+        if result.last_review is not None and (
+            result.stability is None or result.difficulty is None
+        ):
             raise ValueError("reviewed FSRS card needs stability and difficulty")
-        if result.state in (State.Learning, State.Relearning) and (type(result.step) is not int or result.step < 0 or result.step >= (2 if result.state == State.Learning else 1)):
+        if result.state in (State.Learning, State.Relearning) and (
+            type(result.step) is not int
+            or result.step < 0
+            or result.step >= (2 if result.state == State.Learning else 1)
+        ):
             raise ValueError("invalid FSRS learning step")
         return result
-    stable_id = int.from_bytes(hashlib.sha256(str(card.get("id", "anonymous")).encode()).digest()[:8], "big")
+    stable_id = int.from_bytes(
+        hashlib.sha256(str(card.get("id", "anonymous")).encode()).digest()[:8], "big"
+    )
     due = _when(card.get("due") or date.today())
     last = card.get("last_review")
     if last is None:
@@ -153,8 +181,15 @@ def _fsrs_card(card):
     # available memory state forward without fabricating a retrospective log.
     _number(card.get("S"), "legacy stability", 0.001)
     _number(card.get("D"), "legacy difficulty", 1, 10)
-    return Card(card_id=stable_id, state=State.Review, step=None,
-                stability=card["S"], difficulty=card["D"], due=due, last_review=_when(last))
+    return Card(
+        card_id=stable_id,
+        state=State.Review,
+        step=None,
+        stability=card["S"],
+        difficulty=card["D"],
+        due=due,
+        last_review=_when(last),
+    )
 
 
 def retrievability(card, today=None):
@@ -190,20 +225,39 @@ def review(card, grade, today=None, review_id=None):
     if old_state.last_review and when < old_state.last_review:
         raise ValueError("review time precedes the card's last review")
     from fsrs import Rating, State
+
     new_state, log = scheduler().review_card(old_state, Rating(grade), review_datetime=when)
     interval = max(0, (new_state.due - when).days)
     updated = deepcopy(card)
     if "fsrs" not in updated:
-        updated["migration"] = {"from": "legacy-simplified-fsrs", "at": when.isoformat(),
-                                "historical_reviews_available": False}
-    updated.update({"fsrs": new_state.to_dict(), "scheduler": f"py-fsrs-{FSRS_VERSION}",
-                    "S": new_state.stability, "D": new_state.difficulty,
-                    "due": new_state.due.date().isoformat(), "due_at": new_state.due.isoformat(),
-                    "last_review": when.date().isoformat(), "reps": card.get("reps", 0) + 1,
-                    "lapses": card.get("lapses", 0) + int(grade == 1 and old_state.state == State.Review)})
-    entry = {"review_id": review_id, "card_id": card.get("id"), "grade": grade,
-             "reviewed_at": when.isoformat(), "due_at": new_state.due.isoformat(),
-             "interval_days": interval, "fsrs": log.to_dict(), "scheduler": f"py-fsrs-{FSRS_VERSION}"}
+        updated["migration"] = {
+            "from": "legacy-simplified-fsrs",
+            "at": when.isoformat(),
+            "historical_reviews_available": False,
+        }
+    updated.update(
+        {
+            "fsrs": new_state.to_dict(),
+            "scheduler": f"py-fsrs-{FSRS_VERSION}",
+            "S": new_state.stability,
+            "D": new_state.difficulty,
+            "due": new_state.due.date().isoformat(),
+            "due_at": new_state.due.isoformat(),
+            "last_review": when.date().isoformat(),
+            "reps": card.get("reps", 0) + 1,
+            "lapses": card.get("lapses", 0) + int(grade == 1 and old_state.state == State.Review),
+        }
+    )
+    entry = {
+        "review_id": review_id,
+        "card_id": card.get("id"),
+        "grade": grade,
+        "reviewed_at": when.isoformat(),
+        "due_at": new_state.due.isoformat(),
+        "interval_days": interval,
+        "fsrs": log.to_dict(),
+        "scheduler": f"py-fsrs-{FSRS_VERSION}",
+    }
     updated["review_history"] = history + [entry]
     card.clear()
     card.update(updated)
@@ -253,12 +307,18 @@ def validate_deck(data):
                 raise ValueError("duplicate canonical FSRS card id")
             scheduler_ids.add(state.card_id)
             if "fsrs" in card:
-                if not isinstance(card.get("due_at"), str) or card.get("due") != state.due.date().isoformat() or _when(card["due_at"]) != state.due:
+                if (
+                    not isinstance(card.get("due_at"), str)
+                    or card.get("due") != state.due.date().isoformat()
+                    or _when(card["due_at"]) != state.due
+                ):
                     raise ValueError("card due mirrors disagree with canonical FSRS state")
                 last = state.last_review.date().isoformat() if state.last_review else None
                 if card.get("last_review") != last:
                     raise ValueError("last_review disagrees with canonical FSRS state")
-                if state.last_review and (card.get("S") != state.stability or card.get("D") != state.difficulty):
+                if state.last_review and (
+                    card.get("S") != state.stability or card.get("D") != state.difficulty
+                ):
                     raise ValueError("card memory mirrors disagree with canonical FSRS state")
         history = card.get("review_history", [])
         if not isinstance(history, list):
@@ -275,7 +335,9 @@ def validate_deck(data):
             seen.add(identifier)
             all_reviews.add(identifier)
             _grade(log.get("grade"))
-            if not isinstance(log.get("reviewed_at"), str) or not isinstance(log.get("due_at"), str):
+            if not isinstance(log.get("reviewed_at"), str) or not isinstance(
+                log.get("due_at"), str
+            ):
                 raise ValueError("review history needs reviewed_at and due_at timestamps")
             _when(log["reviewed_at"])
             _when(log["due_at"])
@@ -290,7 +352,11 @@ def validate_deck(data):
         if not isinstance(receipt, dict) or not isinstance(receipt.get("fingerprint"), str):
             raise ValueError("invalid stored batch receipt")
         result = receipt.get("result")
-        if not isinstance(result, dict) or result.get("batch_id") != identifier or not isinstance(result.get("graded"), list):
+        if (
+            not isinstance(result, dict)
+            or result.get("batch_id") != identifier
+            or not isinstance(result.get("graded"), list)
+        ):
             raise ValueError("invalid stored batch result")
     return data
 
@@ -299,15 +365,23 @@ def _migrate_deck(data):
     validate_deck(data)
     data["schema_version"] = SCHEMA_VERSION
     data.setdefault("review_batches", {})
-    data.setdefault("scheduler", {"implementation": "py-fsrs", "version": FSRS_VERSION,
-                                  "desired_retention": 0.9, "enable_fuzzing": False,
-                                  "parameters": list(scheduler().parameters)})
+    data.setdefault(
+        "scheduler",
+        {
+            "implementation": "py-fsrs",
+            "version": FSRS_VERSION,
+            "desired_retention": 0.9,
+            "enable_fuzzing": False,
+            "parameters": list(scheduler().parameters),
+        },
+    )
     return data
 
 
 def _key(card):
     def normalize(text):
         return " ".join(unicodedata.normalize("NFKC", text).casefold().split())
+
     return normalize(card["front"]), normalize(card["answer"])
 
 
@@ -320,7 +394,7 @@ def add_cards(path, cards, today=None):
     incoming = deepcopy(cards)
     for card in incoming:
         validate_card(card)
-    result = {"added": [], "duplicates": []}
+    result: dict[str, Any] = {"added": [], "duplicates": []}
     when = _when(today)
     with storage.transaction(path, {"cards": []}) as data:
         _migrate_deck(data)
@@ -334,8 +408,12 @@ def add_cards(path, cards, today=None):
             card.setdefault("id", uuid.uuid4().hex)
             if card["id"] in ids:
                 raise ValueError(f"card id already exists with different content: {card['id']}")
-            for field, default in (("last_review", None), ("due", when.date().isoformat()),
-                                   ("reps", 0), ("lapses", 0)):
+            for field, default in (
+                ("last_review", None),
+                ("due", when.date().isoformat()),
+                ("reps", 0),
+                ("lapses", 0),
+            ):
                 card.setdefault(field, default)
             if "fsrs" not in card and card.get("last_review") is None:
                 card["fsrs"] = _fsrs_card(card).to_dict()
@@ -362,7 +440,7 @@ def apply_reviews(path, reviews, today=None, batch_id=None):
     batch_id = _identifier(batch_id, "batch_id") if batch_id is not None else None
     normalized = []
     seen_ids = set()
-    for index, item in enumerate(reviews):
+    for item in reviews:
         if not isinstance(item, dict):
             raise ValueError("each review must be an object")
         identifier = _identifier(item.get("id"))
@@ -392,15 +470,32 @@ def apply_reviews(path, reviews, today=None, batch_id=None):
             graded = []
             for index, item in enumerate(normalized):
                 card = deck[item["id"]]
-                review_id = item["review_id"] or (hashlib.sha256(f"{batch_id}:{index}".encode()).hexdigest() if batch_id else uuid.uuid4().hex)
+                review_id = item["review_id"] or (
+                    hashlib.sha256(f"{batch_id}:{index}".encode()).hexdigest()
+                    if batch_id
+                    else uuid.uuid4().hex
+                )
                 _identifier(review_id, "review_id")
-                already = any(log["review_id"] == review_id for log in card.get("review_history", []))
+                already = any(
+                    log["review_id"] == review_id for log in card.get("review_history", [])
+                )
                 interval = review(card, item["grade"], when, review_id=review_id)
-                graded.append({"id": card["id"], "review_id": review_id, "next_due": card["due"],
-                               "due_at": card["due_at"], "interval_days": interval, "duplicate": already})
+                graded.append(
+                    {
+                        "id": card["id"],
+                        "review_id": review_id,
+                        "next_due": card["due"],
+                        "due_at": card["due_at"],
+                        "interval_days": interval,
+                        "duplicate": already,
+                    }
+                )
             result = {"graded": graded, "batch_id": batch_id, "duplicate": False}
             if batch_id:
-                data["review_batches"][batch_id] = {"fingerprint": fingerprint, "result": deepcopy(result)}
+                data["review_batches"][batch_id] = {
+                    "fingerprint": fingerprint,
+                    "result": deepcopy(result),
+                }
             validate_deck(data)
     return result
 
@@ -409,13 +504,17 @@ def due_cards(path, today=None):
     data = validate_deck(load(path, {"cards": []}))
     when = _when(today)
     day_mode = isinstance(today, date) and not isinstance(today, datetime)
+
     def due(card):
         if day_mode:
             return card.get("due") is None or card["due"] <= when.date().isoformat()
         value = card.get("due_at") or card.get("due")
         return value is None or _when(value) <= when
-    return sorted((card for card in data["cards"] if due(card)),
-                  key=lambda card: (card.get("due_at") or card.get("due") or "", card["id"]))
+
+    return sorted(
+        (card for card in data["cards"] if due(card)),
+        key=lambda card: (card.get("due_at") or card.get("due") or "", card["id"]),
+    )
 
 
 def cmd_due(today):
@@ -435,6 +534,7 @@ def cmd_add(today):
 def cmd_img(card_id, query):
     import urllib.parse
     import urllib.request
+
     if not query:
         raise ValueError("usage: img <card-id> <search query>")
     directory = lang_dir()
@@ -443,13 +543,17 @@ def cmd_img(card_id, query):
     if not any(card["id"] == card_id for card in data["cards"]):
         raise ValueError(f"no card with id {card_id}")
     ua = {"User-Agent": "learning-language-tutor/2.0"}
-    api = "https://api.openverse.org/v1/images/?" + urllib.parse.urlencode({"q": query, "page_size": 3, "mature": "false"})
+    api = "https://api.openverse.org/v1/images/?" + urllib.parse.urlencode(
+        {"q": query, "page_size": 3, "mature": "false"}
+    )
     with urllib.request.urlopen(urllib.request.Request(api, headers=ua), timeout=15) as response:
         hits = json.load(response)["results"]
     if not hits:
         raise ValueError(f"no images found for {query!r}")
     pick = hits[0]
-    with urllib.request.urlopen(urllib.request.Request(pick.get("thumbnail") or pick["url"], headers=ua), timeout=30) as response:
+    with urllib.request.urlopen(
+        urllib.request.Request(pick.get("thumbnail") or pick["url"], headers=ua), timeout=30
+    ) as response:
         raw = response.read(10 * 1024 * 1024 + 1)
     if len(raw) > 10 * 1024 * 1024:
         raise ValueError("image exceeds 10 MiB")
@@ -470,14 +574,22 @@ def cmd_img(card_id, query):
 
 def cmd_streak(today):
     day = _when(today).date()
-    with storage.transaction(progress_path(), {"streak": 0, "last_active": None, "level": None, "unit": 1, "history": []}) as data:
-        if not isinstance(data, dict) or type(data.get("streak", 0)) is not int or data.get("streak", 0) < 0:
+    with storage.transaction(
+        progress_path(), {"streak": 0, "last_active": None, "level": None, "unit": 1, "history": []}
+    ) as data:
+        if (
+            not isinstance(data, dict)
+            or type(data.get("streak", 0)) is not int
+            or data.get("streak", 0) < 0
+        ):
             raise ValueError("invalid progress streak")
         last = data.get("last_active")
         if last is not None and date.fromisoformat(last) > day:
             raise ValueError("study day precedes last_active")
         if last != day.isoformat():
-            data["streak"] = data.get("streak", 0) + 1 if last == (day - timedelta(days=1)).isoformat() else 1
+            data["streak"] = (
+                data.get("streak", 0) + 1 if last == (day - timedelta(days=1)).isoformat() else 1
+            )
             data["last_active"] = day.isoformat()
         result = {"streak": data["streak"], "last_active": data["last_active"]}
     print(json.dumps(result))
@@ -485,19 +597,35 @@ def cmd_streak(today):
 
 def cmd_stats(today):
     deck = validate_deck(load(cards_path(), {"cards": []}))["cards"]
-    print(json.dumps({"cards": len(deck), "due": len(due_cards(cards_path(), today)),
-                      "new": sum(card.get("last_review") is None for card in deck)}))
+    print(
+        json.dumps(
+            {
+                "cards": len(deck),
+                "due": len(due_cards(cards_path(), today)),
+                "new": sum(card.get("last_review") is None for card in deck),
+            }
+        )
+    )
 
 
 def selfcheck():
     import tempfile
+
     with tempfile.TemporaryDirectory() as directory:
         path = Path(directory) / "cards.json"
-        add_cards(path, [{"front": "Can I ___ your pen?", "answer": "borrow", "hint": "одолжить"}], date(2026, 1, 1))
+        add_cards(
+            path,
+            [{"front": "Can I ___ your pen?", "answer": "borrow", "hint": "одолжить"}],
+            date(2026, 1, 1),
+        )
         identifier = load(path, None)["cards"][0]["id"]
-        result = apply_reviews(path, [{"id": identifier, "grade": 3}], date(2026, 1, 1), batch_id="selfcheck")
+        result = apply_reviews(
+            path, [{"id": identifier, "grade": 3}], date(2026, 1, 1), batch_id="selfcheck"
+        )
         assert result["graded"][0]["interval_days"] == 0
-        assert apply_reviews(path, [{"id": identifier, "grade": 3}], date(2026, 1, 1), batch_id="selfcheck")["duplicate"]
+        assert apply_reviews(
+            path, [{"id": identifier, "grade": 3}], date(2026, 1, 1), batch_id="selfcheck"
+        )["duplicate"]
         assert load(path, None)["cards"][0]["reps"] == 1
     print("selfcheck OK")
 

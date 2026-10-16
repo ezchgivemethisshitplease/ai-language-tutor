@@ -87,7 +87,7 @@
         <div class="face front" aria-hidden="false">
           <div class="sentence cloze" id="prompt"></div>
           <div class="cue" id="cue"></div>
-          <div class="tip">retrieve the missing word or phrase, then flip</div>
+          <div class="tip">Вспомните слово или фразу, затем откройте ответ</div>
         </div>
         <div class="face back" aria-hidden="true" inert>
           <div class="headword" id="word"></div>
@@ -103,24 +103,25 @@
       </div>
     </div>
     <div class="grades" id="grades">
-      <button class="g1" data-g="1" aria-label="Again, key 1">Again<small>&lt;10m</small></button>
-      <button class="g2" data-g="2" aria-label="Hard, key 2">Hard<small>~2d</small></button>
-      <button class="g3" data-g="3" aria-label="Good, key 3">Good<small>~4d</small></button>
-      <button class="g4" data-g="4" aria-label="Easy, key 4">Easy<small>~11d</small></button>
+      <button class="g1" data-g="1" aria-label="Again, key 1">Не вспомнил<small>ответ не помню</small></button>
+      <button class="g2" data-g="2" aria-label="Hard, key 2">Трудно<small>вспомнил с трудом</small></button>
+      <button class="g3" data-g="3" aria-label="Good, key 3">Хорошо<small>вспомнил сам</small></button>
+      <button class="g4" data-g="4" aria-label="Easy, key 4">Легко<small>без усилий</small></button>
     </div>
     <div class="keys">keys 1–4</div>
   </div>
   <div class="end hidden" id="end">
     <div class="check">✓</div>
-    <h2 id="end-title">Session complete</h2>
+    <h2 id="end-title">Повторение завершено</h2>
     <p class="end-sub" id="end-sub"></p>
     <div class="stats" id="end-stats">
       <div><b id="end-total">0</b><small>cards</small></div>
       <div><b id="end-reviews">0</b><small>reviews</small></div>
     </div>
-    <button class="done-btn" id="close">Done</button>
+    <button class="done-btn" id="close">Готово</button>
   </div>
 </main>
+<script src="client.js"></script>
 <script>
 (() => {
   const DEMO = [
@@ -129,6 +130,7 @@
     { id: 'd3', front: "There isn't ___ milk in the fridge.", answer: 'any', sound: 'é·ni', hint: 'nada de', ipa: '/ˈen.i/', pos: 'determiner', definition: 'used in negatives: not even a small amount', translation: 'No queda nada de leche en la nevera.' },
     { id: 'd4', front: 'How much does this book ___?', answer: 'cost', sound: 'kost', hint: 'costar', ipa: '/kɒst/', pos: 'verb', definition: 'to have a particular price', translation: '¿Cuánto cuesta este libro?' },
   ];
+  let saving = false;
   let deck = [], i = 0, total = 0, retired = 0, flipped = false, results = [], live = false;
 
   const $ = id => document.getElementById(id);
@@ -157,7 +159,7 @@
   function render() {
     $('reviewed').textContent = retired; $('total').textContent = total;
     $('bar').style.width = (total ? retired / total * 100 : 0) + '%';
-    if (retired >= total) return finish();
+    if (i >= deck.length || retired >= total) return finish();
     const c = deck[i], parts = (c.front || '').split('___');
     $('prompt').innerHTML = parts.length > 1
       ? esc(parts[0]) + '<mark aria-label="missing word">_____</mark>' + esc(parts[1] ?? '')
@@ -195,32 +197,45 @@
     $('speak-back').tabIndex = flipped ? 0 : -1;
   }
 
-  function grade(g) {
-    if (!flipped || retired >= total) return;
-    results.push({ id: deck[i].id, grade: g });
-    // "Again" means <10m: the card comes back later in this same session, until it sticks.
-    // A card only "retires" (leaves the queue and counts toward progress) on a grade > Again.
-    // ponytail: requeued at the end, no cap on repeats — add one if a session ever loops forever.
-    if (g === 1) deck.push(deck[i]); else retired++;
-    i++; render();
+  async function grade(g) {
+    if (!flipped || saving || retired >= total) return;
+    saving = true;
+    const result = {id: deck[i].id, grade: g, review_id: crypto.randomUUID()};
+    try {
+      if (live) await Tutor.post('/api/deck', {results:[result]});
+      results.push(result);
+      // FSRS owns learning/relearning timing. End this presentation after one explicit grade.
+      retired++; i++; render(); saving = false;
+    } catch (error) {
+      Tutor.status('Сохранение не подтверждено. Ответ остаётся в очереди браузера.', async () => {
+        try { const replay = await Tutor.flush(); if (replay.conflicts) throw new Error("Unresolved result"); location.reload(); }
+        catch (error) { Tutor.status('Сохранение пока недоступно. Не очищайте данные браузера.', () => location.reload()); }
+      });
+    }
   }
 
   async function finish() {
     $('session').classList.add('hidden'); $('end').classList.remove('hidden');
     if (!total) {
       // Re-entered with nothing due: today's review is already saved and done.
-      $('end-title').textContent = 'All done for today ✓';
-      $('end-sub').textContent = "Today's cards are already reviewed and saved. Come back tomorrow.";
+      $('end-title').textContent = 'Сейчас нет карточек к повторению ✓';
+      $('end-sub').textContent = "Новые сроки повторения назначает FSRS.";
       $('end-stats').classList.add('hidden');
     } else {
       $('end-total').textContent = total;
       $('end-reviews').textContent = results.length;
     }
-    if (live && results.length) {
+    if (live) {
       try {
-        await fetch('/api/deck', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ results }) });
-      } catch (e) {}
-    }
+        await Tutor.post('/api/deck/complete', {review_ids: results.map(result => result.review_id)});
+        Tutor.status('Все показанные ответы сохранены. Следующая дата назначена FSRS.');
+      } catch (error) {
+        Tutor.status('Ответы сохранены по отдельности, завершение требует повторной отправки.', async () => {
+          try { const replay = await Tutor.flush(); if (replay.conflicts) throw new Error("Unresolved result"); Tutor.status('Сохранено'); }
+          catch (error) { Tutor.status('Сервер пока недоступен.', () => location.reload()); }
+        });
+      }
+    } else { Tutor.status('Демонстрация: результаты не сохраняются.'); }
   }
 
   card.addEventListener('click', flip);
@@ -234,7 +249,7 @@
   $('close').addEventListener('click', () => {
     window.close();
     // Browsers block window.close() on user-opened tabs — tell them instead of failing silently.
-    setTimeout(() => { $('close').textContent = 'Saved — you can close this tab'; $('close').disabled = true; }, 100);
+    setTimeout(() => { $('close').textContent = 'Сохранено, вкладку можно закрыть'; $('close').disabled = true; }, 100);
   });
   window.addEventListener('keydown', e => {
     const inControl = e.target.closest?.('button, input, textarea, select, a');
@@ -245,12 +260,21 @@
     if (!inControl && n >= 1 && n <= 4) grade(n);
   });
 
-  fetch('/api/deck').then(r => r.ok ? r.json() : null).then(d => {
-    if (d && Array.isArray(d.cards)) { deck = d.cards; live = true; }
-    else deck = DEMO;
-    total = deck.length;
-    render();
-  }).catch(() => { deck = DEMO; total = deck.length; render(); });
+  (async () => {
+    try {
+      if (new URLSearchParams(location.search).get('demo') === '1') {
+        deck = DEMO; Tutor.status('Демонстрация: результаты не сохраняются.');
+      } else {
+        await Tutor.flush();
+        const response = await fetch('/api/deck');
+        const data = await response.json();
+        deck = data.cards; live = true;
+      }
+      total = deck.length; render();
+    } catch (error) {
+      Tutor.status('Не удалось загрузить или сохранить карточки. Проверьте сервер.', () => location.reload());
+    }
+  })();
 
   fetch('/api/progress').then(r => r.ok ? r.json() : null)
     .then(p => { if (p) $('streak').textContent = p.streak; }).catch(() => {});
