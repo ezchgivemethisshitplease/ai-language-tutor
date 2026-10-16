@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Tutor — Английский в своём темпе</title>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="chat.css">
+  <script src="client.js" defer></script>
+  <script src="chat.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#message-input">К сообщению</a>
+  <button id="nav-scrim" class="nav-scrim" aria-label="Закрыть меню" hidden></button>
+  <aside class="sidebar" id="sidebar" aria-label="Навигация">
+    <a class="brand" href="index.html" aria-label="Tutor, главная"><span class="brand-mark" aria-hidden="true">t</span><span>Tutor<small>Английский в своём темпе</small></span></a>
+    <button class="new-chat" id="new-conversation" disabled><span aria-hidden="true">＋</span> Новый разговор</button>
+    <nav class="activity-nav" aria-label="Практика">
+      <a class="nav-link current" href="index.html" aria-current="page"><span aria-hidden="true">◌</span> Разговор с преподавателем</a>
+      <a class="nav-link" href="dashboard.html"><span aria-hidden="true">▥</span> Мой прогресс</a>
+      <a class="nav-link" href="flashcards.html"><span aria-hidden="true">▱</span> Карточки</a>
+      <a class="nav-link" href="quiz.html"><span aria-hidden="true">✓</span> Упражнения</a>
+      <a class="nav-link" href="reader.html"><span aria-hidden="true">≡</span> Чтение</a>
+      <a class="nav-link" href="dictation.html"><span aria-hidden="true">♫</span> Диктант</a>
+    </nav>
+    <div class="history-heading"><h2>Разговоры</h2><button class="icon-button" id="refresh-history" title="Обновить разговоры" aria-label="Обновить разговоры">↻</button></div>
+    <div id="conversation-list" class="conversation-list"><p class="sidebar-empty">Здесь появятся ваши разговоры.</p></div>
+    <div class="sidebar-bottom">
+      <button class="profile-button" id="open-settings"><span class="profile-avatar" aria-hidden="true">Я</span><span><b>Мой профиль</b><small id="profile-summary">Настроить занятия</small></span><span class="profile-cog" aria-hidden="true">⚙</span></button>
+      <button class="backup-link" id="download-backup">Скачать резервную копию</button>
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <header class="workspace-header">
+      <button id="toggle-nav" class="icon-button mobile-menu" aria-label="Открыть меню" aria-controls="sidebar" aria-expanded="false">☰</button>
+      <div class="course-heading"><span class="eyebrow">АНГЛИЙСКИЙ</span><h1 id="conversation-title">Разговор с преподавателем</h1></div>
+      <button class="lesson-toggle" id="toggle-lesson" aria-expanded="false" aria-controls="lesson-panel">План занятия <span aria-hidden="true">⌄</span></button>
+      <span class="connection-indicator" id="connection-indicator"><i aria-hidden="true"></i><span id="connection-label">Подключение…</span></span>
+    </header>
+
+    <div class="workspace-body">
+      <section class="conversation-pane" aria-label="Разговор с преподавателем">
+        <section class="account-notice" id="account-notice" aria-label="Подключение преподавателя">
+          <div><b id="account-title">Подключаем преподавателя</b><p id="account-description">Проверяем вход в ChatGPT.</p></div>
+          <button class="button primary" id="login-button" disabled>Войти через ChatGPT</button>
+          <a class="button primary" id="login-link" target="_blank" rel="noopener noreferrer" hidden>Продолжить вход ↗</a>
+        </section>
+        <section id="setup-notice" class="setup-notice" hidden><div><b>Начнём с удобного ритма</b><p>Выберите время для занятий и расскажите, зачем вам английский.</p></div><button class="button primary" id="setup-button">Настроить занятия</button></section>
+
+        <div class="messages-scroll" id="messages-scroll">
+          <div id="welcome" class="welcome">
+            <span class="welcome-mark" aria-hidden="true">t</span>
+            <p class="eyebrow" id="today-label">ВРЕМЯ ДЛЯ АНГЛИЙСКОГО</p>
+            <h2>О чём поговорим сегодня?</h2>
+            <p class="welcome-description">Можно начать занятие, разобрать непонятную фразу или просто немного попрактиковаться.</p>
+            <div class="suggestions" aria-label="Идеи для начала разговора">
+              <button class="suggestion" data-prompt="Давай начнём занятие. Сначала посмотри мой прогресс и план."><b>Позаниматься</b><span>Продолжить с того места, где остановились <i aria-hidden="true">↗</i></span></button>
+              <button class="suggestion" data-prompt="Хочу понять, с чего мне начать. Давай пройдём диагностику без подсказок."><b>Найти отправную точку</b><span>Разобраться, что уже получается <i aria-hidden="true">↗</i></span></button>
+              <button class="suggestion" data-prompt="Давай потренируем короткий разговор на английском. Выбери ситуацию по моему уровню."><b>Поговорить по-английски</b><span>Короткая ситуация из обычной жизни <i aria-hidden="true">↗</i></span></button>
+            </div>
+          </div>
+          <div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="История разговора"></div>
+        </div>
+        <button class="jump-latest" id="jump-latest" hidden>К последнему сообщению ↓</button>
+
+        <div class="composer-region">
+          <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><div id="notice-actions"></div></div>
+          <div id="pending-notice" class="pending-notice" hidden><span id="pending-description">Отправка не подтверждена. Сообщение сохранено в этом браузере.</span><div><button id="retry-message">Повторить отправку</button><button id="keep-draft">Оставить черновик</button></div></div>
+          <form id="chat-form" class="composer">
+            <label class="sr-only" for="message-input">Сообщение преподавателю</label>
+            <textarea id="message-input" rows="2" maxlength="16000" placeholder="Напишите преподавателю…" autocomplete="off" disabled></textarea>
+            <div class="composer-toolbar"><div class="model-field"><label class="sr-only" for="model-select">Модель преподавателя</label><select id="model-select" disabled><option value="">Модель по умолчанию</option></select></div><span id="turn-status" class="turn-status" role="status"></span><button type="button" class="stop-button" id="stop-button" hidden><span aria-hidden="true">■</span> Остановить</button><button type="submit" class="send-button" id="send-button" disabled aria-label="Отправить сообщение"><span aria-hidden="true">↑</span></button></div>
+          </form>
+          <p class="composer-note"><span>Enter — отправить · Shift + Enter — новая строка</span><span id="draft-status">Черновик сохраняется в этом браузере.</span></p>
+        </div>
+      </section>
+
+      <aside class="lesson-panel" id="lesson-panel" aria-label="Контекст занятия">
+        <div class="lesson-panel-heading"><span class="eyebrow">СЕГОДНЯ</span><span class="level-badge" id="working-level" hidden></span></div>
+        <h2 id="lesson-title">План на сегодня</h2>
+        <p id="lesson-description" class="lesson-description">План появится после начала занятия. Преподаватель учтёт ваши ответы и время.</p>
+        <ol id="lesson-steps" class="lesson-steps"></ol>
+        <div class="session-actions"><button class="button primary" id="start-session" data-session-action="start" disabled>Начать занятие</button><button class="button subtle" id="resume-session" data-session-action="resume" hidden>Продолжить занятие</button><button class="button subtle" id="interrupt-session" data-session-action="interrupt" hidden>Сделать паузу</button><button class="button subtle" id="finish-session" data-session-action="finish" hidden>Завершить занятие</button></div>
+        <div class="lesson-divider"></div>
+        <h3>Ваш ориентир</h3><p id="learning-objective" class="context-copy">Добавьте цель в профиле, чтобы выбирать близкие вам темы.</p>
+        <div class="practice-card"><span class="practice-icon" aria-hidden="true">Aa</span><h3>Вспомнить знакомое</h3><p>Карточки и упражнения открываются отдельно. Результаты сохраняются в вашем прогрессе.</p><a href="flashcards.html">Открыть карточки <span aria-hidden="true">↗</span></a></div>
+        <p class="voice-note" id="voice-note">Для устной практики нужен голосовой канал. Текстовый ответ не оценивает произношение.</p>
+      </aside>
+    </div>
+  </main>
+
+  <dialog id="settings-dialog" aria-labelledby="settings-title">
+    <div class="dialog-header"><div><p class="eyebrow">ВАШ РИТМ</p><h2 id="settings-title">Настроим занятия под вас</h2></div><button class="icon-button" id="close-settings" aria-label="Закрыть настройки">×</button></div>
+    <form id="settings-form">
+      <label for="native-language">Родной язык</label><input id="native-language" name="native_language" value="russian" maxlength="80" required><p class="field-help">Например: russian. Объяснения по-русски доступны на любом уровне.</p>
+      <label for="daily-minutes">Минут в день</label><div class="minutes-control"><input id="daily-minutes" name="daily_minutes" type="number" min="5" max="240" step="1" value="20" required><span>Небольшое занятие тоже считается.</span></div>
+      <label for="objectives-input">Зачем вам английский?</label><textarea id="objectives-input" name="objectives" rows="3" maxlength="2000" placeholder="Для работы, поездок, общения… По одной цели на строку."></textarea>
+      <label for="voice-channel">Устная практика</label><select id="voice-channel" name="voice_channel"><option value="none">Пока в текстовом чате</option><option value="external">С отдельным голосовым чатом</option></select><p class="field-help">Преподаватель поможет подготовить голосовое занятие. Микрофон здесь не записывается.</p>
+      <p id="settings-error" class="field-error" role="alert" hidden></p>
+      <div class="dialog-footer"><button type="button" class="button subtle" id="cancel-settings">Отмена</button><button type="submit" class="button primary" id="save-settings">Сохранить</button></div>
+    </form>
+  </dialog>
+</body>
+</html>
