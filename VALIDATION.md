@@ -35,7 +35,7 @@ A screenshot of the quiz outcome is delivered alongside the source archive. The 
 
 ## Hosted CI
 
-The workflow targets Python 3.10/3.14 on Ubuntu, macOS and Windows, plus Node browser checks. Hosted runs exposed Windows CLI encoding/archive-path defects, a first-lock sentinel race in concurrent processes, and a commit-level mismatch between the updated voice selfcheck and the not-yet-pushed pass template. The CLI now explicitly uses UTF-8 and has a regression with an ASCII-configured pipe; archive keys now use portable forward slashes, Windows locks no longer write before acquiring the lock, and the template includes the validated binding fields. The final hosted run will be recorded after the integrated commit completes.
+The workflow targets Python 3.10/3.14 on Ubuntu and macOS, plus Node browser checks. Windows support was removed at the user's request, including its lock/speech branches, installation instructions and CI jobs. UTF-8 output, portable archive names and voice-template binding remain covered by regressions. The final hosted run will be recorded after the integrated commit completes.
 
 ## Limits
 

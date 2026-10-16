@@ -1,6 +1,6 @@
 # Architecture and decisions
 
-The system is a single-user local tutor with an agent-independent deterministic core. It requires Python 3.10+, a pinned FSRS dependency and a shell/file-capable agent. Generated teaching content still needs linguistic review. There is no application model API, public server, account system or frontend compilation step.
+The system is a single-user local tutor with an agent-independent deterministic core. It supports macOS and Linux and requires Python 3.10+, a pinned FSRS dependency and a shell/file-capable agent. Generated teaching content still needs linguistic review. There is no application model API, public server, account system or frontend compilation step.
 
 ## Component boundaries
 
@@ -39,9 +39,9 @@ No optimizer is fitted. Exported histories support later analysis, but adding an
 
 ## Decision 2: preserve JSON and serialize mutations
 
-The original file layout is useful for a local agent. Replacing it with a database would impose migration/inspection cost without evidence that this workload needs it. A common storage layer now serializes read/modify/write operations with a stable sidecar lock. Thread locks combine with `flock` on POSIX and `msvcrt.locking` on Windows. Windows byte-range locks can extend past EOF, so no racy sentinel write is required; this follows [the CRT contract](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/locking?view=msvc-170).
+The original file layout is useful for a local agent. Replacing it with a database would impose migration/inspection cost without evidence that this workload needs it. A common storage layer now serializes read/modify/write operations with a stable sidecar lock. Thread locks combine with POSIX `flock`; a stable sidecar remains locked while the JSON destination is replaced.
 
-Writes serialize with finite JSON values, write a temporary file, flush it, replace the destination and sync the directory where supported. macOS additionally uses full fsync when available. The previous valid JSON is written atomically to `.bak`. A failed operation never silently substitutes an empty learner; explicit recovery validates the backup and preserves current bytes. These follow the semantics of [Python persistence APIs](https://docs.python.org/3/library/os.html#os.replace). Windows has no portable Python directory-fsync equivalent; filesystem/hardware durability still has practical limits.
+Writes serialize with finite JSON values, write a temporary file, flush it, replace the destination and sync the directory where supported. macOS additionally uses full fsync when available. The previous valid JSON is written atomically to `.bak`. A failed operation never silently substitutes an empty learner; explicit recovery validates the backup and preserves current bytes. These follow the semantics of [Python persistence APIs](https://docs.python.org/3/library/os.html#os.replace). Filesystem/hardware durability still has practical limits.
 
 All application mutations must use `transaction`; atomic `save` alone does not make a read/modify/write safe. Locks are advisory. External manual editors can bypass them. File-level transactions do not make a deck write and completion event a single database transaction. Durable receipts make retries recoverable. Export acquires data locks in a consistent order; import stages validated data and publishes a new directory, preserving the live learner.
 
@@ -63,7 +63,7 @@ Generated exercise JSON has a validated type, domain, level, skill ID and either
 
 AGENTS.md owns workflow invariants; CLAUDE.md imports it. Activity files provide concrete teaching procedures without replacing executable state transitions. The shared CLI runs in either host, following [official Codex instruction discovery](https://developers.openai.com/codex/guides/agents-md/) and [Claude import semantics](https://code.claude.com/docs/en/memory). Host capability/discovery and model adherence remain acceptance-test concerns.
 
-The canonical `.agents/skills/humanize/SKILL.md` contains a small embedded prose-editing workflow. `.claude/skills/humanize/SKILL.md` routes Claude discovery to it. Both are ordinary files, avoiding symlink behavior differences on Windows. AGENTS.md loads the canonical skill; docs/communication.md supplies examples. Raw answers, keys, code, numerical evidence, grades and provenance are protected. There is no regex authorship detector or runtime rewrite of learner evidence. External voice receives a self-contained style summary because it cannot read repository files.
+The canonical `.agents/skills/humanize/SKILL.md` contains a small embedded prose-editing workflow. `.claude/skills/humanize/SKILL.md` routes Claude discovery to it. Both are ordinary files and resolve their references from the repository. AGENTS.md loads the canonical skill; docs/communication.md supplies examples. Raw answers, keys, code, numerical evidence, grades and provenance are protected. There is no regex authorship detector or runtime rewrite of learner evidence. External voice receives a self-contained style summary because it cannot read repository files.
 
 ## Decision 6: local browser service with explicit trust boundaries
 

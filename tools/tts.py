@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Text-to-speech with cache and graceful fallback. Stdlib only.
+"""Text-to-speech for macOS and Linux with cached, optional cloud synthesis.
 
 Local OS/browser speech is the default. Cloud text transmission requires
 TUTOR_TTS=edge|openai|elevenlabs explicitly. Keys alone never enable a provider.
@@ -144,30 +144,11 @@ def play(text):
                     else [p, "-nodisp", "-autoexit", "-loglevel", "quiet", str(path)]
                 )
                 return subprocess.run(cmd, check=False)
-        if sys.platform == "win32":
-            ps = (
-                "Add-Type -AssemblyName PresentationCore;"
-                "$p=New-Object System.Windows.Media.MediaPlayer;$p.Open([uri]'"
-                + str(path).replace("'", "''")
-                + "');$p.Play();"
-                "while(!$p.NaturalDuration.HasTimeSpan){Start-Sleep -m 100};"
-                "Start-Sleep -Seconds ([math]::Ceiling($p.NaturalDuration.TimeSpan.TotalSeconds))"
-            )
-            return subprocess.run(["powershell", "-NoProfile", "-c", ps], check=False)
         print(path)  # no player found: hand back the file path
         return
     # no synth provider at all -> the OS's built-in robotic voice
     if sys.platform == "darwin" and shutil.which("say"):
         subprocess.run(["say", text], check=False)
-    elif sys.platform == "win32":
-        ps = (
-            "Add-Type -AssemblyName System.Speech;"
-            "(New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak("
-            + "'"
-            + text.replace("'", "''")
-            + "')"
-        )
-        subprocess.run(["powershell", "-NoProfile", "-c", ps], check=False)
     elif shutil.which("spd-say"):
         subprocess.run(["spd-say", "-w", text], check=False)
     elif shutil.which("espeak"):
@@ -177,7 +158,7 @@ def play(text):
 
 
 def main():
-    # Coding agents pipe UTF-8 JSON/text even on Windows legacy code pages.
+    # Keep JSON/text output UTF-8 when coding agents pipe this command.
     for stream in (sys.stdin, sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")

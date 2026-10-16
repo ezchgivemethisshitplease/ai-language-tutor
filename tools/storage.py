@@ -17,6 +17,11 @@ import threading
 import time
 from typing import Any
 
+try:
+    import fcntl
+except ImportError as exc:
+    raise RuntimeError("The tutor requires macOS or Linux with POSIX file locking") from exc
+
 
 class StorageError(ValueError):
     """Stored data is invalid or cannot be changed safely."""
@@ -78,42 +83,21 @@ def locked(path, timeout=15):
         acquired = False
         try:
             deadline = time.monotonic() + timeout
-            if sys.platform == "win32":
-                import msvcrt
-
-                # Byte-range locking may extend past EOF. Writing a sentinel
-                # before acquiring the lock races another process on Windows.
-                while True:
-                    try:
-                        os.lseek(fd, 0, os.SEEK_SET)
-                        msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
-                        break
-                    except OSError:
-                        if time.monotonic() >= deadline:
-                            raise StorageError(f"timed out locking {path}") from None
-                        time.sleep(0.02)
-            else:
-                import fcntl
-
-                while True:
-                    try:
-                        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                        break
-                    except BlockingIOError:
-                        if time.monotonic() >= deadline:
-                            raise StorageError(f"timed out locking {path}") from None
-                        time.sleep(0.02)
+            while True:
+                try:
+                    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError:
+                    if time.monotonic() >= deadline:
+                        raise StorageError(f"timed out locking {path}") from None
+                    time.sleep(0.02)
             acquired = True
             _held.paths = held | {str(path)}
             yield path
         finally:
             _held.paths = held
             if acquired:
-                if sys.platform == "win32":
-                    os.lseek(fd, 0, os.SEEK_SET)
-                    msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
-                else:
-                    fcntl.flock(fd, fcntl.LOCK_UN)
+                fcntl.flock(fd, fcntl.LOCK_UN)
             os.close(fd)
 
 
@@ -140,8 +124,6 @@ def _encode(data):
 
 
 def _sync_directory(directory):
-    if os.name == "nt":
-        return  # Python has no portable directory flush API on Windows.
     fd = os.open(directory, os.O_RDONLY)
     try:
         os.fsync(fd)
@@ -158,14 +140,11 @@ def _atomic_bytes(path, raw):
     fd, name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
     try:
         with os.fdopen(fd, "wb") as handle:
-            if hasattr(os, "fchmod"):
-                os.fchmod(handle.fileno(), mode)
+            os.fchmod(handle.fileno(), mode)
             handle.write(raw)
             handle.flush()
             os.fsync(handle.fileno())
-            if os.name == "posix" and sys.platform == "darwin":
-                import fcntl
-
+            if sys.platform == "darwin":
                 # macOS fsync may flush only to a drive's volatile cache.
                 if hasattr(fcntl, "F_FULLFSYNC"):
                     fcntl.fcntl(handle.fileno(), fcntl.F_FULLFSYNC)

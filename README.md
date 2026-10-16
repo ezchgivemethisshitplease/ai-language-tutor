@@ -6,7 +6,7 @@ A local English practice system for Codex and Claude Code, with Russian explanat
 
 ## Install
 
-Requires Python 3.10+ and a file/shell-capable coding agent. Node 24 is needed only for browser script verification. There is no frontend build or hosted service to deploy.
+Supports macOS and Linux with Python 3.10+ and a file/shell-capable coding agent. Node 24 is needed only for browser script verification. There is no frontend build or hosted service to deploy.
 
 ```sh
 git clone https://github.com/ezchgivemethisshitplease/ai-language-tutor.git
@@ -19,7 +19,7 @@ python tools/tutor.py init --native-language russian --daily-minutes 30
 python tools/tutor.py status
 ```
 
-Windows: use `py -m venv .venv`, then `.venv\Scripts\Activate.ps1`; the remaining `python` commands are the same. You can call `.venv\Scripts\python.exe` directly if your shell does not activate environments. Do not install packages into the system interpreter.
+Use the virtual environment for every command. Do not install packages into the system interpreter.
 
 Existing learners run the same `init` command: it preserves files, IDs and old progress, retaining the old level as unverified legacy information. Back up `student/` before migrating valuable progress. Corrupt files are rejected instead of reset. The previous JSON generation is kept as `.bak` when state changes.
 
@@ -86,7 +86,7 @@ node tests/browser_transport.cjs
 python tools/check_browser_scripts.py
 ```
 
-Tests use temporary data. They cover FSRS reference parity, migration, corruption/recovery, concurrent writes/retries, 100 simulated sessions, assessment limits, Russian feedback and browser transport. [VALIDATION.md](VALIDATION.md) records the actual results/platforms. CI runs Python 3.10 and 3.14 on Ubuntu, macOS and Windows plus the Node checks. Live agent teaching quality, learner outcomes and external speech providers require separate acceptance work.
+Tests use temporary data. They cover FSRS reference parity, migration, corruption/recovery, concurrent writes/retries, 100 simulated sessions, assessment limits, Russian feedback and browser transport. [VALIDATION.md](VALIDATION.md) records the actual results/platforms. CI runs Python 3.10 and 3.14 on Ubuntu and macOS plus the Node checks. Live agent teaching quality, learner outcomes and external speech providers require separate acceptance work.
 
 ## Files and boundaries
 

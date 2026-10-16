@@ -27,6 +27,8 @@ Separate reviewers inspected the new persistence, learning, curriculum and integ
 
 ## Compatibility and limits
 
+The supported runtime systems are macOS and Linux. The user requested removing Windows support, so its lock/speech paths, installation instructions and CI jobs were removed.
+
 Original card IDs, extra fields, memory parameters and progress files are preserved. Initialization is idempotent. Scheduling moves to the reference algorithm when a card is reviewed; exact future intervals can therefore change. Old unrecorded reviews and pronunciation evidence cannot be recovered. The previous scheduler was not equivalent to the maintained implementation.
 
 The structured core currently supports English. Full learner archives exclude inactive languages, media and cache. Other-language authoring is explicitly experimental. Browser quizzes produce separate observed outcomes; agents must record meaningful validated attempts through the CLI rather than promote from a score. Open writing/speech progression requires real human review because LLM-only scoring is excluded. Local files/browser drafts are unencrypted personal data.

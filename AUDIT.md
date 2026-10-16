@@ -67,7 +67,7 @@ Classification: **tested** = narrow implementation with existing check; **partia
 
 ### P2 — Quality, privacy and maintainability
 
-**P2-01: no installation or verification contract.** No supported Python version, pinned scheduler, CI, lint/type check or regression suite. Fix: minimal dependency/development manifests and reproducible commands on macOS/Linux/Windows.
+**P2-01: no installation or verification contract.** No supported Python version, pinned scheduler, CI, lint/type check or regression suite. Fix: minimal dependency/development manifests and reproducible commands on macOS and Linux.
 
 **P2-02: hidden external transmission.** `tools/tts.py:provider` chooses cloud services automatically if a package/key is present. Fix: local-first defaults, explicit cloud selection and bounded synthesis. The bundled CSS already uses local/system fonts. Cloud use must identify the text/context sent.
 

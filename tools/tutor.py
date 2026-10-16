@@ -441,7 +441,7 @@ def run(args):
 
 
 def main():
-    # Coding agents pipe UTF-8 JSON/text even on Windows legacy code pages.
+    # Coding-agent pipes use an explicit UTF-8 text contract.
     for stream in (sys.stdin, sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
