@@ -166,6 +166,7 @@ class WebTutor:
         self.auth_cache: dict = {}
         self.auth_at = 0.0
         self.models_cache: list = []
+        self.backup_state: dict = {"status": "disabled"}
         self.data = storage.load(self.path, {"schema": 1, "conversations": {}})
         validate_history(self.data)
         self.committed = copy.deepcopy(self.data)
@@ -220,25 +221,33 @@ class WebTutor:
         return self.data["conversations"][cid]
 
     def _engine(self, *args):
-        result = subprocess.run(
-            [
-                sys.executable,
-                str(ROOT / "tools/tutor.py"),
-                "--student-dir",
-                str(self.student),
-                *map(str, args),
-            ],
-            capture_output=True,
-            encoding="utf-8",
-            timeout=45,
-            env={**os.environ, "PYTHONIOENCODING": "utf-8"},
-        )
+        try:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / "tools/tutor.py"),
+                    "--student-dir",
+                    str(self.student),
+                    *map(str, args),
+                ],
+                capture_output=True,
+                encoding="utf-8",
+                timeout=45,
+                env={**os.environ, "PYTHONIOENCODING": "utf-8"},
+            )
+        except subprocess.TimeoutExpired:
+            raise RuntimeError(
+                "Tutor did not confirm the operation; inspect saved state before retrying"
+            ) from None
         if result.returncode:
             # CLI validation errors contain no auth data. Do not forward arbitrary process logs.
             raise ValueError("Tutor rejected the operation; check task, session and evidence")
         if len(result.stdout) > 2_000_000:
             raise ValueError("tutor result exceeds limit")
-        return storage.decode(result.stdout.encode())
+        value = storage.decode(result.stdout.encode())
+        if isinstance(value, dict) and isinstance(value.get("backup"), dict):
+            self.backup_state = value["backup"]
+        return value
 
     def _state(self):
         path = self.student / "english/learner.json"
@@ -330,6 +339,7 @@ class WebTutor:
                 "session": state["sessions"].get(session_id) if state and session_id else None,
                 "progress": self._engine("status") if state else None,
                 "auth": auth,
+                "backup": {"status": self.backup_state.get("status")},
                 "models": self.models_cache,
                 "conversations": conversations,
                 "active_conversation_id": active_id,
@@ -361,6 +371,8 @@ class WebTutor:
             ]
             for objective in objectives:
                 args.extend(["--objective", objective])
+            if command == "configure" and not objectives:
+                args.append("--clear-objectives")
             self._engine(*args)
         return {"ok": True}
 
@@ -571,6 +583,29 @@ class WebTutor:
 
     def _on_event(self, method, params):
         with self.lock:
+            if method == "bridge/eventsDropped":
+                retired = self.bridge
+                self.bridge = None
+                self.bridge_generation = uuid.uuid4().hex
+                self.loaded.clear()
+                for conversation in self.data["conversations"].values():
+                    if conversation["active"]:
+                        conversation.update(active=False, last_status="failed", thread_id=None)
+                        self._event(
+                            conversation,
+                            "error",
+                            text="Поток ответа прервался. Ваши сообщения сохранены; продолжите разговор новым сообщением.",
+                        )
+                        self._event(
+                            conversation,
+                            "turn_completed",
+                            turn_id=conversation.get("turn_id"),
+                            status="failed",
+                        )
+                self._save()
+                if retired is not None:
+                    threading.Thread(target=retired.close, daemon=True).start()
+                return
             if method == "bridge/closed":
                 self.bridge = None
                 self.bridge_generation = uuid.uuid4().hex
@@ -649,7 +684,7 @@ class WebTutor:
                     c, "turn_completed", turn_id=params["turn"]["id"], status=c["last_status"]
                 )
                 self._save()
-                backup.maybe_automatic_backup(self.student)
+                self.backup_state = backup.maybe_automatic_backup(self.student)
             elif method == "error":
                 self._event(
                     c, "error", text="Codex сообщил об ошибке. Ответы и прогресс сохранены."

@@ -289,8 +289,12 @@ def parser():
     configuration.add_argument("--native-language")
     configuration.add_argument("--daily-minutes", type=int)
     configuration.add_argument("--voice-channel", choices=["external", "none"])
-    configuration.add_argument(
+    goals = configuration.add_mutually_exclusive_group()
+    goals.add_argument(
         "--objective", action="append", help="replace saved goals with confirmed values"
+    )
+    goals.add_argument(
+        "--clear-objectives", action="store_true", help="explicitly clear saved goals"
     )
     debt = sub.add_parser("settle-debt")
     debt.add_argument("--session", required=True)
@@ -515,6 +519,8 @@ def run(args):
                 state["profile"]["voice_channel"] = args.voice_channel
             if args.objective is not None:
                 state["objectives"] = args.objective
+            elif args.clear_objectives:
+                state["objectives"] = []
             result = {
                 "profile": state["profile"],
                 "native_language": state["native_language"],

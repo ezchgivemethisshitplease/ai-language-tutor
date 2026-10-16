@@ -1,4 +1,5 @@
 import json
+import subprocess
 from pathlib import Path
 import sys
 import tempfile
@@ -156,6 +157,17 @@ class WebTutorTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.tutor.chat({"message": "Hi", "request_id": "first"})
 
+    def test_profile_can_explicitly_clear_goals_without_resetting_progress(self):
+        cid = self.begin()
+        before = self.tutor.conversation(cid)
+        session_id = self.tutor._state()["active_session_id"]
+        self.tutor.setup({"objectives": [], "daily_minutes": 25})
+        state = self.tutor._state()
+        self.assertEqual(state["objectives"], [])
+        self.assertEqual(state["profile"]["daily_minutes"], 25)
+        self.assertEqual(state["active_session_id"], session_id)
+        self.assertEqual(self.tutor.conversation(cid), before)
+
     def test_streaming_human_response_and_canonical_grading(self):
         cid = self.begin()
         exact = "Am  \n"
@@ -278,6 +290,36 @@ class WebTutorTests(unittest.TestCase):
                     self.assertEqual(tutor.bridge.turns, 0)
                 finally:
                     tutor.close()
+
+    def test_bounded_stream_overflow_retires_generation_and_preserves_human_text(self):
+        cid = self.begin()
+        c = self.tutor.data["conversations"][cid]
+        c["active"] = True
+        before = self.tutor.conversation(cid)["messages"]
+        old = self.tutor.bridge
+        old.event("bridge/eventsDropped", {"count": 100})
+        snapshot = self.tutor.conversation(cid)
+        self.assertFalse(snapshot["active"])
+        self.assertEqual(snapshot["messages"], before)
+        self.assertIsNone(c["thread_id"])
+        old.event("turn/started", {"threadId": old.thread, "turn": {"id": "stale"}})
+        self.assertFalse(self.tutor.conversation(cid)["active"])
+
+    def test_cli_timeout_is_a_controlled_failure_and_backup_warning_is_separate(self):
+        self.setup_learner()
+        with patch.object(
+            web_tutor.subprocess, "run", side_effect=subprocess.TimeoutExpired("tutor", 45)
+        ):
+            with self.assertRaises(RuntimeError):
+                self.tutor._engine("status")
+        cid = self.begin()
+        with patch.object(
+            web_tutor.backup, "maybe_automatic_backup", return_value={"status": "unavailable"}
+        ):
+            self.tutor.chat({"conversation_id": cid, "message": "am", "request_id": "backup-r2"})
+            self.wait_for_turn(cid)
+        self.assertEqual(self.tutor.status()["backup"]["status"], "unavailable")
+        self.assertEqual(len(self.tutor._state()["observations"]), 1)
 
     def test_identical_review_for_two_observations_has_distinct_stable_ids(self):
         cid = self.begin()
