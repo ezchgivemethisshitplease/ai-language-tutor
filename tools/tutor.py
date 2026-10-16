@@ -439,6 +439,10 @@ def run(args):
 
 
 def main():
+    # Coding agents pipe UTF-8 JSON/text even on Windows legacy code pages.
+    for stream in (sys.stdin, sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
     try:
         emit(run(parser().parse_args()))
     except (OSError, ValueError, KeyError, RuntimeError) as exc:

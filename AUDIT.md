@@ -69,7 +69,7 @@ Classification: **tested** = narrow implementation with existing check; **partia
 
 **P2-01: no installation or verification contract.** No supported Python version, pinned scheduler, CI, lint/type check or regression suite. Fix: minimal dependency/development manifests and reproducible commands on macOS/Linux/Windows.
 
-**P2-02: hidden external transmission.** `tools/tts.py:provider` chooses cloud services automatically if a package/key is present. `apps/theme.css` imports remote fonts. Fix: local-first defaults, explicit cloud selection, bounded synthesis and offline UI assets. Cloud use must identify the text/context sent.
+**P2-02: hidden external transmission.** `tools/tts.py:provider` chooses cloud services automatically if a package/key is present. Fix: local-first defaults, explicit cloud selection and bounded synthesis. The bundled CSS already uses local/system fonts. Cloud use must identify the text/context sent.
 
 **P2-03: validation and accepted alternatives differ across activities.** Browser gap/reorder equality and LLM open scoring have no shared typed outcome, ambiguity policy or evidence provenance. Fix: accepted answer sets with conservative normalization; unmatched natural-language responses require review, not a confident rejection.
 

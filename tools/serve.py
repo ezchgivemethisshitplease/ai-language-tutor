@@ -462,6 +462,10 @@ def selfcheck():
 
 
 def main():
+    # Coding agents pipe UTF-8 JSON/text even on Windows legacy code pages.
+    for stream in (sys.stdin, sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
     command = sys.argv[1] if len(sys.argv) > 1 else None
     if command == "stop":
         raise SystemExit(stop_server())

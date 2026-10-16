@@ -42,6 +42,7 @@ class CLITests(unittest.TestCase):
             ],
             capture_output=True,
             text=True,
+            encoding="utf-8",
             timeout=20,
         )
         self.assertEqual(result.returncode, 0 if success else 1, result.stderr)
@@ -91,6 +92,23 @@ class CLITests(unittest.TestCase):
         self.run_cli("recover", "learner.json")
         self.assertTrue(self.run_cli("validate")["valid"])
         self.assertTrue(list(path.parent.glob("learner.json.recovery-*")))
+
+    def test_cli_json_is_utf8_even_with_ascii_pipe_configuration(self):
+        env = {**os.environ, "PYTHONIOENCODING": "ascii"}
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "tools/tutor.py"),
+                "--student-dir",
+                str(self.student),
+                "init",
+            ],
+            capture_output=True,
+            env=env,
+            timeout=20,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8"))
+        self.assertIn("по-русски", json.loads(result.stdout.decode("utf-8"))["onboarding_ru"])
 
     def test_import_rejects_traversal_before_creating_destination(self):
         self.run_cli("init")

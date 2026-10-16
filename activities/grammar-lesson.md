@@ -1,19 +1,24 @@
-# Activity: Grammar micro-lesson (focus on form)
+# Activity: Grammar micro-lesson
 
-**Mode:** chat · **Duration:** 5–10 min · Never a whole session
+Follow [the shared agent workflow](../docs/agent-workflow.md). **Mode:** chat. A brief explanation followed by practice often fits 5–10 minutes; adjust to the task and available time.
 
-## Pick the topic
+## Choose a contrast
 
-Priority: (1) any `errors.md` pattern with 3+ counts, (2) the current unit's grammar focus, (3) a question the learner asked. The error log outranks the unit.
+Use the stored plan's reason and error tags, the selected unit's outcome, or the learner's explicit question. Recurring confirmed errors can justify remediation, but old text-log counts are not independent mastery evidence. Check the [Russian KB](../languages/english/l1-notes/russian.md) for a useful contrast; L1 membership alone is not a diagnosis.
 
-## Teach it (≤5 minutes of explanation, hard cap)
+## Explain, retrieve and use
 
-1. Show the rule through **their own error** when possible: "You wrote *I have seen him yesterday* — let's fix this for good."
-2. Explain in their instruction language (per level policy): the rule, when it applies, 4–6 examples — including a contrast pair with their L1 pattern if that's the source (check `l1-notes/`).
-   **Plain words, zero linguistics jargon.** The test: would a smart friend with no grammar training follow it? One memorable rule of thumb beats three precise exceptions ("*since* + fecha exacta, *for* + cantidad de tiempo") — park the edge cases until the learner actually hits one. Name the tense/term once so they can google it, then talk normally.
-3. **Immediately use it communicatively** — this is the focus-on-form part, not optional: 4–6 personalized prompts where they produce the structure about their own life ("Tell me three things you did yesterday" for past simple). Real questions, not fill-the-blank drills.
-4. Correct on the spot during practice (this is the one activity where immediate correction is right), prompts first.
+1. Start from the learner's actual example when available: «Ты написал *I have seen him yesterday*. Yesterday — законченный период. Какое время здесь нужно?» Avoid promising that one explanation will fix a pattern permanently.
+2. Explain the contrast in the instruction language returned by `tutor.py status`. Honor a request for Russian at every level. Use plain words and a few clear examples. For example: «since обозначает начало, for — длительность». Name a grammar term if useful, and qualify a rule when exceptions or English varieties affect the answer.
+3. Ask a manageable constrained retrieval or transformation question, then a new personal response: «Tell me about someone you saw last week». Tie form to intended meaning rather than relying on a signal-word shortcut.
+4. Ask for self-correction before giving a fix when that is useful. Give direct explanation if the learner needs it, and mark that support in the later observation. Revisit the contrast in a different context after a delay.
 
-## Write-backs
+Cloze, translation, transformation and a short meaningful response can complement one another. Accept grammatical alternatives and distinguish a form error from a meaning, register or naturalness issue. If repeated practice is not helping, change the context, explanation or task difficulty instead of increasing repetition blindly.
 
-2–3 contextual cloze cards targeting the structure. `word` names the pattern (e.g. *have been + -ing*), while `answer` is the exact text that replaces `___` in the learner's practice sentence (e.g. *have been* in “I ___ working all morning”). If the topic came from `errors.md`, note the lesson date on that line — three lessons on the same pattern without improvement means the approach must change (different angle, more input, easier context). Log the step.
+## Evidence and follow-up
+
+Use catalog skill and grammar tags in validated exercise files. Record the original attempt through `tutor.py attempt`, with `--hints-used` when supported, and include a review source for open responses. Only add `--error-tag` when the observed mistake supports that diagnosis. A corrected copy is supported practice, not independent mastery.
+
+Add a useful contextual card through `tools/srs.py add` if warranted by the current plan. For a pattern card, `answer` is the exact gap replacement: *have been* in “I ___ working all morning”; keep the sentence and intended meaning clear. Do not require a fixed number of new cards after every explanation.
+
+Complete the planned step through the CLI. Error counts, grammar estimates and retrieval priorities come from stored observations; do not edit learner progress or text logs to claim improvement.

@@ -5,8 +5,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-VOICE = (ROOT / "portable" / "voice-tutor.md").read_text()
-PROFILE_TEMPLATE = (ROOT / "student.example" / "profile.md").read_text()
+VOICE = (ROOT / "portable" / "voice-tutor.md").read_text(encoding="utf-8")
+PROFILE_TEMPLATE = (ROOT / "student.example" / "profile.md").read_text(encoding="utf-8")
 
 required_sections = (
     "## Learner handoff instructions",

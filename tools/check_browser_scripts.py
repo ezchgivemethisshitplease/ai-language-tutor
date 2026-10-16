@@ -32,7 +32,9 @@ def main():
         parser = Scripts()
         parser.feed(path.read_text(encoding="utf-8"))
         for script in parser.scripts:
-            subprocess.run(["node", "--check"], input=script, text=True, check=True)
+            subprocess.run(
+                ["node", "--check"], input=script, text=True, encoding="utf-8", check=True
+            )
     for path in apps.glob("*.js"):
         subprocess.run(["node", "--check", str(path)], check=True)
     print("All browser scripts parse")

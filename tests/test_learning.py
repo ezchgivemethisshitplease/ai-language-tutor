@@ -674,7 +674,7 @@ class PlanningAndAssessmentTests(unittest.TestCase):
 
     def test_assessment_selection_is_balanced_and_deterministic(self):
         root = Path(__file__).resolve().parents[1]
-        bank = json.loads((root / "data" / "assessments.json").read_text())
+        bank = json.loads((root / "data" / "assessments.json").read_text(encoding="utf-8"))
         state = le.new_state()
         first = le.assessment_items(state, bank, "A1", 4)
         self.assertEqual(first, le.assessment_items(state, bank, "A1", 4))
@@ -740,7 +740,7 @@ class PlanningAndAssessmentTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         bank_path = root / "data" / "assessments.json"
         if bank_path.exists():
-            bank = json.loads(bank_path.read_text())
+            bank = json.loads(bank_path.read_text(encoding="utf-8"))
             self.assertFalse(bank["calibrated"])
             ids = []
             for item in bank["items"]:
@@ -750,7 +750,7 @@ class PlanningAndAssessmentTests(unittest.TestCase):
             self.assertGreaterEqual(len(ids), 20)
         path = root / "languages" / "english" / "curriculum" / "catalog.json"
         if path.exists():
-            le.validate_catalog(json.loads(path.read_text()))
+            le.validate_catalog(json.loads(path.read_text(encoding="utf-8")))
 
 
 if __name__ == "__main__":

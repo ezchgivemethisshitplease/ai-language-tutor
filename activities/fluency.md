@@ -1,23 +1,24 @@
 # Activity: Fluency development
 
-**Mode:** voice-required · **Duration:** ~10 min · At least weekly
+Follow [the shared agent workflow](../docs/agent-workflow.md) and the [portable voice contract](../portable/voice-tutor.md). **Mode:** voice-required for spoken practice. A short repeated-talk activity often fits roughly 10 minutes; adjust the task to the learner and plan.
 
-**Only known language** — zero new vocabulary, zero new grammar. The goal is speed and automaticity with what they already own. If they're reaching for new words, the topic is too hard — swap it.
+Choose familiar content that lets the learner focus on expressing a message with less effort. Do not promise that every word is already known. If the task repeatedly demands unfamiliar language, simplify or practise that language separately.
 
-## 4/3/2 (the staple)
+## Repeated talk with shrinking time
 
-1. Learner picks (or you offer) an easy, personal topic: my family, my job, my last trip, my favorite show.
-2. 1 minute to think — **no notes**.
-3. Use the saved `voice_channel` and the `fluency` type in `portable/voice-tutor.md`. The finite plan is exactly: preparation, round 1, round 2, round 3. Preparation completes when the learner says ready or skip. Each timed round completes only when its timer ends after the learner speaks, or the learner explicitly stops/skips; a short utterance alone does not complete it. They give the same talk **4 → 3 → 2 minutes** (A1–A2: 2 → 1.5 → 1); set `closing: none` and give no corrections at any point.
-4. Rounds back-to-back; the shrinking clock forces faster retrieval of the same content.
+1. Choose an easy personal topic, such as work, family, a recent trip or a familiar story.
+2. Allow brief preparation. Decide whether notes are available and keep that condition consistent across rounds if comparing performance.
+3. Build a finite plan: preparation, then three attempts at the same message. The familiar 4/3/2-minute sequence is one option; use shorter rounds or gentler reductions if needed. Preparation ends at ready/skip. Each timed round ends at its timer or an explicit learner stop/skip, rather than after one short utterance.
+4. Use the saved voice route and portable handoff. Keep corrections out of the timed rounds unless communication or wellbeing requires an interruption. The learner does not need to speak faster at the expense of intelligibility.
 
-After: point at fluency gains only ("round three had almost no pauses") — accuracy feedback and accuracy-error logging are off today by design.
+Afterward, discuss what the actual evidence shows: fewer abandoned phrases, clearer organization or a more comfortable delivery. Do not infer a rate or pause improvement from a model's impression if no recording or timing supports it. Increased speed is not automatically broader proficiency or retained accuracy.
 
-## Alternatives (rotate in)
+## Alternatives
 
-- **Timed re-reading**: finite `fluency` plan with exactly three timed passes of one previous text.
-- **Question sprint** (A1–A2): finite `fluency` plan with 10 exact known questions, then the same 10 once more, faster.
+Try a repeated reading aloud of a familiar text, or repeat a finite set of familiar questions with less preparation on the second pass. A silent timed rereading can be a separate text activity; it does not satisfy a planned speaking step.
 
-## Write-backs
+## Evidence and follow-up
 
-Log the step (topic, rounds, rough words-per-round trend). If the saved voice route is unavailable, reschedule rather than fake it and log `"speaking_debt": true`.
+Validate any returned voice report against its pass. Record an actual spoken task through `tutor.py attempt` with a rubric appropriate to the task, real audio evidence and honest provenance. Keep preparation, support and partial attempts visible. A fluency observation alone does not establish grammar or vocabulary mastery.
+
+Complete the step through the CLI when its conditions are met. If the voice route is unavailable, defer the planned voice step and continue usable activities. Do not fabricate performance or manually change streak, error, knowledge or progress files. Later eligible speech can settle the recorded debt through the shared workflow.

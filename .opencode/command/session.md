@@ -1,4 +1,1 @@
----
-description: Run today's language session
----
-Run today's session. Read AGENTS.md if you haven't this conversation, then follow activities/session.md end to end (load learner context, greet with streak, build and run today's plan, do all write-backs).
+Read AGENTS.md and docs/agent-workflow.md. Use tools/tutor.py start to create or resume a stored session, then follow activities/session.md with that exact plan and deterministic write-backs.
