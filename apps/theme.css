@@ -1,15 +1,15 @@
 /* Shared theme — AI language tutor. Tokens only: no layout classes. */
 :root {
-  --bg: #FAF7F2;
+  --bg: #F5F6F5;
   --surface: #FFFFFF;
-  --surface-2: #F3EEE6;
-  --ink: #1F1B17;
-  --ink-soft: #5C554C;
-  --ink-faint: #9C948A;
-  --line: #E9E2D8;
-  --accent: #0E9F6E;
-  --accent-strong: #067A54;
-  --accent-soft: #DFF2EA;
+  --surface-2: #ECF0ED;
+  --ink: #192C2A;
+  --ink-soft: #50625F;
+  --ink-faint: #667975;
+  --line: #DCE4E0;
+  --accent: #317C68;
+  --accent-strong: #235E50;
+  --accent-soft: #E0EFE6;
   --on-accent: #FFFFFF;
   --success: #0E9F6E;
   --error: #C6432C;
@@ -33,16 +33,16 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #221E1A;
-    --surface: #2C2723;
-    --surface-2: #363029;
-    --ink: #F1EBE2;
-    --ink-soft: #BBB1A4;
-    --ink-faint: #857C71;
-    --line: #3E372F;
-    --accent: #22B583;
-    --accent-strong: #4FD3A4;
-    --accent-soft: #1E3A30;
+    --bg: #111B1B;
+    --surface: #192626;
+    --surface-2: #233333;
+    --ink: #EDF4F0;
+    --ink-soft: #B8CCC6;
+    --ink-faint: #95B0A6;
+    --line: #304542;
+    --accent: #80C8AD;
+    --accent-strong: #A4DECA;
+    --accent-soft: #25433A;
     --on-accent: #0B241B;
     --success: #34C795;
     --error: #F08A73;

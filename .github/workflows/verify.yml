@@ -48,4 +48,5 @@ jobs:
       - run: node tests/browser_transport.cjs
       - run: node tests/web_chat_ui.cjs
       - run: node tests/speech_ui.cjs
+      - run: node tests/platform_home_ui.cjs
       - run: python tools/check_browser_scripts.py

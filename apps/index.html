@@ -1,119 +1,36 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light dark">
-  <title>Tutor — Английский в своём темпе</title>
-  <link rel="stylesheet" href="theme.css">
-  <link rel="stylesheet" href="chat.css">
-  <script src="client.js" defer></script>
-  <script src="speech.js" defer></script>
-  <script src="chat.js" defer></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Tutor — Моё обучение</title><link rel="stylesheet" href="theme.css"><link rel="stylesheet" href="platform.css"><script src="client.js" defer></script><script src="platform.js" defer></script>
 </head>
-<body>
-  <a class="skip-link" href="#message-input">К сообщению</a>
-  <button id="nav-scrim" class="nav-scrim" aria-label="Закрыть меню" hidden></button>
-  <aside class="sidebar" id="sidebar" aria-label="Навигация">
-    <a class="brand" href="index.html" aria-label="Tutor, главная"><span class="brand-mark" aria-hidden="true">t</span><span>Tutor<small>Английский в своём темпе</small></span></a>
-    <button class="new-chat" id="new-conversation" disabled><span aria-hidden="true">＋</span> Новый разговор</button>
-    <nav class="activity-nav" aria-label="Практика">
-      <a class="nav-link current" href="index.html" aria-current="page"><span aria-hidden="true">◌</span> Разговор с преподавателем</a>
-      <a class="nav-link" href="dashboard.html"><span aria-hidden="true">▥</span> Мой прогресс</a>
-      <a class="nav-link" href="flashcards.html"><span aria-hidden="true">▱</span> Карточки</a>
-      <a class="nav-link" href="quiz.html"><span aria-hidden="true">✓</span> Упражнения</a>
-      <a class="nav-link" href="reader.html"><span aria-hidden="true">≡</span> Чтение</a>
-      <a class="nav-link" href="dictation.html"><span aria-hidden="true">♫</span> Диктант</a>
-    </nav>
-    <div class="history-heading"><h2>Разговоры</h2><button class="icon-button" id="refresh-history" title="Обновить разговоры" aria-label="Обновить разговоры">↻</button></div>
-    <div id="conversation-list" class="conversation-list"><p class="sidebar-empty">Здесь появятся ваши разговоры.</p></div>
-    <div class="sidebar-bottom">
-      <button class="profile-button" id="open-settings"><span class="profile-avatar" aria-hidden="true">Я</span><span><b>Мой профиль</b><small id="profile-summary">Настроить занятия</small></span><span class="profile-cog" aria-hidden="true">⚙</span></button>
-      <button class="backup-link" id="download-backup">Скачать резервную копию</button>
-    </div>
-  </aside>
-
-  <main class="workspace">
-    <header class="workspace-header">
-      <button id="toggle-nav" class="icon-button mobile-menu" aria-label="Открыть меню" aria-controls="sidebar" aria-expanded="false">☰</button>
-      <div class="course-heading"><span class="eyebrow">АНГЛИЙСКИЙ</span><h1 id="conversation-title">Разговор с преподавателем</h1></div>
-      <button class="lesson-toggle" id="toggle-lesson" aria-expanded="false" aria-controls="lesson-panel">План занятия <span aria-hidden="true">⌄</span></button>
-      <span class="connection-indicator" id="connection-indicator"><i aria-hidden="true"></i><span id="connection-label">Подключение…</span></span>
-    </header>
-
-    <div class="workspace-body">
-      <section class="conversation-pane" aria-label="Разговор с преподавателем">
-        <section class="account-notice" id="account-notice" aria-label="Подключение преподавателя">
-          <div><b id="account-title">Подключаем преподавателя</b><p id="account-description">Проверяем вход в ChatGPT.</p></div>
-          <button class="button primary" id="login-button" disabled>Войти через ChatGPT</button>
-          <a class="button primary" id="login-link" target="_blank" rel="noopener noreferrer" hidden>Продолжить вход ↗</a>
-        </section>
-        <section id="setup-notice" class="setup-notice" hidden><div><b>Начнём с удобного ритма</b><p>Выберите время для занятий и расскажите, зачем вам английский.</p></div><button class="button primary" id="setup-button">Настроить занятия</button></section>
-        <p id="backup-warning" class="backup-warning" role="status" hidden>Ответы сохранены. Резервная копия недоступна: проверьте диск и настройку копирования.</p>
-
-        <div class="messages-scroll" id="messages-scroll">
-          <div id="welcome" class="welcome">
-            <span class="welcome-mark" aria-hidden="true">t</span>
-            <p class="eyebrow" id="today-label">ВРЕМЯ ДЛЯ АНГЛИЙСКОГО</p>
-            <h2>О чём поговорим сегодня?</h2>
-            <p class="welcome-description">Можно начать занятие, разобрать непонятную фразу или просто немного попрактиковаться.</p>
-            <div class="suggestions" aria-label="Идеи для начала разговора">
-              <button class="suggestion" data-prompt="Давай начнём занятие. Сначала посмотри мой прогресс и план."><b>Позаниматься</b><span>Продолжить с того места, где остановились <i aria-hidden="true">↗</i></span></button>
-              <button class="suggestion" data-prompt="Хочу понять, с чего мне начать. Давай пройдём диагностику без подсказок."><b>Найти отправную точку</b><span>Разобраться, что уже получается <i aria-hidden="true">↗</i></span></button>
-              <button class="suggestion" data-prompt="Давай потренируем короткий разговор на английском. Выбери ситуацию по моему уровню."><b>Поговорить по-английски</b><span>Короткая ситуация из обычной жизни <i aria-hidden="true">↗</i></span></button>
-            </div>
-          </div>
-          <div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="История разговора"></div>
-        </div>
-        <button class="jump-latest" id="jump-latest" hidden>К последнему сообщению ↓</button>
-
-        <div class="composer-region">
-          <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><div id="notice-actions"></div></div>
-          <div id="pending-notice" class="pending-notice" hidden><span id="pending-description">Отправка не подтверждена. Сообщение сохранено в этом браузере.</span><div><button id="retry-message">Повторить отправку</button><button id="keep-draft">Оставить черновик</button></div></div>
-          <section id="speech-panel" class="speech-panel" aria-label="Голосовой ввод" hidden>
-            <div class="speech-heading"><b>Голосовой ввод</b><button id="speech-cancel" type="button">Закрыть</button></div>
-            <p id="speech-status" class="speech-status" role="status">Проверяем распознавание речи…</p>
-            <div class="speech-preferences"><label for="speech-language">Язык записи</label><select id="speech-language"><option value="auto">Определить автоматически</option><option value="en">Английский</option><option value="ru">Русский</option></select><label for="speech-read-language">Голос ответа</label><select id="speech-read-language"><option value="auto">По языку текста</option><option value="en">Английский</option><option value="ru">Русский</option></select></div>
-            <div id="speech-recording" class="speech-recording" hidden><span class="recording-dot" aria-hidden="true"></span><span>Идёт запись</span><time id="speech-timer">00:00</time><button id="speech-stop" type="button">Стоп и распознать</button></div>
-            <audio id="speech-preview" class="speech-preview" controls preload="none" hidden></audio>
-            <div id="speech-result" class="speech-result" hidden><label for="speech-transcript">Распознанный текст</label><textarea id="speech-transcript" rows="3" maxlength="16000"></textarea><button id="speech-append" type="button">Добавить к черновику</button></div>
-            <div class="speech-actions"><button id="speech-retry" type="button" hidden>Повторить распознавание</button><button id="speech-new" type="button" hidden>Новая запись</button><button id="speech-setup" type="button" hidden>Установить голосовой ввод</button><button id="speech-refresh" type="button">Проверить доступность</button></div>
-            <details id="speech-guide" class="speech-guide" hidden><summary>Ручная установка</summary><code id="speech-setup-command"></code></details>
-            <p class="speech-privacy">Речь распознаётся на этом компьютере и попадает в редактируемый черновик. Отправляете его вы. Это ввод текста, без оценки произношения. Для озвучивания ответа используются локальные голоса браузера.</p>
-          </section>
-          <form id="chat-form" class="composer">
-            <label class="sr-only" for="message-input">Сообщение преподавателю</label>
-            <textarea id="message-input" rows="2" maxlength="16000" placeholder="Напишите преподавателю…" autocomplete="off" disabled></textarea>
-            <div class="composer-toolbar"><button type="button" class="speech-record-button" id="speech-record" aria-label="Голосовой ввод" title="Голосовой ввод" disabled><svg width="17" height="20" viewBox="0 0 20 24" fill="none" aria-hidden="true"><rect x="7" y="2" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M4 10v2a6 6 0 0 0 12 0v-2M10 18v4M6 22h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button><button type="button" class="speech-options-button" id="speech-options" aria-label="Настроить голосовой ввод" title="Настроить голосовой ввод">Голос</button><div class="model-field"><label class="sr-only" for="model-select">Модель преподавателя</label><select id="model-select" disabled><option value="">Модель по умолчанию</option></select></div><span id="turn-status" class="turn-status" role="status"></span><button type="button" class="stop-button" id="stop-button" hidden><span aria-hidden="true">■</span> Остановить</button><button type="submit" class="send-button" id="send-button" disabled aria-label="Отправить сообщение"><span aria-hidden="true">↑</span></button></div>
-          </form>
-          <p class="composer-note"><span>Enter — отправить · Shift + Enter — новая строка</span><span id="draft-status">Черновик сохраняется в этом браузере.</span></p>
-        </div>
-      </section>
-
-      <aside class="lesson-panel" id="lesson-panel" aria-label="Контекст занятия">
-        <div class="lesson-panel-heading"><span class="eyebrow">СЕГОДНЯ</span><span class="level-badge" id="working-level" hidden></span></div>
-        <h2 id="lesson-title">План на сегодня</h2>
-        <p id="lesson-description" class="lesson-description">План появится после начала занятия. Преподаватель учтёт ваши ответы и время.</p>
-        <ol id="lesson-steps" class="lesson-steps"></ol>
-        <div class="session-actions"><button class="button primary" id="start-session" data-session-action="start" disabled>Начать занятие</button><button class="button subtle" id="resume-session" data-session-action="resume" hidden>Продолжить занятие</button><button class="button subtle" id="interrupt-session" data-session-action="interrupt" hidden>Сделать паузу</button><button class="button subtle" id="finish-session" data-session-action="finish" hidden>Завершить занятие</button></div>
-        <div class="lesson-divider"></div>
-        <h3>Ваш ориентир</h3><p id="learning-objective" class="context-copy">Добавьте цель в профиле, чтобы выбирать близкие вам темы.</p>
-        <div class="practice-card"><span class="practice-icon" aria-hidden="true">Aa</span><h3>Вспомнить знакомое</h3><p>Карточки и упражнения открываются отдельно. Результаты сохраняются в вашем прогрессе.</p><a href="flashcards.html">Открыть карточки <span aria-hidden="true">↗</span></a></div>
-        <p class="voice-note" id="voice-note">Голосовой ввод создаёт текстовый черновик. Устную речь и произношение проверяют в отдельном голосовом занятии.</p>
-      </aside>
-    </div>
-  </main>
-
-  <dialog id="settings-dialog" aria-labelledby="settings-title">
-    <div class="dialog-header"><div><p class="eyebrow">ВАШ РИТМ</p><h2 id="settings-title">Настроим занятия под вас</h2></div><button class="icon-button" id="close-settings" aria-label="Закрыть настройки">×</button></div>
-    <form id="settings-form">
-      <label for="native-language">Родной язык</label><input id="native-language" name="native_language" value="Русский" maxlength="80" required><p class="field-help">Укажите свой родной язык. Объяснения по-русски доступны на любом уровне.</p>
-      <label for="daily-minutes">Минут в день</label><div class="minutes-control"><input id="daily-minutes" name="daily_minutes" type="number" min="5" max="240" step="1" value="20" required><span>Небольшое занятие тоже считается.</span></div>
-      <label for="objectives-input">Зачем вам английский?</label><textarea id="objectives-input" name="objectives" rows="3" maxlength="2000" placeholder="Для работы, поездок, общения… По одной цели на строку."></textarea>
-      <label for="voice-channel">Устная практика</label><select id="voice-channel" name="voice_channel"><option value="none">Пока в текстовом чате</option><option value="external">С отдельным голосовым чатом</option></select><p class="field-help">Голосовой ввод доступен по кнопке микрофона. Для отдельного голосового занятия преподаватель подготовит задания.</p>
-      <p id="settings-error" class="field-error" role="alert" hidden></p>
-      <div class="dialog-footer"><button type="button" class="button subtle" id="cancel-settings">Отмена</button><button type="submit" class="button primary" id="save-settings">Сохранить</button></div>
-    </form>
-  </dialog>
-</body>
-</html>
+<body data-page="home">
+<a class="skip-link" href="#main">К обучению</a>
+<aside class="platform-nav" aria-label="Главная навигация">
+<a class="platform-brand" href="index.html"><span class="platform-mark" aria-hidden="true">t</span><span>Tutor<small>ENGLISH STUDIO</small></span></a>
+<p class="nav-caption">МОЁ ОБУЧЕНИЕ</p><nav>
+<a class="platform-link selected" href="index.html" aria-current="page"><span aria-hidden="true">◈</span> Сегодня</a>
+<a class="platform-link" href="#directions"><span aria-hidden="true">↗</span> Мои направления</a>
+<a class="platform-link" href="chat.html"><span aria-hidden="true">◌</span> Занятие</a>
+<a class="platform-link" href="dashboard.html"><span aria-hidden="true">▥</span> Мой прогресс</a></nav>
+<p class="nav-caption">ПРАКТИКА</p><nav>
+<a class="platform-link" href="flashcards.html"><span aria-hidden="true">▱</span> Повторение</a><a class="platform-link" href="quiz.html"><span aria-hidden="true">✓</span> Упражнения</a><a class="platform-link" href="reader.html"><span aria-hidden="true">≡</span> Чтение</a><a class="platform-link" href="dictation.html"><span aria-hidden="true">♫</span> Диктант</a></nav>
+<div class="nav-bottom"><a class="platform-link" href="chat.html?settings=1"><span aria-hidden="true">⚙</span> Мой подход</a><a class="nav-help" href="guide.html">Что умеет Tutor ↗</a></div>
+</aside>
+<div class="platform-main">
+<header class="platform-topbar"><a class="mobile-brand" href="index.html">Tutor</a><span id="date-label">МОЁ ОБУЧЕНИЕ</span><div class="topbar-actions"><span class="service-status" id="service-status">Проверяем подключение</span><a class="avatar-link" href="chat.html?settings=1" aria-label="Настройки моего обучения">Я</a></div></header>
+<main id="main" class="page-content">
+<div class="page-heading"><div><p class="overline">ЛИЧНЫЙ УЧЕБНЫЙ КАБИНЕТ</p><h1>Английский для твоей жизни.</h1><p class="page-intro">Выбери, что тебе нужно сейчас. Преподаватель подстроит примеры и объяснения.</p></div><a class="text-link" href="chat.html?settings=1">Мой подход ↗</a></div>
+<div id="page-error" class="platform-notice" role="status" hidden><span id="page-error-text"></span><button id="reload-page" type="button">Повторить</button></div>
+<section class="today-grid" aria-label="Следующий шаг">
+<article class="today-card"><div class="card-topline"><span class="small-label">СЕГОДНЯ</span><span class="soft-tag" id="daily-time">В твоём темпе</span></div><h2 id="next-title">Найдём твою отправную точку</h2><p id="next-description">Несколько коротких заданий помогут выбрать сложность. Начальный уровень пока не считается оценкой.</p><ol class="daily-route" id="daily-route" hidden></ol><div class="today-actions"><a class="primary-action" id="next-action" href="chat.html?new=1&mode=diagnostic">Найти отправную точку ↗</a><a class="quiet-action" href="chat.html?new=1&mode=conversation">Просто попрактиковаться</a></div></article>
+<aside class="approach-card" aria-label="Мой подход к обучению"><span class="small-label">ПОДСТРОЕНО ПОД ТЕБЯ</span><div class="language-stamp"><span aria-hidden="true">Aa</span><b id="dialect-label">American English</b></div><h2 id="approach-title">Разговорный английский.</h2><p id="approach-description">Неформальное общение, короткие объяснения и примеры из обычной жизни.</p><div class="preference-tags" id="preference-tags"></div><a class="text-link" href="chat.html?settings=1">Изменить предпочтения ↗</a></aside>
+</section>
+<section id="directions" class="page-section" aria-labelledby="directions-title"><div class="section-heading"><div><h2 id="directions-title">Мои направления</h2><p>У каждого разговора своя цель и контекст. Прогресс остаётся общим.</p></div><a class="text-link" href="chat.html?new=1&direction=custom">Своё направление +</a></div><div id="direction-list" class="direction-grid" aria-live="polite"></div></section>
+<div class="lower-grid"><section class="page-section" aria-labelledby="recent-title"><div class="section-heading"><h2 id="recent-title">Продолжить с места остановки</h2><a class="text-link" href="chat.html">Все занятия ↗</a></div><div id="recent-conversations" class="recent-list"><p class="empty-copy">Здесь появятся твои занятия и сохранённые контексты.</p></div></section><section class="review-card" aria-labelledby="review-title"><span class="small-label">ЧТОБЫ НЕ ЗАБЫТЬ</span><h2 id="review-title">Вспомнить полезное</h2><p><strong id="due-count">0</strong><span id="due-description">карточек к повторению</span></p><a class="secondary-action" href="flashcards.html">Открыть повторение ↗</a><small>Интервалы повторения учитывают, как ты вспоминаешь слова.</small></section></div>
+<section class="progress-strip" aria-label="Результаты практики"><div><span class="metric-number" id="attempt-count">0</span><span>сохранённых ответов</span></div><div><span class="metric-number" id="session-count">0</span><span>завершённых занятий</span></div><div><span class="metric-number level-metric" id="level-status">Ещё знакомимся</span><span>оценка по учебным ответам</span></div><a class="text-link" href="dashboard.html">Посмотреть прогресс ↗</a></section>
+<footer class="page-footer"><span>Сохраняем то, что ты действительно сделал.</span><button class="text-link" id="home-backup" type="button">Скачать резервную копию ↧</button></footer>
+</main>
+<nav class="mobile-bottom-nav" aria-label="Разделы платформы"><a href="index.html" aria-current="page">Сегодня</a><a href="#directions">Направления</a><a href="chat.html">Занятие</a><a href="dashboard.html">Прогресс</a></nav>
+</div>
+</body></html>
