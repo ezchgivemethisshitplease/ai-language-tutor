@@ -17,6 +17,7 @@ tools/storage.py ← tools/srs.py ← maintained fsrs==6.3.2
 tools/serve.py ← static apps + same-origin client + durable browser outbox
         │
         ├── web_tutor.py ← curated tutor tool / canonical human messages
+        │       ├── personalization.py ← explicit account/chat settings + confirmed memories
         │       └── codex_bridge.py ← stdio JSONL ← independent Codex app-server
         │                                  └── isolated Codex-owned ChatGPT login
         │
@@ -32,7 +33,9 @@ tools/serve.py ← static apps + same-origin client + durable browser outbox
 | `storage.py` | Strict JSON decoding, process/thread locks, atomic durable replacement and previous-generation backup | Database transactions across arbitrary files or network-filesystem guarantees |
 | `serve.py`, `activity.py` | Bounded same-origin local API, content identities, server-side quiz outcomes and result receipts | Internet hosting, multiuser security or browser quiz completion as mastery |
 | `client.js` | Token/namespace transport, per-batch localStorage outbox and retry acknowledgment | Guaranteed browser-storage durability after user deletion/private-mode restrictions |
-| `web_tutor.py`, `chat.js` | Durable conversation receipts, streamed replies, profile/session controls, curated teacher actions bound to actual human message IDs | Invented answer text, human attestation or fabricated audio evidence |
+| `web_tutor.py`, `chat.js` | Durable conversation receipts, streamed replies, owned lesson controls, learner-safe task views and curated teacher actions bound to actual human message IDs | Invented answer text, human attestation or fabricated audio evidence |
+| `personalization.py` | Validated account defaults, per-chat context, owner-confirmed scoped memories, revision conflicts and digest-only change audit | Inferred personal facts, automatic memory confirmation or changes to learning evidence |
+| `index.html`, `platform.js`, `progress.js` | Learning home, directions, recent conversations, due cards and canonical evidence summaries | Invented interests, XP, elapsed study time or a certified level |
 | `codex_bridge.py` | Pinned app-server JSONL, correlation, bounded FIFO events/tools, isolated auth, declined approvals, restricted named permissions | Generic browser RPC, inherited Desktop tools or stable production API guarantees |
 | `voice.py`, `tts.py` | External pass/report structure and optional synthesis/playback | Acoustic pronunciation scoring, STT or verified live speech assessment |
 | `speech.py`, `speech_service.py`, `speech.js` | Optional pinned native Whisper/FFmpeg, explicit bounded capture, local ASR into a protected draft, source provenance and local-voice playback | Acoustic assessment, independent writing from dictation or automatic message sending |
@@ -101,6 +104,41 @@ The child receives a small environment allowlist. Host hooks, plugins, apps, she
 
 The bundled code-mode host remains enabled at process startup and thread start/resume. In this pinned release a model's required `CodeModeOnly` metadata takes precedence over `features.code_mode=false`; disabling its host leaves a visible `exec` wrapper unable to dispatch `tutor`. The host executes JavaScript in bare V8 with imports rejected, independently of Node.js, shell tools and the OS permissions profile. Its nested calls still use the policy-filtered tool registry. The Python allowlist protects dynamic callbacks; it does not replace the native permission checks for any built-in tool. After this setting changes, restart the app-server and cold-resume existing threads so their saved dynamic tools are restored.
 
-`student/web-chat.json` holds human/assistant transcripts, stable request receipts and prepared task definitions. A human message is saved before starting inference. Attempts read that exact stored message and require a task registered before it; the model cannot supply replacement response text. Reviews are forced to `source: llm`; progression signing and audio claims are absent. A lost start reply retires the connection/thread before another turn, and old-generation/old-turn events and tools are ignored. Failed history writes roll back in-memory receipts and disable mutations until storage is repaired and the server restarted. A lifetime learner-specific process lock prevents two local servers from overwriting cached chat state.
+`student/web-chat.json` holds human/assistant transcripts, stable request receipts and prepared task definitions. The home is `index.html`; `chat.html` hosts conversations, and `dashboard.html` shows the evidence profile. Browser task snapshots use `learning.present_assessment_item`: prompts, options, context and success criteria are visible, while accepted answers, grading metadata and listening scripts remain controller-only. A human message is saved before starting inference. Attempts read that exact stored message and require a task registered before it; the model cannot supply replacement response text. Reviews are forced to `source: llm`; progression signing and audio claims are absent. A lost start reply retires the connection/thread before another turn, and old-generation/old-turn events and tools are ignored. Failed history writes roll back in-memory receipts and disable mutations until storage is repaired and the server restarted. A lifetime learner-specific process lock prevents two local servers from overwriting cached chat state.
+
+A conversation records `tool_contract_revision`. When the curated tool contract changes, its next turn starts a new Codex thread with the current tools and selected recent transcript; the complete local transcript and canonical evidence remain saved. A compatible cold resume retains its thread. This is separate from restarting the process when its code-mode host configuration changes.
+
+Open attempts return a review requirement and the rubric. The controller accepts textual LLM reviews with the exact criterion keys, finite scores and a consistent judgment; an invalid review returns an actionable validation result without modifying scores. The original response and initial grade stay immutable.
 
 Managed ZIP backups include the transcript but exclude Codex auth/rollout data. After restore, missing Codex threads are replaced with a new thread and selected transcript context; the learner evidence remains canonical. The compatible legacy JSON export retains its previous scope. Browser dialogs do not cover human review, emergency JSON recovery or archive restore; those remain explicit CLI operations. The web host also leaves live speech assessment to the external voice workflow.
+
+## Decision 10: explicit personalization with separate evidence
+
+Account preferences default to informal US English, plain explanations, minimal grammar terminology and balanced correction. The explanation-language setting defaults to the learner's native language. Topics start empty; practical everyday contexts are a teaching default, not an inferred personal interest. `personalization.py` validates dialect, register, explanation style, correction style, topics and notes.
+
+Each conversation has its own title, goal, topics, scenario, notes, direction, mode and challenge. Nullable dialect/register/explanation/correction overrides inherit the account value. Presets (`everyday`, `work`, `travel`, `interests`, `custom`) are starting contexts; saved contexts are ordinary conversations, including an empty conversation saved before its first message. Account settings and chat context do not write proficiency, mastery, observations or scheduling.
+
+The existing `web-chat.json` schema 1 adds optional `personalization`, conversation `context`, `session_owners` and lesson/task links. Legacy histories read with defaults. The managed archive validates and preserves these fields alongside transcripts. Settings mutations use the same host lock and durable save as chat history. A monotonic revision covers preferences, context edits and memory changes; a supplied stale `expected_revision` returns HTTP 409. Each accepted chat message captures one personalization snapshot. Changes during an active reply apply to the next accepted turn, including in an existing Codex thread. The first message's creation context is part of its durable retry identity.
+
+Saved memories are explicit owner-managed notes with account or conversation scope. A model can only propose a pending memory from the current stored human message, with its message ID and exact quoted evidence. Quoted examples or exercise answers never become active memories automatically. Only the owner-facing API can confirm, edit or delete a note. Confirmed proposals retain their source and confirmation time; manual edits record `user_setting` provenance. The bounded audit stores operation metadata and before/after digests, not deleted memory text. Removing a saved memory does not erase its original chat messages, previous model context or learning observations. Each new turn identifies the current saved notes as authoritative preferences. Model context includes only account notes and notes for its own chat; owner settings can list all scopes.
+
+Learning evidence and aggregate progress remain account-wide. Model status selects raw recent observations belonging to the current chat, with exact human-message/stable-attempt-ID recovery for old histories. The learning home receives derived domain counts and uncertainty, pending-review counts, due cards, recorded sessions and working-level provenance. It does not receive controller answer keys.
+
+There is one unfinished canonical lesson per learner. `session_owners` binds its ID to one conversation, whose `lesson_session_id` retains its saved plan. Other chats can continue conversation but cannot record attempts, complete steps or control that lesson. An unbound legacy/CLI lesson requires an explicit owner-facing handoff with `expected_owner`; a model cannot move it. A handoff transfers the same plan and preserves evidence. Lesson operations bind only their returned session ID, so a later CLI-created session is not accidentally claimed by a chat. CLI edits remain possible; fresh state checks reject stale ownership rather than inventing a parallel lesson.
+
+### Browser API additions
+
+All mutations retain the existing same-origin token and learner-namespace checks. These endpoints accept validated data, not filesystem paths or arbitrary Codex RPC.
+
+| Endpoint | Contract |
+| --- | --- |
+| `GET /api/web/personalization` | Current `revision`, `account_preferences`, active `memories`, `pending_memories` and static `directions` |
+| `POST /api/web/preferences` | Partial `preferences`, optional `expected_revision` |
+| `POST /api/web/conversations` | Optional `context` and `direction_id`; creates an empty saved conversation |
+| `POST /api/web/context` | `conversation_id`, partial `context`, optional `expected_revision` |
+| `POST /api/web/memory` | `action`: `save`, `confirm`, `delete` or `dismiss`; note ID/text/scope as appropriate, optional `expected_revision` |
+| `POST /api/web/session` | Existing lesson actions carry `conversation_id`; `handoff` additionally requires the observed `expected_owner` (or `null` for an unbound lesson) |
+| `GET /api/web/conversation?id=…` | Transcript plus context, effective preferences, learner-safe `current_exercise` and owned `lesson` status |
+| `GET /api/web/status` | Existing account/runtime status plus `personalization` and `platform_summary`, including safe domain summaries and active lesson owner |
+
+Free-text settings, quoted material and notes remain untrusted contextual data. Deterministic authorization and evidence validation stay in Python, consistent with [OWASP's prompt-injection guidance](https://genai.owasp.org/llmrisk/llm01-prompt-injection/). Prompt instructions alone do not enforce these boundaries.
