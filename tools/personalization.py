@@ -233,9 +233,15 @@ def _source(source, conversations):
         cid = _id(source.get("conversation_id"))
         mid = _text(source.get("message_id"), 200, False)
         evidence = _text(source.get("evidence"), 600, False)
-        messages = conversations.get(cid, {}).get("messages", [])
-        if not any(
-            m["id"] == mid and m["role"] == "user" and evidence in m["text"] for m in messages
+        conversation = conversations.get(cid)
+        messages = conversation.get("messages") if isinstance(conversation, dict) else None
+        if not isinstance(messages, list) or not any(
+            isinstance(m, dict)
+            and m.get("id") == mid
+            and m.get("role") == "user"
+            and isinstance(m.get("text"), str)
+            and evidence in m["text"]
+            for m in messages
         ):
             raise ValueError("memory needs exact evidence from a stored human message")
 

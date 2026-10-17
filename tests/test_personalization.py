@@ -120,6 +120,14 @@ class PersonalizationTests(unittest.TestCase):
         )
         self.assertEqual(prefs.selected_memories(self.history, "chat1"), [])
 
+    def test_malformed_source_chat_is_rejected_as_schema_error(self):
+        self.proposal()
+        self.history["conversations"]["chat1"] = []
+        with self.assertRaises(ValueError):
+            prefs.validate(prefs.read(self.history), self.history["conversations"])
+        with self.assertRaises(backup.BackupError):
+            backup._document("web-chat.json", json.dumps(self.history).encode(), ["english"])
+
     def test_conversation_memory_is_never_supplied_to_other_chat(self):
         item = self.proposal("conversation")
         prefs.change_memory(self.history, {"action": "confirm", "id": item["id"]})
@@ -233,6 +241,41 @@ class WebPersonalizationTests(unittest.TestCase):
         self.assertEqual(
             self.tutor.status()["platform_summary"]["active_session_owner"]["conversation_id"],
             self.chat2,
+        )
+
+    def test_finishing_lesson_never_claims_later_cli_session(self):
+        self.tutor.lesson("start", conversation_id=self.chat1)
+        original_sid = self.tutor._state()["active_session_id"]
+        engine = self.tutor._engine
+
+        def finish_then_external_start(*args):
+            result = engine(*args)
+            if args[0] == "finish":
+                engine("start")
+            return result
+
+        with patch.object(self.tutor, "_engine", side_effect=finish_then_external_start):
+            self.tutor.lesson("finish", True, self.chat1)
+        fresh_sid = self.tutor._state()["active_session_id"]
+        self.assertNotEqual(original_sid, fresh_sid)
+        self.assertNotIn(fresh_sid, self.tutor.data["session_owners"])
+        self.assertEqual(self.tutor._get(self.chat1)["lesson_session_id"], original_sid)
+        self.assertFalse(self.tutor.conversation(self.chat1)["lesson"]["can_manage"])
+
+    def test_concurrent_cli_start_requires_explicit_handoff(self):
+        engine = self.tutor._engine
+
+        def external_start_then_resume(*args):
+            if args[0] == "start":
+                engine("start")
+            return engine(*args)
+
+        with patch.object(self.tutor, "_engine", side_effect=external_start_then_resume):
+            result = self.tutor.lesson("start", conversation_id=self.chat1)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["reason"], "lesson_changed")
+        self.assertNotIn(
+            self.tutor._state()["active_session_id"], self.tutor.data.get("session_owners", {})
         )
 
     def test_legacy_unbound_session_requires_explicit_claim(self):

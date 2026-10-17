@@ -715,12 +715,21 @@ class WebTutor:
                     args.append("--allow-incomplete")
                 result = self._engine(*args)
             if c:
-                updated = self._state()
-                bound = updated["active_session_id"] or sid
-                if bound:
-                    self.data.setdefault("session_owners", {})[bound] = c["id"]
-                    c["lesson_session_id"] = bound
-                    self._save()
+                # Bind the operation's result, never a later global active ID:
+                # a separate CLI may finish/start another session between reads.
+                reported = result.get("session", result)
+                bound = activity.text(reported.get("id"), "returned session id", 200)
+                if (sid and bound != sid) or (
+                    action == "start" and not sid and result.get("resumed")
+                ):
+                    return {
+                        "ok": False,
+                        "reason": "lesson_changed",
+                        "instruction": "Another session appeared during this operation. Refresh and use explicit UI handoff; it has not been assigned to this chat.",
+                    }
+                self.data.setdefault("session_owners", {})[bound] = c["id"]
+                c["lesson_session_id"] = bound
+                self._save()
             return {"ok": True, "session": result}
 
     def conversation(self, cid):
