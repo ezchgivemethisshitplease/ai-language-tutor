@@ -4,7 +4,7 @@ button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
 button:disabled, select:disabled { cursor: default; opacity: .48; }
-body { display: flex; height: 100vh; height: 100dvh; overflow: hidden; font-size: 14px; }
+body { display: flex; height: 100vh; height: 100dvh; overflow: hidden; font-size: 16px; }
 button, input, select, textarea { color: var(--ink); }
 button { border: 0; background: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
@@ -169,15 +169,59 @@ dialog::backdrop { background: rgba(31,27,23,.35); backdrop-filter: blur(2px); }
 .dialog-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 25px; }
 .dialog-header .eyebrow { margin: 0 0 9px; }
 .dialog-header h2 { margin: 0; font: 550 24px/1.2 var(--font-display); letter-spacing: -.5px; }
-#settings-form label { display: block; font-weight: 600; font-size: 12px; margin: 21px 0 8px; }
-#settings-form input, #settings-form textarea, #settings-form select { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; width: 100%; line-height: 1.5; font-size: 13px; }
-#settings-form textarea { resize: vertical; }
+.settings-fields label { display: block; font-weight: 600; font-size: 13px; margin: 21px 0 8px; }
+.settings-fields input, .settings-fields textarea, .settings-fields select { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; width: 100%; line-height: 1.5; font-size: 14px; }
+.settings-fields textarea { resize: vertical; }
 .field-help { font-size: 10px; line-height: 1.6; margin: 7px 0 0; color: var(--ink-faint); }
 .minutes-control { display: flex; align-items: center; gap: 15px; }
 #settings-form .minutes-control input { width: 88px; }
 .minutes-control span { color: var(--ink-faint); font-size: 11px; line-height: 1.6; }
 .dialog-footer { display: flex; justify-content: flex-end; gap: 9px; margin-top: 27px; }
 .field-error { font-size: 12px; color: var(--error); line-height: 1.6; }
+.field-success { color: var(--accent-strong); font-size: 13px; line-height: 1.6; }
+.dialog-intro { color: var(--ink-soft); font-size: 14px; line-height: 1.65; margin: -10px 0 20px; }
+#preferences-dialog, #context-dialog { width: min(620px,calc(100vw - 28px)); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.context-overrides { margin-top: 24px; border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.context-overrides summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+.context-strip { display: flex; flex: none; align-items: center; gap: 14px; padding: 16px 32px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.context-strip > div { flex: 1; min-width: 0; }
+.context-format { font-size: 11px; font-weight: 600; color: var(--accent-strong); }
+.context-strip p { font-size: 15px; font-weight: 550; line-height: 1.45; margin: 4px 0; overflow-wrap: anywhere; max-height: 4.35em; overflow: auto; }
+.context-strip small { color: var(--ink-soft); font-size: 11px; line-height: 1.55; display: block; }
+.context-strip > button { flex: none; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; background: var(--bg); }
+.context-strip > button:hover { border-color: var(--accent); }
+.current-task { border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: var(--surface); margin: 0 0 26px; }
+.current-task h2 { font-size: 17px; letter-spacing: -.2px; margin-top: 9px; }
+.current-task p { font-size: 13px; line-height: 1.65; color: var(--ink-soft); margin: 0 0 12px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.current-task .task-pacing { font-size: 11px; padding-top: 11px; border-top: 1px solid var(--line); color: var(--ink-faint); margin: 15px 0 0; }
+.task-context { max-height: 230px; overflow-y: auto; font-size: 12px; line-height: 1.7; white-space: pre-wrap; margin: 12px 0; }
+.shared-session-notice { border-left: 2px solid var(--accent); padding: 4px 0 4px 12px; margin: 0 0 24px; }
+.shared-session-notice p { font-size: 12px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 10px; }
+.shared-session-notice a, .shared-session-notice button { display: block; font-size: 12px; line-height: 1.6; text-align: left; text-decoration: underline; color: var(--accent-strong); padding: 4px 0; }
+.conversation-goal { display: block; color: var(--ink-soft); font-size: 11px; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 4px; }
+.context-memories { margin-top: 26px; }
+.section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.section-heading button { font-size: 11px; color: var(--accent-strong); padding: 0; }
+.memory-summary, .memory-pending-count { font-size: 12px; line-height: 1.6; color: var(--ink-soft); }
+.memory-pending-count { color: var(--accent-strong); }
+.memory-settings { border-top: 1px solid var(--line); margin-top: 30px; padding-top: 24px; }
+.memory-settings h3 { font-size: 17px; line-height: 1.4; margin: 0 0 10px; }
+.memory-settings > .field-help { font-size: 12px; }
+.memory-item { padding: 14px; border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; }
+.memory-item small { font-size: 11px; color: var(--ink-faint); }
+.memory-item p { margin: 7px 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.memory-item.proposal { background: var(--accent-soft); }
+.memory-item blockquote { font-size: 12px; line-height: 1.6; margin: 10px 0; padding-left: 12px; border-left: 2px solid var(--line); color: var(--ink-soft); }
+.memory-actions { display: flex; gap: 18px; flex-wrap: wrap; }
+.memory-actions button, #cancel-memory-edit { font-size: 12px; color: var(--accent-strong); padding: 5px 0; }
+#save-memory { margin-top: 14px; }
+.practice-card a + a { margin-top: 13px; }
+.nav-link { font-size: 13px; }
+.conversation-link b, .profile-button b { font-size: 13px; }
+.lesson-step b, .lesson-panel h3 { font-size: 12px; }
+.field-help { font-size: 12px; }
+.composer textarea { font-size: 16px; }
 .mobile-menu, .lesson-toggle { display: none; }
 @media (min-width: 1550px) { .sidebar { width: 275px; flex-basis: 275px; padding-left: 24px; padding-right: 24px; } .lesson-panel { width: 315px; flex-basis: 315px; padding-left: 30px; padding-right: 30px; } }
 @media (max-width: 1180px) { .sidebar { width: 228px; flex-basis: 228px; padding-left: 13px; padding-right: 13px; } .lesson-panel { display: none; position: absolute; z-index: 5; top: 90px; right: 0; bottom: 0; background: var(--bg); width: 290px; box-shadow: var(--shadow-2); } .lesson-panel.open { display: block; } .lesson-toggle { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 10px; color: var(--ink-soft); padding: 10px; border-radius: 8px; background: var(--surface-2); } .workspace-header { padding: 0 25px; } }
@@ -185,4 +229,5 @@ dialog::backdrop { background: rgba(31,27,23,.35); backdrop-filter: blur(2px); }
 @media (max-height: 700px) { .sidebar { padding-top: 19px; } .new-chat { margin-top: 20px; margin-bottom: 13px; } .activity-nav { gap: 0; } .nav-link { min-height: 35px; padding-top: 7px; padding-bottom: 7px; } .history-heading { margin-top: 17px; } .welcome { margin-top: 27px; } .welcome-mark { margin-bottom: 16px; } .suggestions { margin-top: 22px; } }
 @media (max-width: 760px) { .backup-warning { margin: 12px 15px 0; } }
 @media (max-width: 420px) { .speech-options-button { display: none; } .model-field { max-width: 40%; } .composer-toolbar { gap: 7px; } .speech-panel { padding: 12px; } .speech-result textarea { font-size: 16px; } }
+@media (max-width: 760px) { .context-strip { padding: 12px 16px; gap: 10px; } .context-strip p { font-size: 14px; max-height: 2.9em; } .context-strip small { font-size: 10px; } .context-strip > button { padding: 9px; font-size: 11px; } .form-grid { grid-template-columns: 1fr; gap: 0; } dialog { padding: 22px; } .settings-fields input, .settings-fields textarea, .settings-fields select { font-size: 16px; } .dialog-header h2 { font-size: 22px; } .dialog-footer { flex-wrap: wrap; } .dialog-footer .button { flex: 1 1 auto; } }
 @media (prefers-reduced-motion: reduce) { .messages-scroll { scroll-behavior: auto; } }

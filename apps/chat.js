@@ -7,7 +7,9 @@
     active: false, sending: false, loading: false, pending: null, pollTimer: null,
     pollController: null, generation: 0, pollFailures: 0, loginWaiting: false,
     refreshPromise: null, replay: null, storageWarning: false, sessionBusy: false,
-    speech: null, speakingMessageId: null, draftRevision: 0, draftSource: 'typed'
+    speech: null, speakingMessageId: null, draftRevision: 0, draftSource: 'typed',
+    personalization: null, personalizationRevision: null, context: {}, conversation: null,
+    contextRevision: null, preferencesRevision: null, editingMemory: null, contextBusy: false, memoryBusy: false
   };
   const validText = value => typeof value === 'string' ? value : '';
   const storageKey = suffix => `tutor:${location.origin}:${state.session.namespace}:web:${suffix}`;
@@ -38,8 +40,9 @@
       if (state.draftSource === 'whisper_transcript') localStorage.setItem(draftSourceKey(), state.draftSource);
       localStorage.setItem(draftKey(), $('message-input').value);
       if (state.draftSource === 'typed') localStorage.removeItem(draftSourceKey());
+      return true;
     }
-    catch { storageWarning(); }
+    catch { storageWarning(); return false; }
   }
   function loadDraft() {
     try {
@@ -118,7 +121,8 @@
     $('stop-button').disabled = state.sending;
     $('send-button').hidden = state.active;
     $('retry-message').disabled = !authReady() || state.sending;
-    $('new-conversation').disabled = !state.session || state.sending || state.loading;
+    $('new-conversation').disabled = !state.session || state.sending || state.loading || state.contextBusy;
+    $('edit-context').disabled = state.sending || state.loading || state.contextBusy;
     $('messages').setAttribute('aria-busy', state.active ? 'true' : 'false');
     state.speech?.setComposerAvailable(canWrite && !state.sending);
   }
@@ -137,7 +141,7 @@
       if (typeof value !== 'string' || value.length > 4096) return null;
       const explicit = /^https?:\/\//i.test(value);
       const url = new URL(value, location.href);
-      const localPages = new Set(['/index.html', '/dashboard.html', '/flashcards.html', '/quiz.html', '/reader.html', '/dictation.html']);
+      const localPages = new Set(['/index.html', '/chat.html', '/dashboard.html', '/flashcards.html', '/quiz.html', '/reader.html', '/dictation.html']);
       if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) return null;
       if (!explicit && (url.origin !== location.origin || !localPages.has(url.pathname))) return null;
       return url;
@@ -221,13 +225,14 @@
       const button = node('button', `conversation-link${conversation.id === state.conversationId ? ' selected' : ''}`);
       button.type = 'button';
       if (conversation.id === state.conversationId) button.setAttribute('aria-current', 'true');
-      button.append(node('b', '', validText(conversation.title) || 'Разговор с преподавателем'));
+      button.append(node('b', '', validText(conversation.context?.title) || validText(conversation.title) || 'Практика английского'));
+      if (conversation.context?.goal) button.append(node('span', 'conversation-goal', validText(conversation.context.goal)));
       const date = new Date(conversation.updated_at || conversation.updatedAt || '');
       if (Number.isFinite(date.getTime())) button.append(node('small', '', new Intl.DateTimeFormat('ru', {day:'numeric', month:'short'}).format(date)));
-      button.addEventListener('click', () => openConversation(conversation.id).catch(error => showNotice(errorMessage(error), [], 'error')));
+      button.addEventListener('click', () => { if (!state.contextBusy) openConversation(conversation.id).catch(error => showNotice(errorMessage(error), [], 'error')); });
       fragment.append(button);
     }
-    if (!fragment.childNodes.length) fragment.append(node('p', 'sidebar-empty', 'Здесь появятся ваши разговоры.'));
+    if (!fragment.childNodes.length) fragment.append(node('p', 'sidebar-empty', 'Сохранённые занятия появятся здесь.'));
     $('conversation-list').replaceChildren(fragment);
   }
   const stepNames = {
@@ -235,9 +240,171 @@
     remediation: 'Разобрать сложное место', new_material: 'Новая тема', cumulative_review: 'Закрепить пройденное',
     reflection: 'Подвести итоги', speaking: 'Устная практика', pronunciation: 'Произношение'
   };
+  const preferenceDefaults = {dialect:'us', register:'informal', explanation_language:'native', explanation_style:'plain', grammar_terminology:'minimal', correction_style:'balanced', topics:[], notes:''};
+  const preferenceFields = {dialect:'pref-dialect', register:'pref-register', explanation_language:'pref-explanation-language', explanation_style:'pref-explanation-style', grammar_terminology:'pref-grammar', correction_style:'pref-correction', topics:'pref-topics', notes:'pref-notes'};
+  const contextFields = {title:'context-name', goal:'context-goal-input', topics:'context-topics', scenario:'context-scenario', notes:'context-notes', direction_id:'context-direction', mode:'context-mode', challenge:'context-challenge', dialect:'context-dialect', register:'context-register', explanation_style:'context-explanation', grammar_terminology:'context-grammar', correction_style:'context-correction'};
+  const overrideFields = ['dialect','register','explanation_style','grammar_terminology','correction_style'];
+  const modeNames = {guided:'Занятие с преподавателем', conversation:'Свободный разговор', roleplay:'Ролевая ситуация', writing:'Письменная практика', diagnostic:'Диагностика'};
+  const dialectNames = {us:'Американский английский', uk:'Британский английский', international:'Международный английский'};
+  const registerNames = {informal:'Неформальное общение', neutral:'Нейтральный стиль', professional:'Деловое общение'};
+  const directionNames = {everyday:'Повседневное общение', work:'Английский для работы', travel:'Английский в поездке', interests:'Мои интересы', custom:'Своя задача'};
+  const listValue = text => text.split('\n').map(line => line.trim()).filter(Boolean);
+  function newContext() {
+    try { const value = JSON.parse(stored('new-context') || '{}'); return value && typeof value === 'object' && !Array.isArray(value) ? value : {}; }
+    catch { return {}; }
+  }
+  function preferences() { return {...preferenceDefaults, ...(state.personalization?.account_preferences || {})}; }
+  function effectivePreferences() {
+    const result = preferences();
+    for (const field of overrideFields) if (state.context[field]) result[field] = state.context[field];
+    return result;
+  }
+  function directionContext(id) {
+    const direction = state.personalization?.directions?.find(item => item.id === id);
+    if (!direction) return {direction_id:id, title:directionNames[id] || '', mode:'guided', challenge:'adaptive'};
+    const context = {direction_id:direction.id, title:direction.title, goal:direction.goal, topics:direction.topics, mode:direction.mode || 'guided', scenario:direction.scenario || '', challenge:'adaptive'};
+    if (direction.register) context.register = direction.register;
+    return context;
+  }
+  function renderContext() {
+    const context = state.context, prefs = effectivePreferences();
+    const goal = validText(context.goal) || validText(context.scenario);
+    $('context-format').textContent = modeNames[context.mode] || modeNames.guided;
+    $('context-goal').textContent = goal || directionNames[context.direction_id] || 'Выберите цель для этого занятия';
+    $('context-summary').textContent = [dialectNames[prefs.dialect], registerNames[prefs.register], prefs.explanation_style === 'detailed' ? 'Подробные объяснения' : 'Коротко, с примерами'].filter(Boolean).join(' · ');
+    $('conversation-title').textContent = validText(context.title) || validText(state.conversation?.title) || 'Практика английского';
+    $('welcome-title').textContent = goal ? 'Начнём с вашей задачи' : 'С чего начнём?';
+    $('welcome-description').textContent = goal || 'Выберите направление, расскажите о своей задаче или продолжите план занятия.';
+    const exercise = state.conversation?.current_exercise;
+    const view = exercise?.learner_view || exercise;
+    $('current-task-title').textContent = view ? exercise.answered ? 'Последнее задание' : 'Текущее задание' : 'Ваша задача';
+    $('current-task-prompt').textContent = validText(view?.prompt) || (context.mode === 'roleplay' && context.scenario ? context.scenario : 'Напишите, что хотите потренировать. Преподаватель предложит первый шаг.');
+    $('current-task-context').textContent = validText(view?.context);
+    $('current-task-context').hidden = !$('current-task-context').textContent;
+    $('task-feedback').hidden = !exercise?.answered;
+    $('task-feedback').textContent = exercise?.last_observation_id ? 'Ответ сохранён. Разбор — в сообщении преподавателя.' : 'Вы уже ответили. Разбор — в сообщении преподавателя.';
+    const pace = {adaptive:'По одному заданию, сложность по вашим ответам', easy:'Спокойный темп, больше повторения', stretch:'По одному заданию, чуть сложнее привычного'};
+    $('current-task-pacing').textContent = pace[context.challenge] || pace.adaptive;
+    renderMemories();
+  }
+  function renderPersonalization(data) {
+    if (!data || typeof data !== 'object' || !data.account_preferences) return;
+    state.personalization = data;
+    if (Number.isSafeInteger(data.revision)) state.personalizationRevision = data.revision;
+    const prefs = preferences();
+    $('profile-summary').textContent = `${dialectNames[prefs.dialect] || dialectNames.us} · ${prefs.explanation_style === 'detailed' ? 'Подробно' : 'Без лишних терминов'}`;
+    renderContext();
+  }
+  async function refreshPersonalization() {
+    const data = await request('/api/web/personalization'); renderPersonalization(data); return data;
+  }
+  function openPreferences() {
+    const prefs = preferences();
+    for (const [field, id] of Object.entries(preferenceFields)) $(id).value = Array.isArray(prefs[field]) ? prefs[field].join('\n') : prefs[field];
+    state.preferencesRevision = state.personalizationRevision;
+    $('preferences-error').hidden = true; $('preferences-success').hidden = true;
+    $('preferences-dialog').showModal(); renderMemories();
+  }
+  async function savePreferences(event) {
+    event.preventDefault();
+    if (!$('preferences-form').reportValidity()) return;
+    const patch = {};
+    for (const [field, id] of Object.entries(preferenceFields)) patch[field] = field === 'topics' ? listValue($(id).value) : $(id).value;
+    $('save-preferences').disabled = true; $('preferences-error').hidden = true; $('preferences-success').hidden = true;
+    try {
+      const result = await request('/api/web/preferences', {preferences:patch, ...(state.preferencesRevision !== null ? {expected_revision:state.preferencesRevision} : {})});
+      renderPersonalization(result); state.preferencesRevision = state.personalizationRevision;
+      $('preferences-success').textContent = 'Сохранено. Следующий ответ учтёт ваши предпочтения.'; $('preferences-success').hidden = false;
+    } catch (error) {
+      if (error.status === 409) { await refreshPersonalization().catch(() => {}); state.preferencesRevision = state.personalizationRevision; }
+      $('preferences-error').textContent = error.status === 409 ? 'Настройки изменились в другой вкладке. Ваши правки остались в форме. Проверьте их и сохраните ещё раз.' : errorMessage(error);
+      $('preferences-error').hidden = false;
+    } finally { $('save-preferences').disabled = false; }
+  }
+  function fillContextForm(context) {
+    for (const [field, id] of Object.entries(contextFields)) $(id).value = field === 'topics' ? (context.topics || []).join('\n') : context[field] || (field === 'mode' ? 'guided' : field === 'challenge' ? 'adaptive' : field === 'direction_id' ? 'custom' : '');
+  }
+  function openContext() {
+    fillContextForm(state.context); state.contextRevision = state.personalizationRevision;
+    $('context-error').hidden = true; $('context-dialog').showModal();
+  }
+  function contextPatch() {
+    const context = {};
+    for (const [field, id] of Object.entries(contextFields)) context[field] = field === 'topics' ? listValue($(id).value) : overrideFields.includes(field) ? $(id).value || null : $(id).value;
+    return context;
+  }
+  async function saveContext(event) {
+    event.preventDefault();
+    if (state.contextBusy || !$('context-form').reportValidity()) return;
+    const context = contextPatch(), id = state.conversationId;
+    state.contextBusy = true; $('save-context').disabled = true; $('context-error').hidden = true; updateControls();
+    try {
+      if (id) {
+        const result = await request('/api/web/context', {conversation_id:id, context, ...(state.contextRevision !== null ? {expected_revision:state.contextRevision} : {})});
+        if (Number.isSafeInteger(result.revision)) state.personalizationRevision = result.revision;
+        if (state.conversationId === id) { state.context = result.context || context; renderContext(); }
+      } else {
+        const conversation = await request('/api/web/conversations', {context});
+        if (typeof conversation.id !== 'string') throw new Error('Conversation not created');
+        // Carry the untouched draft into the persisted empty lesson workspace.
+        saveDraft();
+        state.conversationId = conversation.id; state.context = conversation.context || context;
+        state.conversation = conversation; store('conversation', conversation.id);
+        if (saveDraft()) { store('draft:new', null); store('draft-source:new', null); store('new-context', null); }
+        await openConversation(conversation.id, {focus:false});
+      }
+      $('context-dialog').close(); renderContext();
+      refreshStatus().catch(() => showNotice('Направление сохранено. Обновить остальные данные пока не удалось.'));
+    } catch (error) {
+      if (error.status === 409) { await refreshPersonalization().catch(() => {}); state.contextRevision = state.personalizationRevision; }
+      $('context-error').textContent = error.status === 409 ? 'Контекст изменился в другой вкладке. Правки остались в форме. Проверьте их и сохраните ещё раз.' : errorMessage(error);
+      $('context-error').hidden = false;
+    } finally { state.contextBusy = false; $('save-context').disabled = false; updateControls(); }
+  }
+  function memoryScope(memory) { return memory.scope === 'conversation' ? memory.conversation_id === state.conversationId ? 'Только эта беседа' : 'Другая беседа' : 'Все занятия'; }
+  function renderMemories() {
+    const data = state.personalization || {}, memories = Array.isArray(data.memories) ? data.memories : [];
+    const pending = Array.isArray(data.pending_memories) ? data.pending_memories : [];
+    const active = memories.filter(item => item.scope !== 'conversation' || item.conversation_id === state.conversationId);
+    const localPending = pending.filter(item => item.scope !== 'conversation' || item.conversation_id === state.conversationId);
+    $('context-memories').hidden = !active.length && !localPending.length;
+    $('active-memories').replaceChildren();
+    for (const item of active) $('active-memories').append(node('p', 'memory-summary', validText(item.text)));
+    if (localPending.length) $('active-memories').append(node('p', 'memory-pending-count', `Предложено запомнить: ${localPending.length}. Нужно ваше подтверждение.`));
+    $('memory-list').replaceChildren(); $('memory-proposals').replaceChildren();
+    for (const item of memories) {
+      const card = node('div', 'memory-item'); card.append(node('small', '', memoryScope(item)), node('p', '', validText(item.text)));
+      const actions = node('div', 'memory-actions');
+      const edit = node('button', '', 'Изменить'); edit.type = 'button';
+      edit.addEventListener('click', () => { state.editingMemory = item; $('memory-text').value = validText(item.text); $('memory-scope').value = item.scope || 'account'; $('cancel-memory-edit').hidden = false; $('memory-text').focus(); });
+      const remove = node('button', '', 'Удалить заметку'); remove.type = 'button'; remove.addEventListener('click', () => mutateMemory({action:'delete',id:item.id}));
+      actions.append(edit,remove); card.append(actions); $('memory-list').append(card);
+    }
+    for (const item of pending) {
+      const card = node('div', 'memory-item proposal'); card.append(node('small', '', `Преподаватель предлагает · ${memoryScope(item)}`), node('p', '', validText(item.text)));
+      if (item.source?.evidence) card.append(node('blockquote', '', validText(item.source.evidence)));
+      const actions = node('div', 'memory-actions');
+      for (const [label,action] of [['Запомнить','confirm'],['Не сохранять','dismiss']]) { const button = node('button','',label); button.type = 'button'; button.addEventListener('click', () => mutateMemory({action,id:item.id})); actions.append(button); }
+      card.append(actions); $('memory-proposals').append(card);
+    }
+  }
+  async function mutateMemory(payload) {
+    if (state.memoryBusy) return;
+    state.memoryBusy = true;
+    $('memory-error').hidden = true; $('save-memory').disabled = true;
+    try {
+      const result = await request('/api/web/memory', {...payload, ...(state.personalizationRevision !== null ? {expected_revision:state.personalizationRevision} : {})});
+      renderPersonalization(result);
+      if (payload.action === 'save' || payload.id === state.editingMemory?.id) { state.editingMemory = null; $('memory-text').value = ''; $('cancel-memory-edit').hidden = true; }
+    } catch (error) {
+      if (error.status === 409) await refreshPersonalization().catch(() => {});
+      $('memory-error').textContent = error.status === 409 ? 'Заметки изменились в другой вкладке. Проверьте список и повторите действие.' : errorMessage(error); $('memory-error').hidden = false;
+    } finally { state.memoryBusy = false; $('save-memory').disabled = false; }
+  }
   function renderLesson(status) {
     const plan = status.plan?.plan || status.plan || {};
-    const session = status.session || status.active_session || status.progress?.active_session || {};
+    const binding = state.conversation?.lesson;
+    const session = (binding?.owned ? binding.session : null) || status.session || status.active_session || status.progress?.active_session || {};
     const sessionState = session.status || status.plan?.status || status.progress?.session_status;
     const steps = Array.isArray(plan.steps) ? plan.steps : Array.isArray(session.plan?.steps) ? session.plan.steps : [];
     const completed = new Set(session.completed_steps || status.plan?.completed_steps || []);
@@ -262,10 +429,20 @@
     const interrupted = sessionState === 'interrupted';
     $('start-session').hidden = active || interrupted;
     $('start-session').disabled = !status.initialized || state.sending || state.sessionBusy;
-    for (const id of ['resume-session', 'interrupt-session', 'finish-session']) $(id).disabled = state.sessionBusy;
+    for (const id of ['resume-session', 'interrupt-session', 'finish-session']) $(id).disabled = state.sessionBusy || (binding && !binding.can_manage);
     $('resume-session').hidden = !interrupted;
     $('interrupt-session').hidden = !active;
     $('finish-session').hidden = !(active || interrupted);
+    const foreign = binding?.requires_handoff === true;
+    $('shared-session-notice').hidden = !foreign;
+    if (foreign) {
+      const owner = binding.owner;
+      $('shared-session-text').textContent = owner?.conversation_id ? `План уже начат в беседе «${validText(owner.title) || 'Занятие'}». Можно вернуться туда или перенести этот же план сюда.` : 'Есть начатый план. Свяжите его с этой беседой, чтобы продолжить.';
+      $('shared-session-link').hidden = !owner?.conversation_id;
+      $('shared-session-link').href = owner?.conversation_id ? `chat.html?conversation=${encodeURIComponent(owner.conversation_id)}` : 'chat.html';
+      $('handoff-session').disabled = state.sessionBusy || !state.conversationId;
+      $('start-session').hidden = true;
+    }
     const level = status.progress?.working_level || status.progress?.level || status.proficiency?.working_level;
     $('working-level').hidden = !level;
     $('working-level').textContent = validText(level);
@@ -273,6 +450,8 @@
     const objectives = status.objectives || status.profile?.objectives || [];
     const objectiveText = Array.isArray(objectives) ? objectives.map(item => typeof item === 'string' ? item : validText(item.text || item.description)).filter(Boolean).join(' · ') : validText(objectives);
     $('learning-objective').textContent = objectiveText || 'Добавьте цель в профиле, чтобы выбирать близкие вам темы.';
+    const next = steps.find(step => !completed.has(step.id) && step.completed !== true && step.status !== 'completed');
+    $('next-step').textContent = next ? validText(next.title) || validText(next.unit_title) || stepNames[next.type] || 'Следующее задание из плана' : steps.length ? 'План пройден. Подведите итоги с преподавателем.' : 'Выберите цель, затем начните с одного короткого задания.';
     $('voice-note').textContent = status.profile?.voice_channel === 'external' ? 'Для голосового занятия попросите преподавателя подготовить отдельный проход. Его результат нужно проверить перед записью в прогресс.' : 'Голосовой ввод создаёт текстовый черновик. Устную речь и произношение проверяют в отдельном голосовом занятии.';
   }
   function renderStatus(status) {
@@ -293,8 +472,8 @@
     $('account-description').textContent = validText(auth.error) || (state.loginWaiting ? 'Продолжите в официальном окне входа. Мы проверим подключение автоматически.' : 'Войдите в свой аккаунт ChatGPT, чтобы заниматься здесь.');
     if (connected) { state.loginWaiting = false; $('login-link').hidden = true; $('login-link').removeAttribute('href'); }
     $('setup-notice').hidden = status.initialized === true;
-    const minutes = status.profile?.daily_minutes;
-    $('profile-summary').textContent = minutes ? `${minutes} минут в день` : 'Настроить занятия';
+    if (status.personalization) renderPersonalization(status.personalization);
+    else if (status.account_preferences) renderPersonalization(status);
     const selected = $('model-select').value || stored('model') || '';
     const models = Array.isArray(status.models) ? status.models : [];
     const options = document.createDocumentFragment(); options.append(node('option', '', 'Модель по умолчанию'));
@@ -306,7 +485,7 @@
     }
     $('model-select').replaceChildren(options);
     $('model-select').value = models.some(model => model.id === selected) ? selected : '';
-    renderHistory(status.conversations); renderLesson(status); updateControls();
+    renderHistory(status.conversations); renderLesson(status); renderContext(); updateControls();
   }
   async function refreshStatus() {
     if (state.refreshPromise) return state.refreshPromise;
@@ -330,28 +509,33 @@
     state.pollController?.abort(); state.pollController = null;
     state.generation += 1;
   }
+  function updateConversationUrl() {
+    const url = new URL(location.href);
+    for (const key of ['conversation','new','direction','settings']) url.searchParams.delete(key);
+    url.searchParams.set(state.conversationId ? 'conversation' : 'new', state.conversationId || '1');
+    window.history?.replaceState({}, '', url.href);
+  }
   async function openConversation(id, {focus = true} = {}) {
     state.speech?.stopSpeaking();
     saveDraft(); stopPolling(); state.loading = true; updateControls();
     const generation = state.generation;
     try {
       if (!id) {
-        state.conversationId = null; state.messages.clear(); state.cursor = 0; state.active = false; state.replay = null;
-        store('conversation', null); $('conversation-title').textContent = 'Разговор с преподавателем';
+        state.conversationId = null; state.conversation = null; state.context = newContext(); state.messages.clear(); state.cursor = 0; state.active = false; state.replay = null;
+        store('conversation', null);
       } else {
         const conversation = await request(`/api/web/conversation?id=${encodeURIComponent(id)}`);
         if (generation !== state.generation) return;
-        state.conversationId = conversation.id; state.messages.clear();
+        state.conversationId = conversation.id; state.conversation = conversation; state.context = conversation.context || {}; state.messages.clear();
         for (const message of Array.isArray(conversation.messages) ? conversation.messages : []) upsertMessage(message.id, message.role, message.text);
         state.cursor = Number.isSafeInteger(conversation.cursor) && conversation.cursor >= 0 ? conversation.cursor : 0;
         state.replay = 'cursor' in conversation ? null : new Map();
         state.active = conversation.active === true;
         store('conversation', conversation.id);
-        $('conversation-title').textContent = validText(conversation.title) || 'Разговор с преподавателем';
       }
       $('turn-status').textContent = state.active ? 'Преподаватель отвечает…' : '';
-      loadDraft(); renderMessages(true); closeNav();
-      if (state.status) renderHistory(state.status.conversations);
+      loadDraft(); renderMessages(true); renderContext(); updateConversationUrl(); closeNav();
+      if (state.status) { renderHistory(state.status.conversations); renderLesson(state.status); }
     } finally {
       if (generation === state.generation) { state.loading = false; updateControls(); }
     }
@@ -417,7 +601,7 @@
     try {
       const pending = JSON.parse(stored('pending') || 'null');
       if (!pending || typeof pending !== 'object' || typeof pending.request_id !== 'string' || pending.request_id.length > 200 || typeof pending.message !== 'string' || !pending.message.trim() || pending.message.length > 16000 || !(pending.conversation_id === null || typeof pending.conversation_id === 'string')) return null;
-      return {request_id: pending.request_id, message: pending.message, conversation_id: pending.conversation_id, input_source: pending.input_source === 'whisper_transcript' ? 'whisper_transcript' : 'typed', ...(typeof pending.model === 'string' ? {model:pending.model} : {})};
+      return {request_id: pending.request_id, message: pending.message, conversation_id: pending.conversation_id, input_source: pending.input_source === 'whisper_transcript' ? 'whisper_transcript' : 'typed', ...(typeof pending.model === 'string' ? {model:pending.model} : {}), ...(pending.context && typeof pending.context === 'object' && !Array.isArray(pending.context) ? {context:pending.context} : {})};
     } catch { return null; }
   }
   function renderPending() {
@@ -456,6 +640,7 @@
       // Carry a newly edited draft into the just-created conversation. A retry
       // made from another conversation keeps that other draft in its own scope.
       if (payload.conversation_id === null && sameComposer) { state.conversationId = result.conversation_id; saveDraft(); }
+      if (payload.conversation_id === null && JSON.stringify(newContext()) === JSON.stringify(payload.context || {})) store('new-context', null);
       state.active = true; store('conversation', result.conversation_id);
       await openConversation(result.conversation_id, {focus:false});
       refreshStatus().catch(() => {});
@@ -524,8 +709,18 @@
     clearNotice();
     const buttons = document.querySelectorAll('[data-session-action]'); buttons.forEach(button => { button.disabled = true; });
     try {
-      const status = await request('/api/web/session', {action, ...(allowIncomplete ? {allow_incomplete:true} : {})});
+      if (!state.conversationId) {
+        const conversation = await request('/api/web/conversations', {context:state.context});
+        if (typeof conversation.id !== 'string') throw new Error('Conversation not created');
+        saveDraft(); state.conversationId = conversation.id;
+        if (saveDraft()) { store('draft:new', null); store('draft-source:new', null); store('new-context', null); }
+        await openConversation(conversation.id, {focus:false});
+      }
+      const binding = state.conversation?.lesson;
+      if (binding && !binding.can_manage && action !== 'start' && action !== 'handoff') { showNotice('Этот план открыт в другой беседе. Перейдите к ней или выберите «Продолжить занятие здесь».'); return; }
+      const status = await request('/api/web/session', {action, conversation_id:state.conversationId, ...(action === 'handoff' ? {expected_owner:binding?.owner?.conversation_id || null} : {}), ...(allowIncomplete ? {allow_incomplete:true} : {})});
       if ('initialized' in status) renderStatus(status); else await refreshStatus();
+      await openConversation(state.conversationId, {focus:false});
       if (action === 'start' || action === 'resume') {
         if (!$('message-input').value.trim()) {
           $('message-input').value = action === 'start' ? 'План занятия готов. Давай начнём с первого шага.' : 'Продолжим прерванное занятие с текущего шага.';
@@ -559,12 +754,21 @@
     $('today-label').textContent = new Intl.DateTimeFormat('ru', {day:'numeric',month:'long',weekday:'long'}).format(new Date()).toLocaleUpperCase('ru');
     state.pending = pendingFromStorage();
     await refreshStatus();
+    if (!state.personalization) await refreshPersonalization().catch(error => showNotice(errorMessage(error), [], 'error'));
+    const parameters = new URL(location.href).searchParams;
+    const startNew = parameters.get('new') === '1';
+    const requestedDirection = parameters.get('direction');
     const saved = stored('conversation');
-    const id = saved || state.status.active_conversation_id;
+    const id = startNew ? null : parameters.get('conversation') || saved || state.status.active_conversation_id;
     if (id) {
       try { await openConversation(id, {focus:false}); }
       catch (error) { store('conversation', null); await openConversation(null, {focus:false}); showNotice(errorMessage(error), [], 'error'); }
-    } else { loadDraft(); updateControls(); }
+    } else { state.context = newContext(); loadDraft(); updateControls(); }
+    if (!id && requestedDirection && Object.hasOwn(directionNames, requestedDirection)) {
+      state.context = directionContext(requestedDirection); store('new-context', JSON.stringify(state.context));
+    }
+    renderContext();
+    if (parameters.get('settings') === '1') openPreferences();
     renderPending(); updateNavAccessibility();
     setInterval(() => {
       if (!document.hidden) refreshStatus().catch(() => {});
@@ -577,6 +781,7 @@
     if (!message.trim() || state.active || state.sending || state.pending || !authReady()) return;
     if (message.length > 16000) { showNotice('В одном сообщении можно отправить до 16 000 символов. Разделите текст на части.'); return; }
     state.pending = {conversation_id:state.conversationId, message, input_source:state.draftSource, request_id:crypto.randomUUID()};
+    if (!state.conversationId) state.pending.context = structuredClone(state.context);
     if ($('model-select').value) state.pending.model = $('model-select').value;
     store('pending', JSON.stringify(state.pending)); saveDraft(); sendPending();
   });
@@ -604,6 +809,22 @@
   $('open-settings').addEventListener('click', openSettings); $('setup-button').addEventListener('click', openSettings);
   $('close-settings').addEventListener('click', () => $('settings-dialog').close()); $('cancel-settings').addEventListener('click', () => $('settings-dialog').close());
   $('settings-form').addEventListener('submit', saveSettings);
+  $('open-preferences').addEventListener('click', openPreferences); $('open-memory').addEventListener('click', openPreferences);
+  $('close-preferences').addEventListener('click', () => $('preferences-dialog').close()); $('cancel-preferences').addEventListener('click', () => $('preferences-dialog').close());
+  $('preferences-form').addEventListener('submit', savePreferences);
+  $('edit-context').addEventListener('click', openContext);
+  $('close-context').addEventListener('click', () => $('context-dialog').close()); $('cancel-context').addEventListener('click', () => $('context-dialog').close());
+  $('context-form').addEventListener('submit', saveContext);
+  $('context-direction').addEventListener('change', () => fillContextForm(directionContext($('context-direction').value)));
+  $('handoff-session').addEventListener('click', () => sessionAction('handoff'));
+  $('cancel-memory-edit').addEventListener('click', () => { state.editingMemory = null; $('memory-text').value = ''; $('cancel-memory-edit').hidden = true; });
+  $('memory-form').addEventListener('submit', event => {
+    event.preventDefault(); const text = $('memory-text').value.trim();
+    if (!text) { $('memory-error').textContent = 'Напишите, что учитывать.'; $('memory-error').hidden = false; return; }
+    const scope = $('memory-scope').value, conversationId = state.editingMemory?.conversation_id || state.conversationId;
+    if (scope === 'conversation' && !conversationId) { $('memory-error').textContent = 'Сначала сохраните направление беседы или отправьте первое сообщение.'; $('memory-error').hidden = false; return; }
+    mutateMemory({action:'save', text, scope, ...(state.editingMemory ? {id:state.editingMemory.id} : {}), ...(scope === 'conversation' ? {conversation_id:conversationId} : {})});
+  });
   $('download-backup').addEventListener('click', downloadBackup);
   document.querySelectorAll('[data-session-action]').forEach(button => button.addEventListener('click', () => sessionAction(button.dataset.sessionAction)));
   document.querySelectorAll('[data-prompt]').forEach(button => button.addEventListener('click', () => {

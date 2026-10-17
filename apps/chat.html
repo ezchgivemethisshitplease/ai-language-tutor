@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Занятие — Tutor</title>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="chat.css">
+  <script src="client.js" defer></script>
+  <script src="speech.js" defer></script>
+  <script src="chat.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#message-input">К сообщению</a>
+  <button id="nav-scrim" class="nav-scrim" aria-label="Закрыть меню" hidden></button>
+  <aside class="sidebar" id="sidebar" aria-label="Навигация">
+    <a class="brand" href="index.html" aria-label="Tutor, главная"><span class="brand-mark" aria-hidden="true">t</span><span>Tutor<small>Английский в своём темпе</small></span></a>
+    <button class="new-chat" id="new-conversation" disabled><span aria-hidden="true">＋</span> Новое занятие</button>
+    <nav class="activity-nav" aria-label="Обучение">
+      <a class="nav-link" href="index.html"><span aria-hidden="true">⌂</span> Сегодня</a>
+      <a class="nav-link" href="index.html#directions"><span aria-hidden="true">◇</span> Направления</a>
+      <a class="nav-link current" href="chat.html" aria-current="page"><span aria-hidden="true">◌</span> Занятие</a>
+      <a class="nav-link" href="dashboard.html"><span aria-hidden="true">▥</span> Мой прогресс</a>
+      <a class="nav-link" href="flashcards.html"><span aria-hidden="true">▱</span> Повторение</a>
+    </nav>
+    <div class="history-heading"><h2>Мои занятия</h2><button class="icon-button" id="refresh-history" title="Обновить занятия" aria-label="Обновить занятия">↻</button></div>
+    <div id="conversation-list" class="conversation-list"><p class="sidebar-empty">Сохранённые занятия появятся здесь.</p></div>
+    <div class="sidebar-bottom">
+      <button class="profile-button" id="open-preferences"><span class="profile-avatar" aria-hidden="true">Я</span><span><b>Как мне объяснять</b><small id="profile-summary">Мои предпочтения</small></span><span class="profile-cog" aria-hidden="true">⚙</span></button>
+      <button class="backup-link" id="open-settings">Язык и время занятий</button>
+      <button class="backup-link" id="download-backup">Скачать резервную копию</button>
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <header class="workspace-header">
+      <button id="toggle-nav" class="icon-button mobile-menu" aria-label="Открыть меню" aria-controls="sidebar" aria-expanded="false">☰</button>
+      <div class="course-heading"><span class="eyebrow">ЗАНЯТИЕ</span><h1 id="conversation-title">Практика английского</h1></div>
+      <button class="lesson-toggle" id="toggle-lesson" aria-expanded="false" aria-controls="lesson-panel">Контекст <span aria-hidden="true">⌄</span></button>
+      <span class="connection-indicator" id="connection-indicator"><i aria-hidden="true"></i><span id="connection-label">Подключение…</span></span>
+    </header>
+
+    <div class="workspace-body">
+      <section class="conversation-pane" aria-label="Разговор с преподавателем">
+        <div class="context-strip"><div><span id="context-format" class="context-format">Практика с преподавателем</span><p id="context-goal">Выберите цель для этого занятия</p><small id="context-summary">Американский английский · Неформальное общение</small></div><button id="edit-context" type="button" aria-label="Изменить направление занятия">Настроить</button></div>
+        <section class="account-notice" id="account-notice" aria-label="Подключение преподавателя">
+          <div><b id="account-title">Подключаем преподавателя</b><p id="account-description">Проверяем вход в ChatGPT.</p></div>
+          <button class="button primary" id="login-button" disabled>Войти через ChatGPT</button>
+          <a class="button primary" id="login-link" target="_blank" rel="noopener noreferrer" hidden>Продолжить вход ↗</a>
+        </section>
+        <section id="setup-notice" class="setup-notice" hidden><div><b>Начнём с удобного ритма</b><p>Выберите время для занятий и расскажите, зачем вам английский.</p></div><button class="button primary" id="setup-button">Настроить занятия</button></section>
+        <p id="backup-warning" class="backup-warning" role="status" hidden>Ответы сохранены. Резервная копия недоступна: проверьте диск и настройку копирования.</p>
+
+        <div class="messages-scroll" id="messages-scroll">
+          <div id="welcome" class="welcome">
+            <span class="welcome-mark" aria-hidden="true">t</span>
+            <p class="eyebrow" id="today-label">ВРЕМЯ ДЛЯ АНГЛИЙСКОГО</p>
+            <h2 id="welcome-title">С чего начнём?</h2>
+            <p id="welcome-description" class="welcome-description">Выберите направление, расскажите о своей задаче или продолжите план занятия.</p>
+            <div class="suggestions" aria-label="Идеи для начала разговора">
+              <button class="suggestion" data-prompt="Давай начнём занятие. Сначала посмотри мой прогресс и план."><b>Позаниматься</b><span>Продолжить с того места, где остановились <i aria-hidden="true">↗</i></span></button>
+              <button class="suggestion" data-prompt="Хочу понять, с чего мне начать. Давай пройдём диагностику без подсказок."><b>Найти отправную точку</b><span>Разобраться, что уже получается <i aria-hidden="true">↗</i></span></button>
+              <button class="suggestion" data-prompt="Давай потренируем короткий разговор на английском. Выбери ситуацию по моему уровню."><b>Поговорить по-английски</b><span>Короткая ситуация из обычной жизни <i aria-hidden="true">↗</i></span></button>
+            </div>
+          </div>
+          <div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="История разговора"></div>
+        </div>
+        <button class="jump-latest" id="jump-latest" hidden>К последнему сообщению ↓</button>
+
+        <div class="composer-region">
+          <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><div id="notice-actions"></div></div>
+          <div id="pending-notice" class="pending-notice" hidden><span id="pending-description">Отправка не подтверждена. Сообщение сохранено в этом браузере.</span><div><button id="retry-message">Повторить отправку</button><button id="keep-draft">Оставить черновик</button></div></div>
+          <section id="speech-panel" class="speech-panel" aria-label="Голосовой ввод" hidden>
+            <div class="speech-heading"><b>Голосовой ввод</b><button id="speech-cancel" type="button">Закрыть</button></div>
+            <p id="speech-status" class="speech-status" role="status">Проверяем распознавание речи…</p>
+            <div class="speech-preferences"><label for="speech-language">Язык записи</label><select id="speech-language"><option value="auto">Определить автоматически</option><option value="en">Английский</option><option value="ru">Русский</option></select><label for="speech-read-language">Голос ответа</label><select id="speech-read-language"><option value="auto">По языку текста</option><option value="en">Английский</option><option value="ru">Русский</option></select></div>
+            <div id="speech-recording" class="speech-recording" hidden><span class="recording-dot" aria-hidden="true"></span><span>Идёт запись</span><time id="speech-timer">00:00</time><button id="speech-stop" type="button">Стоп и распознать</button></div>
+            <audio id="speech-preview" class="speech-preview" controls preload="none" hidden></audio>
+            <div id="speech-result" class="speech-result" hidden><label for="speech-transcript">Распознанный текст</label><textarea id="speech-transcript" rows="3" maxlength="16000"></textarea><button id="speech-append" type="button">Добавить к черновику</button></div>
+            <div class="speech-actions"><button id="speech-retry" type="button" hidden>Повторить распознавание</button><button id="speech-new" type="button" hidden>Новая запись</button><button id="speech-setup" type="button" hidden>Установить голосовой ввод</button><button id="speech-refresh" type="button">Проверить доступность</button></div>
+            <details id="speech-guide" class="speech-guide" hidden><summary>Ручная установка</summary><code id="speech-setup-command"></code></details>
+            <p class="speech-privacy">Речь распознаётся на этом компьютере и попадает в редактируемый черновик. Отправляете его вы. Это ввод текста, без оценки произношения. Для озвучивания ответа используются локальные голоса браузера.</p>
+          </section>
+          <form id="chat-form" class="composer">
+            <label class="sr-only" for="message-input">Сообщение преподавателю</label>
+            <textarea id="message-input" rows="2" maxlength="16000" placeholder="Напишите преподавателю…" autocomplete="off" disabled></textarea>
+            <div class="composer-toolbar"><button type="button" class="speech-record-button" id="speech-record" aria-label="Голосовой ввод" title="Голосовой ввод" disabled><svg width="17" height="20" viewBox="0 0 20 24" fill="none" aria-hidden="true"><rect x="7" y="2" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M4 10v2a6 6 0 0 0 12 0v-2M10 18v4M6 22h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button><button type="button" class="speech-options-button" id="speech-options" aria-label="Настроить голосовой ввод" title="Настроить голосовой ввод">Голос</button><div class="model-field"><label class="sr-only" for="model-select">Модель преподавателя</label><select id="model-select" disabled><option value="">Модель по умолчанию</option></select></div><span id="turn-status" class="turn-status" role="status"></span><button type="button" class="stop-button" id="stop-button" hidden><span aria-hidden="true">■</span> Остановить</button><button type="submit" class="send-button" id="send-button" disabled aria-label="Отправить сообщение"><span aria-hidden="true">↑</span></button></div>
+          </form>
+          <p class="composer-note"><span>Enter — отправить · Shift + Enter — новая строка</span><span id="draft-status">Черновик сохраняется в этом браузере.</span></p>
+        </div>
+      </section>
+
+      <aside class="lesson-panel" id="lesson-panel" aria-label="Контекст занятия">
+        <section class="current-task" aria-labelledby="current-task-title"><span class="eyebrow">СЕЙЧАС</span><h2 id="current-task-title">Ваша задача</h2><p id="current-task-prompt">Напишите, что хотите потренировать. Преподаватель предложит первый шаг.</p><div id="current-task-context" class="task-context" hidden></div><p id="task-feedback" class="task-feedback" hidden></p><p id="current-task-pacing" class="task-pacing">По одному заданию за раз</p></section>
+        <div id="shared-session-notice" class="shared-session-notice" hidden><p id="shared-session-text"></p><a id="shared-session-link" href="chat.html">Открыть занятие</a><button id="handoff-session" type="button">Продолжить занятие здесь</button></div>
+        <div class="lesson-panel-heading"><span class="eyebrow">ПЛАН</span><span class="level-badge" id="working-level" hidden></span></div>
+        <h2 id="lesson-title">План на сегодня</h2>
+        <p id="lesson-description" class="lesson-description">План появится после начала занятия. Преподаватель учтёт ваши ответы и время.</p>
+        <ol id="lesson-steps" class="lesson-steps"></ol>
+        <div class="session-actions"><button class="button primary" id="start-session" data-session-action="start" disabled>Начать занятие</button><button class="button subtle" id="resume-session" data-session-action="resume" hidden>Продолжить занятие</button><button class="button subtle" id="interrupt-session" data-session-action="interrupt" hidden>Сделать паузу</button><button class="button subtle" id="finish-session" data-session-action="finish" hidden>Завершить занятие</button></div>
+        <div class="lesson-divider"></div>
+        <h3>Следующий шаг</h3><p id="next-step" class="context-copy">После ответа разберём, что получилось, и попробуем следующий пример.</p>
+        <h3>Ваш ориентир</h3><p id="learning-objective" class="context-copy">Добавьте цель в профиле, чтобы выбирать близкие вам темы.</p>
+        <div class="practice-card"><h3>Отдельная практика</h3><a href="flashcards.html">Повторить слова <span aria-hidden="true">↗</span></a><a href="quiz.html">Упражнения <span aria-hidden="true">↗</span></a><a href="reader.html">Чтение <span aria-hidden="true">↗</span></a><a href="dictation.html">Диктант <span aria-hidden="true">↗</span></a></div>
+        <section id="context-memories" class="context-memories" aria-label="Что учитывает преподаватель" hidden><div class="section-heading"><h3>Что учитывает преподаватель</h3><button id="open-memory" type="button">Изменить</button></div><div id="active-memories"></div></section>
+        <p class="voice-note" id="voice-note">Голосовой ввод создаёт текстовый черновик. Устную речь и произношение проверяют в отдельном голосовом занятии.</p>
+      </aside>
+    </div>
+  </main>
+
+  <dialog id="settings-dialog" aria-labelledby="settings-title">
+    <div class="dialog-header"><div><p class="eyebrow">ВАШ РИТМ</p><h2 id="settings-title">Настроим занятия под вас</h2></div><button class="icon-button" id="close-settings" aria-label="Закрыть настройки">×</button></div>
+    <form id="settings-form" class="settings-fields">
+      <label for="native-language">Родной язык</label><input id="native-language" name="native_language" value="Русский" maxlength="80" required><p class="field-help">Укажите свой родной язык. Объяснения по-русски доступны на любом уровне.</p>
+      <label for="daily-minutes">Минут в день</label><div class="minutes-control"><input id="daily-minutes" name="daily_minutes" type="number" min="5" max="240" step="1" value="20" required><span>Небольшое занятие тоже считается.</span></div>
+      <label for="objectives-input">Зачем вам английский?</label><textarea id="objectives-input" name="objectives" rows="3" maxlength="2000" placeholder="Для работы, поездок, общения… По одной цели на строку."></textarea>
+      <label for="voice-channel">Устная практика</label><select id="voice-channel" name="voice_channel"><option value="none">Пока в текстовом чате</option><option value="external">С отдельным голосовым чатом</option></select><p class="field-help">Голосовой ввод доступен по кнопке микрофона. Для отдельного голосового занятия преподаватель подготовит задания.</p>
+      <p id="settings-error" class="field-error" role="alert" hidden></p>
+      <div class="dialog-footer"><button type="button" class="button subtle" id="cancel-settings">Отмена</button><button type="submit" class="button primary" id="save-settings">Сохранить</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="preferences-dialog" aria-labelledby="preferences-title">
+    <div class="dialog-header"><div><p class="eyebrow">ДЛЯ ВСЕХ ЗАНЯТИЙ</p><h2 id="preferences-title">Как мне объяснять</h2></div><button class="icon-button" id="close-preferences" aria-label="Закрыть предпочтения">×</button></div>
+    <p class="dialog-intro">Преподаватель учитывает эти настройки в новых и текущих беседах. Для отдельного занятия можно выбрать другое.</p>
+    <form id="preferences-form" class="settings-fields">
+      <div class="form-grid"><div><label for="pref-dialect">Вариант английского</label><select id="pref-dialect"><option value="us">Американский</option><option value="uk">Британский</option><option value="international">Международный</option></select></div><div><label for="pref-register">Стиль общения</label><select id="pref-register"><option value="informal">Неформальный</option><option value="neutral">Нейтральный</option><option value="professional">Деловой</option></select></div></div>
+      <label for="pref-explanation-language">Язык объяснений</label><select id="pref-explanation-language"><option value="native">На родном языке</option><option value="english">На английском</option></select><p class="field-help">Можно в любой момент попросить объяснить по-русски.</p>
+      <div class="form-grid"><div><label for="pref-explanation-style">Объяснения</label><select id="pref-explanation-style"><option value="plain">Коротко, с примерами</option><option value="detailed">Подробно, шаг за шагом</option></select></div><div><label for="pref-grammar">Грамматические термины</label><select id="pref-grammar"><option value="minimal">По минимуму</option><option value="standard">Можно использовать</option></select></div></div>
+      <label for="pref-correction">Как разбирать ошибки</label><select id="pref-correction"><option value="balanced">Разбирать важное по ходу занятия</option><option value="gentle">Мягко, без частых остановок</option><option value="detailed">Разбирать каждую существенную ошибку</option></select>
+      <label for="pref-topics">Темы, которые вам интересны</label><textarea id="pref-topics" rows="2" maxlength="2000" placeholder="Фильмы, поездки, готовка — по одной теме на строку"></textarea>
+      <label for="pref-notes">Что ещё учитывать</label><textarea id="pref-notes" rows="3" maxlength="2000" placeholder="Например: больше бытовых примеров, меньше технических терминов"></textarea>
+      <p id="preferences-error" class="field-error" role="alert" hidden></p><p id="preferences-success" class="field-success" role="status" hidden></p>
+      <div class="dialog-footer"><button type="button" class="button subtle" id="cancel-preferences">Отмена</button><button type="submit" class="button primary" id="save-preferences">Сохранить предпочтения</button></div>
+    </form>
+    <section class="memory-settings" aria-labelledby="memory-title"><h3 id="memory-title">Что запомнить для следующих занятий</h3><p class="field-help">Сохраняйте только то, что хотите учитывать. Реплики персонажей из ролевой игры не становятся фактами о вас. Удаление записи не удаляет исходные сообщения.</p><div id="memory-proposals"></div><div id="memory-list"></div><form id="memory-form" class="settings-fields"><label for="memory-text">Добавить заметку преподавателю</label><textarea id="memory-text" rows="2" maxlength="1000" placeholder="Например: мне удобнее сначала увидеть пример"></textarea><label for="memory-scope">Где учитывать</label><select id="memory-scope"><option value="account">Во всех занятиях</option><option value="conversation">Только в этой беседе</option></select><button id="save-memory" type="submit" class="button subtle">Сохранить заметку</button><button id="cancel-memory-edit" type="button" hidden>Отменить правку</button><p id="memory-error" class="field-error" role="alert" hidden></p></form></section>
+  </dialog>
+
+  <dialog id="context-dialog" aria-labelledby="context-title">
+    <div class="dialog-header"><div><p class="eyebrow">ТОЛЬКО ЭТА БЕСЕДА</p><h2 id="context-title">Направление занятия</h2></div><button class="icon-button" id="close-context" aria-label="Закрыть направление">×</button></div>
+    <p class="dialog-intro">Уточните задачу и обстановку. Сохранение настроек не отправляет сообщение преподавателю.</p>
+    <form id="context-form" class="settings-fields">
+      <label for="context-direction">Направление</label><select id="context-direction"><option value="everyday">Повседневное общение</option><option value="work">Работа</option><option value="travel">Поездки</option><option value="interests">Мои интересы</option><option value="custom">Своя задача</option></select>
+      <label for="context-name">Название беседы</label><input id="context-name" maxlength="120" placeholder="Например: разговор с коллегой">
+      <label for="context-goal-input">Чему хотите научиться</label><textarea id="context-goal-input" rows="2" maxlength="1000" placeholder="Коротко рассказать, как прошли выходные"></textarea>
+      <label for="context-topics">Темы</label><textarea id="context-topics" rows="2" maxlength="2000" placeholder="По одной теме на строку"></textarea>
+      <label for="context-scenario">Ситуация и роли</label><textarea id="context-scenario" rows="2" maxlength="1000" placeholder="Вы — бариста, я заказываю кофе"></textarea>
+      <div class="form-grid"><div><label for="context-mode">Формат</label><select id="context-mode"><option value="guided">Занятие с преподавателем</option><option value="conversation">Свободный разговор</option><option value="roleplay">Ролевая ситуация</option><option value="writing">Письменная практика</option><option value="diagnostic">Диагностика</option></select></div><div><label for="context-challenge">Сложность</label><select id="context-challenge"><option value="adaptive">По моим ответам</option><option value="easy">Спокойное повторение</option><option value="stretch">Чуть сложнее привычного</option></select></div></div>
+      <details class="context-overrides"><summary>Другой стиль для этой беседы</summary><p class="field-help">Пустые значения наследуют ваши общие предпочтения.</p><div class="form-grid"><div><label for="context-dialect">Вариант английского</label><select id="context-dialect"><option value="">Как в профиле</option><option value="us">Американский</option><option value="uk">Британский</option><option value="international">Международный</option></select></div><div><label for="context-register">Стиль общения</label><select id="context-register"><option value="">Как в профиле</option><option value="informal">Неформальный</option><option value="neutral">Нейтральный</option><option value="professional">Деловой</option></select></div></div><label for="context-explanation">Объяснения</label><select id="context-explanation"><option value="">Как в профиле</option><option value="plain">Коротко, с примерами</option><option value="detailed">Подробно</option></select><label for="context-grammar">Термины</label><select id="context-grammar"><option value="">Как в профиле</option><option value="minimal">По минимуму</option><option value="standard">Можно использовать</option></select><label for="context-correction">Разбор ошибок</label><select id="context-correction"><option value="">Как в профиле</option><option value="balanced">Разбирать важное по ходу занятия</option><option value="gentle">Мягко, без частых остановок</option><option value="detailed">Подробно</option></select></details>
+      <label for="context-notes">Примечание к занятию</label><textarea id="context-notes" rows="2" maxlength="2000" placeholder="Например: сегодня есть 10 минут, без длинных объяснений"></textarea>
+      <p id="context-error" class="field-error" role="alert" hidden></p><div class="dialog-footer"><button type="button" class="button subtle" id="cancel-context">Отмена</button><button type="submit" class="button primary" id="save-context">Сохранить направление</button></div>
+    </form>
+  </dialog>
+</body>
+</html>
