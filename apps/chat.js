@@ -534,7 +534,7 @@
   }
   function updateConversationUrl() {
     const url = new URL(location.href);
-    for (const key of ['conversation','new','direction','settings']) url.searchParams.delete(key);
+    for (const key of ['conversation','new','direction','mode','settings','setup']) url.searchParams.delete(key);
     url.searchParams.set(state.conversationId ? 'conversation' : 'new', state.conversationId || '1');
     window.history?.replaceState({}, '', url.href);
   }
@@ -782,6 +782,7 @@
     const parameters = new URL(location.href).searchParams;
     const startNew = parameters.get('new') === '1';
     const requestedDirection = parameters.get('direction');
+    const requestedMode = parameters.get('mode');
     const saved = stored('conversation');
     const id = startNew ? null : parameters.get('conversation') || saved || state.status.active_conversation_id;
     if (id) {
@@ -791,8 +792,14 @@
     if (!id && requestedDirection && Object.hasOwn(directionNames, requestedDirection)) {
       state.context = directionContext(requestedDirection); store('new-context', JSON.stringify(state.context));
     }
+    if (!id && requestedMode && Object.hasOwn(modeNames, requestedMode)) {
+      const goals = {diagnostic:'Определить, с какой сложности начать', conversation:'Потренировать разговор на английском', roleplay:'Потренировать ситуацию на английском', writing:'Попрактиковаться в письменном английском', guided:'Продолжить практику с преподавателем'};
+      state.context = requestedDirection ? {...state.context,mode:requestedMode} : {title:modeNames[requestedMode],goal:goals[requestedMode],mode:requestedMode,challenge:'adaptive',direction_id:'custom'};
+      store('new-context', JSON.stringify(state.context));
+    }
     renderContext();
-    if (parameters.get('settings') === '1') openPreferences();
+    if (parameters.get('setup') === '1') openSettings();
+    else if (parameters.get('settings') === '1') openPreferences();
     renderPending(); updateNavAccessibility();
     setInterval(() => {
       if (!document.hidden) refreshStatus().catch(() => {});
