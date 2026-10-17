@@ -29,6 +29,7 @@ from typing import Any, cast
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import activity
 import backup
+import personalization
 import srs
 import speech_service
 import storage
@@ -298,6 +299,8 @@ class Handler(SimpleHTTPRequestHandler):
                 query = urllib.parse.parse_qs(parsed.query)
                 if route == "/api/web/status":
                     return self._json(self.server.tutor.status())
+                if route == "/api/web/personalization":
+                    return self._json(self.server.tutor.personalization())
                 if route == "/api/web/conversation":
                     return self._json(self.server.tutor.conversation((query.get("id") or [""])[0]))
                 if route == "/api/web/events":
@@ -490,13 +493,27 @@ class Handler(SimpleHTTPRequestHandler):
                     return self._json(tutor.setup(body))
                 if route == "login":
                     return self._json(tutor.login())
+                if route in {"preferences", "conversations", "context", "memory"}:
+                    method = {
+                        "preferences": tutor.preferences,
+                        "conversations": tutor.create_conversation,
+                        "context": tutor.context,
+                        "memory": tutor.memory,
+                    }[route]
+                    return self._json(method(body))
                 if route == "chat":
                     return self._json(tutor.chat(body))
                 if route == "interrupt":
                     return self._json(tutor.interrupt(body.get("conversation_id")))
                 if route == "session":
+                    if body.get("action") == "handoff":
+                        return self._json(tutor.handoff(body))
                     return self._json(
-                        tutor.lesson(body.get("action"), body.get("allow_incomplete", False))
+                        tutor.lesson(
+                            body.get("action"),
+                            body.get("allow_incomplete", False),
+                            body.get("conversation_id"),
+                        )
                     )
                 return self._json({"error": "unknown endpoint"}, 404)
             if parsed.path == "/api/deck":
@@ -575,6 +592,8 @@ class Handler(SimpleHTTPRequestHandler):
                 )
                 return self._json({"ok": True, **result, "backup": backup_status()})
             return self._json({"error": "unknown endpoint"}, 404)
+        except personalization.Conflict as error:
+            return self._json({"error": "conflict", "message": str(error)}, 409)
         except (ValueError, KeyError, TypeError):
             return self._json({"error": "invalid result or corrupt data; nothing graded"}, 400)
         except (OSError, RuntimeError):
