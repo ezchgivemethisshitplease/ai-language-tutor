@@ -249,6 +249,11 @@
   const registerNames = {informal:'Неформальное общение', neutral:'Нейтральный стиль', professional:'Деловое общение'};
   const directionNames = {everyday:'Повседневное общение', work:'Английский для работы', travel:'Английский в поездке', interests:'Мои интересы', custom:'Своя задача'};
   const listValue = text => text.split('\n').map(line => line.trim()).filter(Boolean);
+  function topicsError(topics) {
+    if (topics.length > 12 || topics.some(topic => topic.length > 120)) return 'Укажите до 12 тем, по 120 символов каждая.';
+    if (new Set(topics).size !== topics.length) return 'В списке есть повторяющиеся темы. Оставьте каждую один раз.';
+    return null;
+  }
   function newContext() {
     try { const value = JSON.parse(stored('new-context') || '{}'); return value && typeof value === 'object' && !Array.isArray(value) ? value : {}; }
     catch { return {}; }
@@ -289,6 +294,7 @@
   }
   function renderPersonalization(data) {
     if (!data || typeof data !== 'object' || !data.account_preferences) return;
+    if (Number.isSafeInteger(data.revision) && state.personalizationRevision !== null && data.revision < state.personalizationRevision) return;
     state.personalization = data;
     if (Number.isSafeInteger(data.revision)) state.personalizationRevision = data.revision;
     const prefs = preferences();
@@ -310,6 +316,8 @@
     if (!$('preferences-form').reportValidity()) return;
     const patch = {};
     for (const [field, id] of Object.entries(preferenceFields)) patch[field] = field === 'topics' ? listValue($(id).value) : $(id).value;
+    const invalidTopics = topicsError(patch.topics);
+    if (invalidTopics) { $('preferences-error').textContent = invalidTopics; $('preferences-error').hidden = false; return; }
     $('save-preferences').disabled = true; $('preferences-error').hidden = true; $('preferences-success').hidden = true;
     try {
       const result = await request('/api/web/preferences', {preferences:patch, ...(state.preferencesRevision !== null ? {expected_revision:state.preferencesRevision} : {})});
@@ -322,7 +330,7 @@
     } finally { $('save-preferences').disabled = false; }
   }
   function fillContextForm(context) {
-    for (const [field, id] of Object.entries(contextFields)) $(id).value = field === 'topics' ? (context.topics || []).join('\n') : context[field] || (field === 'mode' ? 'guided' : field === 'challenge' ? 'adaptive' : field === 'direction_id' ? 'custom' : '');
+    for (const [field, id] of Object.entries(contextFields)) $(id).value = field === 'topics' ? (Array.isArray(context.topics) ? context.topics : []).join('\n') : context[field] || (field === 'mode' ? 'guided' : field === 'challenge' ? 'adaptive' : field === 'direction_id' ? 'custom' : '');
   }
   function openContext() {
     fillContextForm(state.context); state.contextRevision = state.personalizationRevision;
@@ -337,6 +345,8 @@
     event.preventDefault();
     if (state.contextBusy || !$('context-form').reportValidity()) return;
     const context = contextPatch(), id = state.conversationId;
+    const invalidTopics = topicsError(context.topics);
+    if (invalidTopics) { $('context-error').textContent = invalidTopics; $('context-error').hidden = false; return; }
     state.contextBusy = true; $('save-context').disabled = true; $('context-error').hidden = true; updateControls();
     try {
       if (id) {
@@ -401,9 +411,16 @@
       $('memory-error').textContent = error.status === 409 ? 'Заметки изменились в другой вкладке. Проверьте список и повторите действие.' : errorMessage(error); $('memory-error').hidden = false;
     } finally { state.memoryBusy = false; $('save-memory').disabled = false; }
   }
+  function lessonBinding(status = state.status) {
+    const binding = state.conversation?.lesson;
+    if (!status?.platform_summary) return binding;
+    const owner = status.platform_summary.active_session_owner;
+    const owned = !!status.session && !!state.conversationId && owner?.conversation_id === state.conversationId;
+    return {...binding, owner, owned, can_manage:owned, requires_handoff:!!status.session && !owned, session:owned ? status.session : binding?.session};
+  }
   function renderLesson(status) {
     const plan = status.plan?.plan || status.plan || {};
-    const binding = state.conversation?.lesson;
+    const binding = lessonBinding(status);
     const session = (binding?.owned ? binding.session : null) || status.session || status.active_session || status.progress?.active_session || {};
     const sessionState = session.status || status.plan?.status || status.progress?.session_status;
     const steps = Array.isArray(plan.steps) ? plan.steps : Array.isArray(session.plan?.steps) ? session.plan.steps : [];
@@ -440,7 +457,7 @@
       $('shared-session-text').textContent = owner?.conversation_id ? `План уже начат в беседе «${validText(owner.title) || 'Занятие'}». Можно вернуться туда или перенести этот же план сюда.` : 'Есть начатый план. Свяжите его с этой беседой, чтобы продолжить.';
       $('shared-session-link').hidden = !owner?.conversation_id;
       $('shared-session-link').href = owner?.conversation_id ? `chat.html?conversation=${encodeURIComponent(owner.conversation_id)}` : 'chat.html';
-      $('handoff-session').disabled = state.sessionBusy || !state.conversationId;
+      $('handoff-session').disabled = state.sessionBusy;
       $('start-session').hidden = true;
     }
     const level = status.progress?.working_level || status.progress?.level || status.proficiency?.working_level;
@@ -456,6 +473,12 @@
   }
   function renderStatus(status) {
     state.status = status;
+    const current = status.conversations?.find(item => item.id === state.conversationId);
+    const oldSettings = Number.isSafeInteger(status.personalization?.revision) && state.personalizationRevision !== null && status.personalization.revision < state.personalizationRevision;
+    if (current && state.conversation && !oldSettings) {
+      if (current.context) state.context = current.context;
+      if ('current_exercise' in current) state.conversation.current_exercise = current.current_exercise;
+    }
     const backupStatus = status.backup?.status;
     if (['warning', 'unavailable'].includes(backupStatus)) $('backup-warning').hidden = false;
     else if (['created', 'not_due', 'disabled'].includes(backupStatus)) $('backup-warning').hidden = true;
@@ -716,11 +739,12 @@
         if (saveDraft()) { store('draft:new', null); store('draft-source:new', null); store('new-context', null); }
         await openConversation(conversation.id, {focus:false});
       }
-      const binding = state.conversation?.lesson;
+      const binding = lessonBinding();
       if (binding && !binding.can_manage && action !== 'start' && action !== 'handoff') { showNotice('Этот план открыт в другой беседе. Перейдите к ней или выберите «Продолжить занятие здесь».'); return; }
       const status = await request('/api/web/session', {action, conversation_id:state.conversationId, ...(action === 'handoff' ? {expected_owner:binding?.owner?.conversation_id || null} : {}), ...(allowIncomplete ? {allow_incomplete:true} : {})});
       if ('initialized' in status) renderStatus(status); else await refreshStatus();
       await openConversation(state.conversationId, {focus:false});
+      if (status.ok === false) { showNotice('План открыт в другой беседе. Перейдите к ней или выберите «Продолжить занятие здесь».'); return; }
       if (action === 'start' || action === 'resume') {
         if (!$('message-input').value.trim()) {
           $('message-input').value = action === 'start' ? 'План занятия готов. Давай начнём с первого шага.' : 'Продолжим прерванное занятие с текущего шага.';
