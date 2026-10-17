@@ -6,7 +6,7 @@ Updated: 2026-10-17. Baseline: `510fc6daf0d1220ae796af31a65a07a262a753f9`. Local
 
 | Command or check | Observed result |
 | --- | --- |
-| `python -m unittest discover -s tests -q` | 221 tests passed, including web/runtime/bridge and local speech cases |
+| `python -m unittest discover -s tests -q` | 222 tests passed, including a model-required tool-runtime regression |
 | `python -m ruff check tools tests` | Passed |
 | `python -m ruff format --check tools tests` | Passed |
 | `python -m mypy tools` | Passed, 17 source files; checked untyped function bodies, not strict fully annotated typing |
@@ -43,6 +43,8 @@ The [web/Whisper run for revision `bee6df8`](https://github.com/ezchgivemethissh
 The workflow targets Python 3.10/3.14 on Ubuntu and macOS, plus Node browser checks. Windows support was removed at the user's request, including its lock/speech branches, installation instructions and CI jobs. UTF-8 output, portable archive names and voice-template binding remain covered by regressions. The [hosted run for code revision `278aef9`](https://github.com/ezchgivemethisshitplease/ai-language-tutor/actions/runs/38957258437) passed all five jobs: Python 3.10 and 3.14 on Ubuntu/macOS, plus browser transport/script checks. Each Python job ran all 142 tests, lint/format/type checks and selfchecks. This includes the actual OS no-replace publication and process-crash drills on both supported systems. Provider selection is mocked in the native Linux synthesis test; no actual Linux voice was played or synthesized.
 
 ## Live host and independent review
+
+After owner sign-in, actual `gpt-6.1-sol` exposed a disabled code-mode host behind the visible tutor tool. The repair enables the bundled host without changing course/OS permissions. A real nonce roundtrip and three authenticated WebTutor turns against a separate synthetic learner passed: status/plan, lesson start, diagnostic registration, cold resume of the same thread, exact-answer persistence and the next task. The owner's learner and web-history bytes remained unchanged by the repair/restart. See the [web acceptance record](docs/web-acceptance.md) for the test boundary and remaining browser/model combinations.
 
 [Host acceptance](docs/host-acceptance.md) records four actual Codex turns, including final-code reload/resume, retained `an`/`love` responses, persistent voice debt and redaction of all 99 remaining diagnostic tasks. The old global Codex CLI could not load the current account configuration; a scratch-only official 0.163.0 installation completed the checks without changing global settings.
 
