@@ -58,6 +58,9 @@
     } else if (owner?.conversation_id) {
       $('next-title').textContent = text(owner.title) || 'Продолжим с места остановки'; $('next-description').textContent = 'План и ответы сохранены. Вернись в своё занятие и продолжи следующий шаг.';
       $('next-action').textContent = 'Продолжить занятие ↗'; $('next-action').href = contextUrl(owner.conversation_id);
+    } else if (status.session?.id && ['active','interrupted'].includes(status.session.status)) {
+      $('next-title').textContent = 'Продолжим сохранённое занятие'; $('next-description').textContent = 'План уже начат. Открой беседу и подтверди, где его продолжить.';
+      $('next-action').textContent = 'Открыть сохранённый план ↗'; $('next-action').href = contextUrl(next.conversation_id);
     } else if (next.kind === 'diagnostic' || ['unassessed','legacy_unverified'].includes(platform.proficiency_status) || !platform.proficiency_status) {
       $('next-title').textContent = 'Найдём твою отправную точку'; $('next-description').textContent = 'Короткая диагностика покажет, с какой сложности начать. Объяснения будут в твоём стиле.';
       $('next-action').textContent = 'Начать диагностику ↗'; $('next-action').href = 'chat.html?new=1&mode=diagnostic';

@@ -39,6 +39,10 @@ async function runtime(status,{offline=false,backupError=false,page='home'}={}){
   assert.equal(novice.get('direction-list').children.length,4);
   assert(novice.get('direction-list').children[1].href.endsWith('direction=work'));
 
+  const legacyPlan=await runtime({initialized:true,session:{id:'legacy-plan',status:'active',plan:{steps:[{id:'a',type:'practice'}]}},platform_summary:{proficiency_status:'unassessed',active_session_owner:null,next_action:{kind:'continue',conversation_id:'prior-chat'}}});
+  assert.equal(legacyPlan.get('next-action').href,'chat.html?conversation=prior-chat');
+  assert.match(legacyPlan.get('next-title').textContent,/сохранённое занятие/);
+
   const continuingStatus={initialized:true,auth:{status:'chatgpt'},platform_summary:{active_session_owner:{conversation_id:'safe-id',title:'<script>literal title</script>'}},conversations:[{id:'bad&parameter=other',title:'<img onerror=alert(1)>',context:{goal:'A real goal'}}],session:{plan:{steps:[{id:'a',type:'practice'}]},completed_steps:['a']}};
   continuingStatus.conversations.push({id:'literal-safe-id',title:'<img onerror=alert(1)>',context:{goal:'A real goal'}});
   const continuing=await runtime(continuingStatus);
@@ -77,5 +81,5 @@ async function runtime(status,{offline=false,backupError=false,page='home'}={}){
     assert.equal(unavailable.get('service-status').textContent,'Преподаватель недоступен');
     assert.equal(unavailable.get('page-error').hidden,false);
   }
-  console.log('Platform overview: 11 scenarios passed (read-only setup, honest evidence, scoped resume, stale plan cleared, literal preferences, load recovery, backup failure, separate skill evidence, progress retry, teacher outage on both pages).');
+  console.log('Platform overview: 12 scenarios passed (read-only setup, honest evidence, scoped resume, unbound legacy plan, stale plan cleared, literal preferences, load recovery, backup failure, separate skill evidence, progress retry, teacher outage on both pages).');
 })().catch(error=>{console.error(error);process.exitCode=1;});

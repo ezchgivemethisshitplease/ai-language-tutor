@@ -4,7 +4,7 @@ The browser host uses pinned official `@openai/codex@0.163.0` over stdio, indepe
 
 ## Deterministic checks
 
-The current full local suite passes 246 Python tests, Ruff lint/format, mypy over 18 modules, pip check and all three selfchecks. Node runs four activity transport, sixteen lesson UI, sixteen speech UI and eleven platform overview scenarios (47 total); all browser scripts parse. Tests use synthetic data and controlled model/protocol replies. New personalization coverage includes atomic persistence, optimistic revisions, account/chat inheritance, explicit memory evidence and consent, backup validation, session ownership and actual CLI scheduling races. The code-mode-host regression preserves model-required dispatch and existing permissions.
+The current full local suite passes 246 Python tests, Ruff lint/format, mypy over 18 modules, pip check and all three selfchecks. Node runs four activity transport, sixteen lesson UI, sixteen speech UI and twelve platform overview scenarios (48 total); all browser scripts parse. Tests use synthetic data and controlled model/protocol replies. New personalization coverage includes atomic persistence, optimistic revisions, account/chat inheritance, explicit memory evidence and consent, backup validation, session ownership and actual CLI scheduling races. The code-mode-host regression preserves model-required dispatch and existing permissions.
 
 The [hosted web/Whisper run](https://github.com/ezchgivemethisshitplease/ai-language-tutor/actions/runs/38964123309) passed every job for revision `bee6df8`: all 221 tests on Ubuntu/macOS with Python 3.10/3.14 and all 29 Node scenarios. This does not execute the optional native model installation or microphone capture.
 
