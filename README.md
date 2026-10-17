@@ -1,6 +1,6 @@
 # AI Language Tutor
 
-A local English tutor with a browser chat, Russian explanations, a persistent learner model and maintained FSRS scheduling. The web app uses an independent Codex CLI process with ChatGPT subscription login; Codex Desktop is optional. Python validates exercises, records evidence and manages progress. The course contains 60 A1–C1 lesson outlines. Placement and internal readiness estimates are uncalibrated.
+A local English learning platform with a learning home, contextual lessons, Russian explanations, a persistent learner model and maintained FSRS scheduling. The web app uses an independent Codex CLI process with ChatGPT subscription login; Codex Desktop is optional. Python validates exercises, records evidence and manages progress. The course contains 60 A1–C1 lesson outlines. Placement and internal readiness estimates are uncalibrated.
 
 [Инструкция на русском](docs/usage.ru.md) · [Audit](AUDIT.md) · [Architecture](ARCHITECTURE.md) · [Pedagogy](PEDAGOGY.md) · [Implemented changes](IMPROVEMENTS.md) · [Remaining work](ROADMAP.md)
 
@@ -15,7 +15,7 @@ git switch improve/reliable-russian-tutor
 ./start.sh
 ```
 
-Open the local page, choose **Войти через ChatGPT**, complete the official OpenAI login and set your study profile. Chat, conversation history, lesson controls, exercises, cards, reading, dictation, progress and backup download are available in the browser. The app installs pinned dependencies locally and keeps a separate private Codex profile under `.runtime/codex-home`; it never imports Desktop credentials. No API key is needed. Account eligibility and subscription limits still apply. [Web setup and troubleshooting](docs/web.md) explain the details.
+Open the local learning home, set your study profile, and use **Войти через ChatGPT** inside the lesson to complete the official OpenAI login. Chat, conversation history, lesson controls, exercises, cards, reading, dictation, progress and backup download are available in the browser. The app installs pinned dependencies locally and keeps a separate private Codex profile under `.runtime/codex-home`; it never imports Desktop credentials. No API key is needed. Account eligibility and subscription limits still apply. [Web setup and troubleshooting](docs/web.md) explain the details.
 
 Codex app-server and dynamic tools are experimental; the adapter pins version `0.163.0`. The web tutor has a restricted filesystem/network policy and uses curated learning tools. Optional [local Whisper dictation](docs/speech.md) turns recordings into editable drafts; the model receives confirmed text, without acoustic assessment. Replies can be read aloud using installed local browser voices. Human reviews, recovery and archive restore remain explicit CLI workflows. Keep the server running while using the web tutor; stop it with `Ctrl+C` or `.venv/bin/python tools/serve.py stop`.
 
@@ -35,6 +35,10 @@ python tools/tutor.py status
 Use the virtual environment for every command. Do not install packages into the system interpreter.
 
 Existing learners run the same `init` command: it preserves files, IDs and old progress, retaining the old level as unverified legacy information. Back up `student/` before migrating valuable progress. Corrupt files are rejected instead of reset. The previous JSON generation is kept as `.bak` when state changes.
+
+## Personal learning in the browser
+
+**Мой подход** controls account-wide dialect, register, explanation language/detail, terminology, corrections and topics. Each saved conversation can have its own goal, scenario, mode, difficulty and style overrides. Model-proposed memories require explicit confirmation and can be edited or deleted. The home resumes the owning lesson; the progress page separates reading, writing, listening and speaking evidence. [Полный список возможностей](docs/capabilities.ru.md) · [Design references](docs/design-references.md).
 
 ## Study in Codex or Claude Code
 

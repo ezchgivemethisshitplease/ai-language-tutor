@@ -6,18 +6,19 @@ Updated: 2026-10-17. Baseline: `510fc6daf0d1220ae796af31a65a07a262a753f9`. Local
 
 | Command or check | Observed result |
 | --- | --- |
-| `python -m unittest discover -s tests -q` | 222 tests passed, including a model-required tool-runtime regression |
+| `python -m unittest discover -s tests -q` | 246 tests passed, including personalization, memory provenance and CLI lesson-ownership scheduling regressions |
 | `python -m ruff check tools tests` | Passed |
 | `python -m ruff format --check tools tests` | Passed |
-| `python -m mypy tools` | Passed, 17 source files; checked untyped function bodies, not strict fully annotated typing |
+| `python -m mypy tools` | Passed, 18 source files; checked untyped function bodies, not strict fully annotated typing |
 | `python tools/srs.py selfcheck` | Passed |
 | `python tools/serve.py selfcheck` | Passed |
 | `python tools/voice_selfcheck.py` | Passed; structural contract check only |
 | `python -m pip check` | Passed |
 | `python -m compileall -q tools tests` | Passed |
 | `node tests/browser_transport.cjs` | Four scenarios passed: concurrent separate submissions, offline replay, learner isolation, and a backup warning retained after completion |
-| `node tests/web_chat_ui.cjs` | Nine scenarios passed, including receipt/retry, draft isolation, exact text, safe links, login, resume, interruption, backup warning and transcript provenance |
+| `node tests/web_chat_ui.cjs` | Sixteen scenarios passed, including context/preferences/revisions, memory consent, explicit handoff, setup/mode deep links, receipt/retry, exact drafts and transcript provenance |
 | `node tests/speech_ui.cjs` | Sixteen scenarios passed with a fake MediaRecorder: explicit permission, cancellation/late permission, denied access, drafts/edits/conversation preservation, retained Blob retry, empty recognition, duration/size limits, local-voice output, setup and no feedback loop |
+| `node tests/platform_home_ui.cjs` | Eleven scenarios passed: read-only initialization, unassessed progress, owner resume, stale route removal, literal text/safe IDs, load recovery, backup failure, separate skill evidence and teacher outages |
 | `python tools/check_browser_scripts.py` | All inline/shared browser JavaScript parsed |
 | Source archive fresh installation | Passed runtime-only install, initialization/resume, redacted diagnostics, rejected unsupported entry, native bank audio, full multilingual/media backup/check/restore and legacy export/import; no development dependencies installed |
 | Both humanize manifests with skill-creator `quick_validate.py` | Passed; all five relative links resolved, ordinary files without symlinks/home paths |
@@ -25,6 +26,12 @@ Updated: 2026-10-17. Baseline: `510fc6daf0d1220ae796af31a65a07a262a753f9`. Local
 | macOS `/usr/bin/say -o ../native-speech.aiff 'I am a student.'` | Created non-empty AIFF-C file; current `tutor.py audio` also produced an 823,468-byte original bank stimulus during the fresh archive smoke. No playback or learner-pronunciation measurement performed |
 
 The suite includes four-process/thread storage mutation, failure injection and corruption recovery, legacy FSRS conversion, 250 reference-matched reviews, 100 learner sessions, exact retry identities, delayed/productive mastery guards, L1 feedback, unassessed audio, readiness/progression and speaking debt settlement. It additionally covers registered diagnostic families, hidden listening scripts, first-trial independence across date windows, append-only reviews, broad productive evidence, provisional entry without mastery, multilingual/media restore, hostile archives, rotation and four actual SIGKILL drills immediately before/after archive/restore publication. These are deterministic synthetic scenarios, not outcome benchmarks.
+
+## Personalized platform acceptance
+
+Three authenticated model iterations used separate synthetic learners: 26 completed native turns across eight chats and 56 tutor calls. The baseline exposed a missing open-answer review and an invalid review payload; the controller now supplies the explicit review contract and actionable validation details. Later runs persisted valid contextual reviews without weakening grading or human-review gates. The final six-turn iteration completed two short reading lessons in distinct work/casual contexts: actual answer, feedback, real reflection, planned checkpoints and ordinary finish. Every turn recreated the controller/CLI, exercising cold resume. Preference updates, per-chat overrides, scoped memory proposals/confirmation/deletion, interrupted-plan resume and Whisper writing-evidence exclusion also passed. No unresolved confirmed finding remained in that bounded run.
+
+The real IAB exercised the new learning home, lesson and progress screens on desktop and a 390×844 viewport override against an isolated HTTP/controller fixture: account preference save, memory save/delete, per-chat US/professional overrides over UK account settings, exact trailing-space/newline draft retention, context switching and explicit ownership handoff. Diagnostics opened in the correct mode; the guide and mobile navigation were inspected. Separate Node regressions cover first-run setup and unavailable teacher states. The fixture uses a controlled bridge, so native model acceptance above and UI acceptance are distinct evidence. This is not comprehensive cross-browser/accessibility or learner-outcome validation.
 
 ## Actual browser checks
 
