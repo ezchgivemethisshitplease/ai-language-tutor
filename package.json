@@ -1,0 +1,19 @@
+{
+  "name": "ai-language-tutor-local",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local English tutor web app with a pinned official Codex CLI runtime",
+  "scripts": {
+    "start": "./start.sh",
+    "check": "./start.sh --check"
+  },
+  "engines": {
+    "node": ">=22",
+    "npm": ">=10"
+  },
+  "os": ["darwin", "linux"],
+  "cpu": ["x64", "arm64"],
+  "dependencies": {
+    "@openai/codex": "0.163.0"
+  }
+}

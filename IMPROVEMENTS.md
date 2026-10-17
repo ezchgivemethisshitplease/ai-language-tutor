@@ -1,0 +1,52 @@
+# Implemented improvements and evidence
+
+Changes are based on original revision `510fc6daf0d1220ae796af31a65a07a262a753f9`. AUDIT.md describes that baseline; VALIDATION.md records actual verification. No learning outcomes, CEFR calibration or production pronunciation assessment are claimed.
+
+| Original finding | Delivered change | Evidence |
+| --- | --- | --- |
+| P0-01 direct writes/concurrent loss | Common strict JSON storage, process/thread locks, atomic flush/replace, previous generation, explicit validated recovery | Storage tests inject replacement failure, corrupt/duplicate/nonfinite JSON, concurrent thread and four-process increments, recovery and import/export |
+| P0-02 untrusted API/invalid grades | Origin/Host/token/namespace checks, bounded content/type, strict body decoding, whole-batch validation, stable retry receipts | Local HTTP tests reject malformed/cross-origin/no-token input and prove invalid batches leave cards unchanged |
+| P0-03 active path escape | Validated language slugs, resolved containment and symlink rejection; request captures authorized directory | Traversal fixtures and concurrent-language-switch regression |
+| P1-01 simplified FSRS | Pinned maintained py-fsrs, full learning/relearning state, precise UTC due times, stable IDs/review histories and deduplication | All four initial grades plus 250 reviews compared directly with the reference, long-gap/lapse/migration/retry tests |
+| P1-02 invented knowledge | Raw attempts separate from derived skill/grammar/vocabulary summaries; legacy progress retained unverified | Estimate tampering, hinted/repeated/AI-only/easy-only/no-delay evidence rejection tests |
+| P1-03 unreliable assessment | Explicit task/rubric schemas, descriptive uncertainty, missing-modality reporting, bounded internal readiness and actual human-review attestation for progression | Positive and negative gate/progression tests, 100-item original diagnostic bank with independently reviewed contexts, explicit provisional advanced entry and append-only later reviews, live certification explicitly absent |
+| P1-04 prompt-only adaptation | Persistent plans, recoverable session state, explicit step transitions, prerequisites, recent-domain balance, delayed retrieval and confirmed-error priority | 100 simulated sessions; resume/replay, future dates, prerequisites, long inactivity and recurring-error recovery tests |
+| P1-05 Russian support | Russian onboarding/CLI feedback, evidence-sensitive language policy and 31 contextual L1 patterns linked to all 60 catalog units | Catalog/KB reference/reachability checks, Russian feedback integration and audio-only-diagnosis rejection |
+| P1-06 browser loss and false promises | Per-review save, per-batch durable browser outbox, acknowledgments/retry, scoped drafts, separate completion event, explicit demos and accurate review messages | HTTP receipts and Node transport scenarios; actual IAB flashcard/quiz flows, including `I love coffee` retained as needs_review |
+| P1-07 prose-only voice validation | Executable pass/report schema/binding/completed-step checks, limited correction fields and unverified evidence labels | Valid/invalid pass/report regression cases and updated contract selfcheck; actual voice/audio truth remains outside validator |
+| P2-01 no reproducible tooling | Runtime/dev manifests, formatting/lint/type checks, Python/platform CI and Node checks | Commands and actual platform results in VALIDATION.md |
+| P2-02 implicit cloud TTS | Local OS/browser default, explicit cloud selection, bounded synthesis/cache writes and timeout cleanup | Mock tests prove credentials alone do not enable cloud and timeout leaves no temporary audio; real cloud calls not tested |
+| P2-03 alternative penalties | Accepted alternatives and conservative normalization, reviewable open/unlisted answers, distinct naturalness/context/register judgments | Unit/HTTP tests and actual browser alternative-answer check |
+| P2-04 unsupported curriculum claims | Explicit 60-unit catalog/DAG/outcomes, repairs in 32 lesson files, rewritten syllabus/research/methodology without fixed frequency/timing/certification promises | Structural/source correspondence tests and full content audit; external teacher validation remains open |
+| P2-05 platform voice ambiguity | Modular optional TTS/external pass, explicit audio evidence requirements and evidence-checked deferred-speech settlement | Lifecycle/audio/debt tests; no phonetic scorer or speech capture claimed |
+| Added user request: natural communication | Portable project humanize skill, Claude discovery wrapper, shared communication examples and standalone voice style summary | Both skill manifests validate; independent Russian tutoring/technical rewrite cases preserve quotations/numbers/commands and uncertainty. Selected host adherence cases are recorded in docs/host-acceptance.md; future compliance is not guaranteed |
+| Added user request: independent web teacher | Browser chat, profile/session controls, history, streaming/cancel/retry, activity navigation and backup download; one-command pinned CLI runtime with separate ChatGPT subscription login | 20 bridge protocol cases, 15 controller/HTTP cases, 8 launcher cases and 3 real singleton-process cases; 8 UI scenarios, actual synthetic IAB session/restart, official login page and native sandbox probes. Authenticated inference and three native personalization iterations passed after owner login; see docs/web-acceptance.md |
+| Added user request: voice input without app-server audio | Explicit browser recording, pinned local Whisper/FFmpeg into editable drafts, retained source provenance and local-voice reply playback | Native synthetic English/Russian and WAV/WebM/Ogg/MP4 checks, protected real HTTP inference, 26 backend tests, 4 speech-service tests, 16 speech UI scenarios and a writing-provenance regression. Real microphone/human accuracy and Linux native QA remain open |
+
+## Independent second pass
+
+Separate reviewers inspected the new persistence, learning, curriculum and integration code. Fixes made during that review include concurrent outbox acknowledgment loss, learner draft isolation, stale-result replay blockage, premature flashcard completion, lock-order inversion, TTS timeout cleanup, misleading treatment/display of unreviewed alternatives, missing CLI diagnosis input and active-language mutation races and a speaking-completion bypass using non-production audio. Meaningful regressions cover these boundaries. Formatting, type checks and the full suite were rerun after integration.
+
+## Compatibility and limits
+
+The supported runtime systems are macOS and Linux. The user requested removing Windows support, so its lock/speech paths, installation instructions and CI jobs were removed.
+
+Original card IDs, extra fields, memory parameters and progress files are preserved. Initialization is idempotent. Scheduling moves to the reference algorithm when a card is reviewed; exact future intervals can therefore change. Old unrecorded reviews and pronunciation evidence cannot be recovered. The previous scheduler was not equivalent to the maintained implementation.
+
+The structured core currently supports English. Full ZIP backups include managed files from inactive languages and learner media; the older English JSON export keeps its narrower compatibility scope. Credentials, caches and arbitrary files remain excluded. Other-language authoring is explicitly experimental. Browser quizzes produce separate observed outcomes; agents must record meaningful validated attempts through the CLI rather than promote from a score. Open writing/speech progression requires real human review because LLM-only scoring is excluded. Local files/browser drafts are unencrypted personal data.
+
+The project now has a substantially stronger local engineering foundation. The remaining work in ROADMAP.md separates empirical validation, broader live-provider QA and optional product expansion from implemented local capabilities.
+
+## Additional P1 implementation
+
+- Continuing learners can enter provisional materials through independent registered reading/listening trials. The route records assumptions and confirmation probes without changing baseline mastery or inventing a human reviewer. Four-domain diagnostics retain missing production and audio evidence. Later reviews are append-only; explicit reconciliation rebuilds derived caches without rewriting responses.
+- The original bank now has 100 tasks. A separate reviewer checked all tasks and the lesson/L1 corpus. Twenty listening contexts were replaced after review found reading-to-listening answer leakage. The review report records the bank hash and the limits of AI editorial checks.
+- Verified all-language managed-data/media archives, quotas/checksums, exclusive new-destination restore and opt-in rotating copies complement `.bak` recovery. Dedicated malformed-archive tests and four actual SIGKILL publication drills check recoverability. Missing backup storage cannot invalidate a saved study result.
+- Local native audio file generation provides English diagnostic stimuli without cloud calls, transcript output or playback. A real macOS AIFF was generated; Linux provider arguments are tested separately from actual synthesis. Synthetic stimulus audio never becomes learner speaking evidence.
+
+
+## Personal learning platform
+
+Account preferences and editable per-chat contexts now govern every turn. Explicit memory proposals stay pending until confirmed; owners can change scope, edit or remove active facts. Session ownership prevents one chat from grading or finishing another chat’s saved lesson. Revision checks prevent silent settings overwrite, and incompatible model tool contracts rotate threads while preserving local history.
+
+The browser now has a learning home with next action, four direction presets, saved contexts and due cards; a separate lesson workspace with current task and plan; evidence-based progress by domain; and built-in learner help. [Capabilities](docs/capabilities.ru.md) and [design references](docs/design-references.md) describe the learner-facing result. Three native QA iterations, actual browser acceptance and 246 Python/48 Node checks are recorded in VALIDATION.md.

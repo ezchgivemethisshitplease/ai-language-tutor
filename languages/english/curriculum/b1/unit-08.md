@@ -3,7 +3,7 @@
 **Can-do:** I can describe processes and facts where the action matters more than who does it.
 
 ## Grammar focus
-The **passive voice** puts the important thing — the object of the action — at the front of the sentence, when who does the action is unknown, obvious or unimportant. Form it with **be + past participle**. Present simple passive: *am/is/are + past participle* (*Cars are made in this factory*). Past simple passive: *was/were + past participle* (*The bridge was built in 1890*). If you need to name the doer, add **by** (*The lamp was invented by Edison*), but often you leave it out. The passive is common in news, science and descriptions of how things are produced.
+The **passive voice** puts the important thing — the object of the action — at the front of the sentence, when who does the action is unknown, obvious or unimportant. Form it with **be + past participle**. Present simple passive: *am/is/are + past participle* (*Cars are made in this factory*). Past simple passive: *was/were + past participle* (*The bridge was built in 1890*). If you need to name the doer, add **by** (*The bridge was designed by a local engineer*), but often you leave it out. The passive is common in news, science and descriptions of how things are produced.
 
 - Millions of phones **are sold** every year.
 - This software **is used** by schools everywhere.

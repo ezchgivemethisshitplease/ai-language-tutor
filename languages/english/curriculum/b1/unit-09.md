@@ -15,7 +15,7 @@ Use **modals of deduction** to guess about the present from evidence. **Must be*
 - It's been a long day, **hasn't** it?
 
 ## Target vocabulary (10–12 items)
-evidence — facts that show something is true
+evidence — information that helps you judge whether something is true
 obvious — very easy to see or understand
 guess — to give an answer you are not sure about
 suspect — to think something is probably true

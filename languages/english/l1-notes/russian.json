@@ -1,0 +1,1437 @@
+{
+  "schema_version": 1,
+  "l1": "russian",
+  "target_language": "english",
+  "diagnosis_policy": "Human/agent hypotheses from observed answers; L1 is a source of possible contrasts, never proof of an error. Confirm intended meaning, register and audio evidence where required. Do not classify correct alternatives as wrong.",
+  "errors": [
+    {
+      "id": "articles",
+      "category": "determiners",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "a1-03",
+        "a1-07",
+        "a2-03"
+      ],
+      "grammar_tags": [
+        "articles"
+      ],
+      "explanation_ru": "В русском нет артиклей, но в английском нужно показать, вводим ли мы один предмет впервые (a/an), говорим об уже определённом предмете (the) или о явлении вообще (нулевой артикль). Профессия в единственном числе обычно требует a/an. Выбор a/an зависит от звука: a university, an hour. Не вставляй the перед каждым знакомым словом.",
+      "feedback_ru": "Сначала реши: один новый предмет, конкретный известный предмет или общее понятие? Для профессии в единственном числе добавь a/an; затем проверь первый звук.",
+      "examples": [
+        {
+          "incorrect": "She is engineer.",
+          "correct": "She is an engineer.",
+          "context": "Нейтрально называем профессию."
+        },
+        {
+          "incorrect": "The life is difficult.",
+          "correct": "Life is difficult.",
+          "context": "Обобщение о жизни, без уточняющего определения."
+        },
+        {
+          "incorrect": "I bought a book. A book is on my desk.",
+          "correct": "I bought a book. The book is on my desk.",
+          "context": "Во второй фразе речь о той же самой книге."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "error_correction"
+      ],
+      "remedial_tags": [
+        "article_reference",
+        "singular_profession",
+        "zero_article"
+      ],
+      "diagnostic_cues": [
+        "Пропуск перед профессией",
+        "Повторное упоминание с a/an",
+        "Обобщение с необоснованным the"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "be_omission",
+      "category": "syntax",
+      "levels": [
+        "A1",
+        "A2",
+        "B1"
+      ],
+      "skill_ids": [
+        "a1-01",
+        "a1-11"
+      ],
+      "grammar_tags": [
+        "be_present",
+        "be_past"
+      ],
+      "explanation_ru": "В настоящем времени русское «Я инженер» обходится без связки. Английское полное предложение обычно требует am/is/are: I am an engineer. В прошедшем времени выбирай was/were. Не добавляй be перед обычным смысловым глаголом: I work, а не I am work.",
+      "feedback_ru": "Здесь после подлежащего профессия, признак или место, а не действие. Вставь подходящую форму be. Если дальше действие, проверь, нужен ли Continuous.",
+      "examples": [
+        {
+          "incorrect": "I tired.",
+          "correct": "I am tired.",
+          "context": "Полное повествовательное предложение о состоянии сейчас."
+        },
+        {
+          "incorrect": "They at home yesterday.",
+          "correct": "They were at home yesterday.",
+          "context": "Полное предложение о месте в прошлом."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "reorder",
+        "translation"
+      ],
+      "remedial_tags": [
+        "copula",
+        "subject_verb_agreement"
+      ],
+      "diagnostic_cues": [
+        "Пропущенная связка перед признаком",
+        "Пропущенная связка перед местом"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "word_order",
+      "category": "syntax",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "skill_ids": [
+        "a1-04",
+        "a1-07",
+        "b1-10"
+      ],
+      "grammar_tags": [
+        "word_order",
+        "questions"
+      ],
+      "explanation_ru": "Русский порядок слов гибче; в нейтральном английском сначала подлежащее, затем глагол, затем дополнение. Наречие не стоит автоматически переносить между глаголом и дополнением. Прилагательное обычно перед существительным и не получает множественное окончание.",
+      "feedback_ru": "Собери основу «кто + что делает + что». Затем поставь прилагательное перед существительным, а обстоятельство в естественное место.",
+      "examples": [
+        {
+          "incorrect": "I very like this film.",
+          "correct": "I like this film very much.",
+          "context": "Нейтральное сообщение о предпочтении."
+        },
+        {
+          "incorrect": "She bought a car red.",
+          "correct": "She bought a red car.",
+          "context": "Красный является обычным определением машины."
+        }
+      ],
+      "exercise_types": [
+        "reorder",
+        "transformation",
+        "error_correction"
+      ],
+      "remedial_tags": [
+        "svo",
+        "adjective_position",
+        "adverb_position"
+      ],
+      "diagnostic_cues": [
+        "Русский порядок дополнения и сказуемого",
+        "very между подлежащим и like"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "auxiliaries",
+      "category": "auxiliaries",
+      "levels": [
+        "A1",
+        "A2",
+        "B1"
+      ],
+      "skill_ids": [
+        "a1-04",
+        "a1-07",
+        "a2-01"
+      ],
+      "grammar_tags": [
+        "auxiliaries",
+        "present_simple",
+        "past_simple"
+      ],
+      "explanation_ru": "В английских вопросах и отрицаниях Present/Past Simple нужен do/does/did, если нет be или модального глагола. После does/did основной глагол возвращается к начальной форме. Вспомогательный глагол уже несёт время и согласование.",
+      "feedback_ru": "Время уже выражено в does/did. Убери окончание с основного глагола и оставь начальную форму.",
+      "examples": [
+        {
+          "incorrect": "Does she works here?",
+          "correct": "Does she work here?",
+          "context": "Обычный вопрос о работе."
+        },
+        {
+          "incorrect": "I did not went there.",
+          "correct": "I did not go there.",
+          "context": "Отрицаем событие в прошлом."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "error_correction"
+      ],
+      "remedial_tags": [
+        "do_support",
+        "base_form_after_auxiliary"
+      ],
+      "diagnostic_cues": [
+        "Двойная маркировка времени",
+        "Нет do-support в полном вопросе"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "questions",
+      "category": "questions",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "skill_ids": [
+        "a1-07",
+        "a2-01",
+        "b2-07"
+      ],
+      "grammar_tags": [
+        "questions",
+        "word_order",
+        "reported_questions"
+      ],
+      "explanation_ru": "Прямой вопрос: Where do you live? Вопрос со связкой: Where are you? Если вопросительное слово само подлежащее, do не требуется: Who lives here? Во встроенном вопросе после Can you tell me или I wonder порядок слов как в утверждении: where you live.",
+      "feedback_ru": "Определи тип вопроса: прямой, к подлежащему или встроенный. В прямом вопросе проверь вспомогательный глагол; во встроенном верни порядок «подлежащее + глагол».",
+      "examples": [
+        {
+          "incorrect": "Where you live?",
+          "correct": "Where do you live?",
+          "context": "Нейтральный полный прямой вопрос, не разговорное эхо."
+        },
+        {
+          "incorrect": "Can you tell me where is the station?",
+          "correct": "Can you tell me where the station is?",
+          "context": "Вежливый встроенный вопрос о месте."
+        }
+      ],
+      "exercise_types": [
+        "reorder",
+        "transformation",
+        "dialogue"
+      ],
+      "remedial_tags": [
+        "direct_vs_embedded",
+        "subject_questions"
+      ],
+      "diagnostic_cues": [
+        "Нет инверсии в прямом вопросе",
+        "Инверсия во встроенном вопросе"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "negation",
+      "category": "negation",
+      "levels": [
+        "A1",
+        "A2",
+        "B1"
+      ],
+      "skill_ids": [
+        "a1-04",
+        "a2-01",
+        "a2-10"
+      ],
+      "grammar_tags": [
+        "auxiliaries",
+        "modals"
+      ],
+      "explanation_ru": "Русское «Я не знаю» нельзя строить как I not know: нужен do not. С be и модальными not идёт после них: is not, cannot. Русское отрицательное согласование «никогда ничего» обычно не переносится в нейтральный стандартный английский: I never see anything. Другие диалекты могут использовать отрицательное согласование; не оценивай диалект как интеллектуальный недостаток.",
+      "feedback_ru": "Выбери один способ отрицания. С обычным глаголом используй do/does/did not; с never обычно убери второе отрицание.",
+      "examples": [
+        {
+          "incorrect": "I not understand.",
+          "correct": "I do not understand.",
+          "context": "Нейтральное полное предложение."
+        },
+        {
+          "incorrect": "I do not know nothing.",
+          "correct": "I do not know anything.",
+          "context": "Целевой регистр: нейтральный стандартный английский, смысл «ничего не знаю»."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "error_correction"
+      ],
+      "remedial_tags": [
+        "negative_auxiliary",
+        "negative_polarity"
+      ],
+      "diagnostic_cues": [
+        "not без вспомогательного",
+        "Отрицательное согласование вне целевого регистра"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "present_simple",
+      "category": "agreement",
+      "levels": [
+        "A1",
+        "A2",
+        "B1"
+      ],
+      "skill_ids": [
+        "a1-04"
+      ],
+      "grammar_tags": [
+        "present_simple",
+        "frequency_adverbs"
+      ],
+      "explanation_ru": "В настоящем времени окончание -s появляется только у he/she/it в утверждении: she works. В вопросе и отрицании оно переходит в does: Does she work? Частотные наречия обычно стоят перед смысловым глаголом и после be.",
+      "feedback_ru": "Подлежащее she/he/it? В утверждении добавь -s к действию; после does/does not оставь начальную форму.",
+      "examples": [
+        {
+          "incorrect": "She work every day.",
+          "correct": "She works every day.",
+          "context": "Привычная работа, утверждение."
+        },
+        {
+          "incorrect": "He is often go there.",
+          "correct": "He often goes there.",
+          "context": "Регулярное действие; be не нужен."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "short_writing"
+      ],
+      "remedial_tags": [
+        "third_person_s",
+        "habit_vs_state"
+      ],
+      "diagnostic_cues": [
+        "Пропуск -s",
+        "Лишний be перед привычным действием"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "continuous",
+      "category": "tense_aspect",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "skill_ids": [
+        "a1-08",
+        "a2-02",
+        "b1-02"
+      ],
+      "grammar_tags": [
+        "present_continuous",
+        "simple_vs_continuous",
+        "past_continuous"
+      ],
+      "explanation_ru": "Русское несовершенное действие не всегда равно английскому Continuous. Для происходящего сейчас нужен be + -ing: I am reading. Для обычной привычки подходит Simple. Глаголы состояния вроде know обычно остаются в Simple; у некоторых глаголов выбор меняет смысл: I have a car / I am having lunch.",
+      "feedback_ru": "Это привычка, состояние или процесс в конкретный момент? Для процесса собери be + -ing целиком; для know обычно выбери Simple.",
+      "examples": [
+        {
+          "incorrect": "She reading now.",
+          "correct": "She is reading now.",
+          "context": "Действие происходит в момент речи."
+        },
+        {
+          "incorrect": "I am knowing the answer.",
+          "correct": "I know the answer.",
+          "context": "Знание, а не развивающийся процесс."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "short_writing"
+      ],
+      "remedial_tags": [
+        "simple_vs_progressive",
+        "be_plus_ing",
+        "stative_meaning"
+      ],
+      "diagnostic_cues": [
+        "Нет be перед -ing",
+        "Continuous у know в значении знания"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "perfect_vs_past",
+      "category": "tense_aspect",
+      "levels": [
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "a2-07",
+        "b1-01"
+      ],
+      "grammar_tags": [
+        "present_perfect",
+        "perfect_vs_past"
+      ],
+      "explanation_ru": "Русское совершенное прошедшее не переводится автоматически в Present Perfect. Если названо законченное время (yesterday, in 2020), обычно нужен Past Simple. Present Perfect связывает прошлое с настоящим или описывает опыт без законченного времени. В американском английском Past Simple с just/already/yet возможен; это не автоматическая ошибка.",
+      "feedback_ru": "Есть законченное время вроде yesterday? Выбери Past Simple. Если важен опыт или результат сейчас, проверь have/has + третью форму. Не выбирай время только по одному слову-маркеру.",
+      "examples": [
+        {
+          "incorrect": "I have seen him yesterday.",
+          "correct": "I saw him yesterday.",
+          "context": "Yesterday — завершённый период."
+        },
+        {
+          "incorrect": "We know each other since 2020.",
+          "correct": "We have known each other since 2020.",
+          "context": "Знакомство началось тогда и продолжается сейчас."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "dialogue"
+      ],
+      "remedial_tags": [
+        "finished_vs_open_time",
+        "result_vs_event"
+      ],
+      "diagnostic_cues": [
+        "Present Perfect с yesterday",
+        "Present Simple для продолжающегося состояния с since"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "tense_aspect",
+      "category": "tense_aspect",
+      "levels": [
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "b1-02",
+        "b1-03",
+        "b2-03",
+        "c1-09"
+      ],
+      "grammar_tags": [
+        "for_since",
+        "past_perfect",
+        "narrative_tenses",
+        "aspect_nuance"
+      ],
+      "explanation_ru": "Русская пара совершенного/несовершенного вида не совпадает с английскими Simple/Continuous/Perfect. Сначала нарисуй временную линию: точка отсчёта сейчас или в прошлом, действие завершено или длится? for обозначает длительность, since — начало. Past Perfect нужен, когда важно показать событие раньше другого прошлого события; не ставь его при каждом before/after.",
+      "feedback_ru": "Назови точку отсчёта и порядок событий. Для длительности выбери for, для начала since; затем объясни, зачем здесь Perfect или Continuous.",
+      "examples": [
+        {
+          "incorrect": "I have lived here since three years.",
+          "correct": "I have lived here for three years.",
+          "context": "Три года — длительность."
+        },
+        {
+          "incorrect": "When I arrived, the train already left.",
+          "correct": "When I arrived, the train had already left.",
+          "context": "Поезд ушёл до приезда, а не после."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "short_writing"
+      ],
+      "remedial_tags": [
+        "timeline",
+        "for_vs_since",
+        "past_before_past"
+      ],
+      "diagnostic_cues": [
+        "since перед длительностью",
+        "Неясный порядок двух событий в прошлом"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "prepositions_place",
+      "category": "prepositions",
+      "levels": [
+        "A1",
+        "A2",
+        "B1"
+      ],
+      "skill_ids": [
+        "a1-06",
+        "a2-08"
+      ],
+      "grammar_tags": [
+        "prepositions_place"
+      ],
+      "explanation_ru": "Предлог нельзя выбирать по одному русскому переводу «в/на». in обычно описывает внутри области, on — поверхность, at — место как точку или учреждение. Транспорт: on a bus/train, in a car; направление: go to, но go home без to. Сочетание зависит от смысла и варианта английского.",
+      "feedback_ru": "Представь место: область, поверхность, точка или направление? Выучи сочетание целиком, а не отдельный русский предлог.",
+      "examples": [
+        {
+          "incorrect": "I go to home after work.",
+          "correct": "I go home after work.",
+          "context": "Home используется как направление без to."
+        },
+        {
+          "incorrect": "The book is in the table.",
+          "correct": "The book is on the table.",
+          "context": "Книга лежит на поверхности стола, не в ящике."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "dialogue"
+      ],
+      "remedial_tags": [
+        "spatial_concept",
+        "transport_chunks"
+      ],
+      "diagnostic_cues": [
+        "to перед home",
+        "Несовпадение in/on с изображённым местом"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "prepositions_time",
+      "category": "prepositions",
+      "levels": [
+        "A1",
+        "A2",
+        "B1"
+      ],
+      "skill_ids": [
+        "a1-04",
+        "a1-07"
+      ],
+      "grammar_tags": [
+        "dates",
+        "past_time"
+      ],
+      "explanation_ru": "Время учи в сочетании: at seven, on Monday, in October. Перед last/next/this/every обычно нет предлога: next week. At the weekend и on the weekend отражают британское и американское употребление; оба могут быть верными.",
+      "feedback_ru": "Проверь масштаб: точное время at, день on, месяц/год in. Перед next/last обычно убери предлог.",
+      "examples": [
+        {
+          "incorrect": "I start work in nine o'clock.",
+          "correct": "I start work at nine o'clock.",
+          "context": "Точное время начала."
+        },
+        {
+          "incorrect": "I will call you on next Monday.",
+          "correct": "I will call you next Monday.",
+          "context": "Нейтральное сочетание next Monday без on."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "short_writing"
+      ],
+      "remedial_tags": [
+        "time_chunks",
+        "no_preposition_next_last"
+      ],
+      "diagnostic_cues": [
+        "in перед временем на часах",
+        "Предлог перед next/last"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "verb_prepositions",
+      "category": "prepositions",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "skill_ids": [
+        "a1-08",
+        "b1-11",
+        "b2-11"
+      ],
+      "grammar_tags": [
+        "phrasal_verbs",
+        "collocations"
+      ],
+      "explanation_ru": "Управление глагола не переносится из русского: listen to, wait for, depend on, discuss something (без about). Существительное discussion about возможно, поэтому проверяй всю конструкцию.",
+      "feedback_ru": "Выучи глагол вместе с дополнением: listen to music, wait for a bus, discuss a plan. Не добавляй предлог по русскому образцу.",
+      "examples": [
+        {
+          "incorrect": "We discussed about the problem.",
+          "correct": "We discussed the problem.",
+          "context": "Discuss с прямым дополнением."
+        },
+        {
+          "incorrect": "I am waiting you.",
+          "correct": "I am waiting for you.",
+          "context": "Ожидаем человека."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "error_correction"
+      ],
+      "remedial_tags": [
+        "verb_complement",
+        "chunks"
+      ],
+      "diagnostic_cues": [
+        "Лишний about после discuss",
+        "Нет for после wait"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "phrasal_verbs",
+      "category": "multiword_expressions",
+      "levels": [
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "b1-11",
+        "b2-11"
+      ],
+      "grammar_tags": [
+        "phrasal_verbs"
+      ],
+      "explanation_ru": "Фразовый глагол часто имеет значение, которого нет у отдельных частей: give up — бросить, look after — присматривать. Отделяемость учи отдельно: turn off the light / turn the light off, но turn it off. Look after не разделяется: look after him.",
+      "feedback_ru": "Проверь значение всей фразы и отделяемость. С коротким местоимением у отделяемого глагола поставь местоимение между частями.",
+      "examples": [
+        {
+          "incorrect": "Turn off it, please.",
+          "correct": "Turn it off, please.",
+          "context": "It заменяет устройство; turn off отделяемый."
+        },
+        {
+          "incorrect": "She looks her brother after.",
+          "correct": "She looks after her brother.",
+          "context": "Look after неотделяемый: она заботится о брате."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "reorder",
+        "dialogue"
+      ],
+      "remedial_tags": [
+        "particle_placement",
+        "phrasal_meaning"
+      ],
+      "diagnostic_cues": [
+        "Местоимение после отделяемой частицы",
+        "Разрыв неотделяемого глагола"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "countability",
+      "category": "nouns",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "skill_ids": [
+        "a1-09",
+        "a2-06"
+      ],
+      "grammar_tags": [
+        "countability",
+        "quantifiers"
+      ],
+      "explanation_ru": "Исчисляемость не совпадает с русским: advice, information, furniture и luggage обычно неисчисляемы. Нельзя сказать an advice или informations в обычном значении; используй a piece of advice, some information. Но слово может менять исчисляемость по смыслу: two coffees — две порции кофе.",
+      "feedback_ru": "Можно ли это существительное посчитать в данном значении? Для advice/information убери a и -s или добавь единицу a piece of.",
+      "examples": [
+        {
+          "incorrect": "She gave me an advice.",
+          "correct": "She gave me some advice.",
+          "context": "Совет в обычном значении."
+        },
+        {
+          "incorrect": "These informations are useful.",
+          "correct": "This information is useful.",
+          "context": "Information как сведения, неисчисляемое."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "translation"
+      ],
+      "remedial_tags": [
+        "mass_vs_count",
+        "measure_phrase"
+      ],
+      "diagnostic_cues": [
+        "a/an с advice",
+        "Множественное information/furniture"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "quantifiers",
+      "category": "determiners",
+      "levels": [
+        "A1",
+        "A2",
+        "B1"
+      ],
+      "skill_ids": [
+        "a1-09",
+        "a2-06"
+      ],
+      "grammar_tags": [
+        "quantifiers",
+        "countability",
+        "too_enough"
+      ],
+      "explanation_ru": "Many/few сочетаются с исчисляемым множественным числом, much/little — с неисчисляемым. A few/a little подчёркивает наличие небольшого количества; few/little часто нехватку. Enough ставится перед существительным и после прилагательного. Too означает избыток, а не просто «очень».",
+      "feedback_ru": "Сначала проверь исчисляемость. Затем реши, речь о достаточном количестве или об избытке: hot enough и too hot выражают разный смысл.",
+      "examples": [
+        {
+          "incorrect": "How much books do you need?",
+          "correct": "How many books do you need?",
+          "context": "Books можно посчитать."
+        },
+        {
+          "incorrect": "The room is enough warm.",
+          "correct": "The room is warm enough.",
+          "context": "Тепла достаточно, enough после прилагательного."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "error_correction"
+      ],
+      "remedial_tags": [
+        "much_many",
+        "quantity_evaluation",
+        "enough_position"
+      ],
+      "diagnostic_cues": [
+        "much с books",
+        "enough перед прилагательным"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "conditionals_real",
+      "category": "conditionals",
+      "levels": [
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "skill_ids": [
+        "a2-10",
+        "b1-04"
+      ],
+      "grammar_tags": [
+        "conditionals_real"
+      ],
+      "explanation_ru": "В русском «если завтра будет дождь» содержит будущее время. В обычном английском условии будущего после if/when используют Present Simple: If it rains, we will stay home. Но will после if возможен для готовности или настойчивости; это не безусловный запрет.",
+      "feedback_ru": "Для обычного условия о будущем используй настоящее после if и will в результате. Сравни условие с вопросом whether/if: I wonder if it will rain — другая конструкция.",
+      "examples": [
+        {
+          "incorrect": "If it will rain tomorrow, we will stay home.",
+          "correct": "If it rains tomorrow, we will stay home.",
+          "context": "Обычный прогнозируемый дождь, не желание или готовность."
+        },
+        {
+          "incorrect": "When she will arrive, I will call you.",
+          "correct": "When she arrives, I will call you.",
+          "context": "Придаточное времени о будущем."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "short_writing"
+      ],
+      "remedial_tags": [
+        "future_time_clause",
+        "condition_vs_result"
+      ],
+      "diagnostic_cues": [
+        "will в обычном условии",
+        "will в придаточном времени"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "conditionals_unreal",
+      "category": "conditionals",
+      "levels": [
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "b1-05",
+        "b2-01",
+        "b2-02"
+      ],
+      "grammar_tags": [
+        "conditionals_unreal",
+        "second_conditional",
+        "third_conditional",
+        "mixed_conditionals"
+      ],
+      "explanation_ru": "Русское «бы» не переводится would в обеих частях. Воображаемое сейчас: If I had time, I would help. Нереальное прошлое: If I had known, I would have helped. В смешанном условии установи время каждой части. If I was допустимо в части разговорных контекстов; формальное If I were you — безопасная модель совета.",
+      "feedback_ru": "Раздели условие и результат. Определи время каждого; в типичном нереальном условии не ставь would после if.",
+      "examples": [
+        {
+          "incorrect": "If I would have more time, I would travel.",
+          "correct": "If I had more time, I would travel.",
+          "context": "Воображаемое свободное время сейчас."
+        },
+        {
+          "incorrect": "If I had known, I would help yesterday.",
+          "correct": "If I had known, I would have helped yesterday.",
+          "context": "Обе части относятся к нереализованному прошлому."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "dialogue"
+      ],
+      "remedial_tags": [
+        "hypothetical_timeline",
+        "condition_vs_result"
+      ],
+      "diagnostic_cues": [
+        "would в обычном if-условии",
+        "Несогласованное время результата"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "modals",
+      "category": "modals",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "skill_ids": [
+        "a1-06",
+        "a2-05",
+        "a2-10",
+        "b2-06"
+      ],
+      "grammar_tags": [
+        "can",
+        "should",
+        "must",
+        "have_to",
+        "modals",
+        "perfect_modals"
+      ],
+      "explanation_ru": "После can/must/should идёт начальная форма без to и -s: she can swim. Must not означает запрет, do not have to — отсутствие необходимости. Could have + третья форма и should have + третья форма говорят о прошлом и выражают разные смыслы.",
+      "feedback_ru": "После модального убери to и окончание. Затем проверь смысл отрицания: запрещено или необязательно?",
+      "examples": [
+        {
+          "incorrect": "She can to swim.",
+          "correct": "She can swim.",
+          "context": "Способность плавать."
+        },
+        {
+          "incorrect": "You must not come tomorrow.",
+          "correct": "You do not have to come tomorrow.",
+          "context": "Говорящий разрешает не приходить, не запрещает приходить."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "dialogue"
+      ],
+      "remedial_tags": [
+        "bare_infinitive",
+        "prohibition_vs_no_obligation"
+      ],
+      "diagnostic_cues": [
+        "to после can/must/should",
+        "must not вместо отсутствия необходимости"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "gerund_infinitive",
+      "category": "verb_patterns",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "skill_ids": [
+        "a1-05",
+        "a2-11",
+        "b1-11",
+        "b1-06"
+      ],
+      "grammar_tags": [
+        "gerund_infinitive",
+        "be_used_to"
+      ],
+      "explanation_ru": "После разных глаголов нужны разные формы: enjoy doing, decide to do. После предлога — doing, включая to в look forward to doing и be used to doing. Но used to do означает привычку в прошлом. Like/love/hate могут принимать и -ing, и to-infinitive; не отвергай правильную альтернативу без смысла и контекста.",
+      "feedback_ru": "Проверь сочетание целиком. Здесь enjoy требует -ing, а decide — to + глагол. Уточни, to является предлогом или частью инфинитива.",
+      "examples": [
+        {
+          "incorrect": "I enjoy to cook.",
+          "correct": "I enjoy cooking.",
+          "context": "Enjoy в значении получать удовольствие."
+        },
+        {
+          "incorrect": "I look forward to see you.",
+          "correct": "I look forward to seeing you.",
+          "context": "To здесь предлог."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "short_writing"
+      ],
+      "remedial_tags": [
+        "verb_pattern",
+        "preposition_plus_ing",
+        "used_to_contrast"
+      ],
+      "diagnostic_cues": [
+        "to-infinitive после enjoy",
+        "Инфинитив после look forward to"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "reported_speech",
+      "category": "syntax",
+      "levels": [
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "b1-07",
+        "b2-07"
+      ],
+      "grammar_tags": [
+        "reported_speech",
+        "say_tell",
+        "backshift",
+        "reported_questions"
+      ],
+      "explanation_ru": "Русское «она сказала мне» не строится как she said me: say something to someone, tell someone something. Во встроенном вопросе прямой порядок слов. Сдвиг времён зависит от времени и позиции рассказчика: She said she will come может быть верно, если обещание ещё актуально.",
+      "feedback_ru": "После tell укажи адресата; после say адресат идёт с to. Для времени уточни, актуально ли сообщение сейчас, и не исправляй will автоматически.",
+      "examples": [
+        {
+          "incorrect": "She said me she was tired.",
+          "correct": "She told me she was tired.",
+          "context": "Передаём слова, сказанные мне."
+        },
+        {
+          "incorrect": "He asked where did I live.",
+          "correct": "He asked where I lived.",
+          "context": "Косвенный вопрос о месте проживания."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "dialogue"
+      ],
+      "remedial_tags": [
+        "reporting_complements",
+        "embedded_word_order"
+      ],
+      "diagnostic_cues": [
+        "say с прямым объектом-адресатом",
+        "do-support в косвенном вопросе"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "relative_clauses",
+      "category": "syntax",
+      "levels": [
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "b1-10",
+        "b2-08"
+      ],
+      "grammar_tags": [
+        "relative_clauses",
+        "defining_relatives",
+        "nondefining_relatives"
+      ],
+      "explanation_ru": "Не повторяй подлежащее или дополнение после относительного местоимения: the woman who helped, не who she helped, если who является подлежащим. Где место, а где объект: the city where I lived, но the city that I visited. Запятые зависят от смысла, не от русского правила перед «который».",
+      "feedback_ru": "Что заменяет who/which/that в придаточном? Убери повторный pronoun. Затем реши: определяем нужного человека или добавляем информацию?",
+      "examples": [
+        {
+          "incorrect": "The woman who she helped me is here.",
+          "correct": "The woman who helped me is here.",
+          "context": "Женщина помогла мне; who — подлежащее."
+        },
+        {
+          "incorrect": "The city where I visited was beautiful.",
+          "correct": "The city that I visited was beautiful.",
+          "context": "Город является объектом visit."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "transformation",
+        "error_correction"
+      ],
+      "remedial_tags": [
+        "relative_role",
+        "restrictive_meaning"
+      ],
+      "diagnostic_cues": [
+        "Повторное подлежащее после who",
+        "where вместо прямого объекта"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "false_friends",
+      "category": "lexis",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "a1-07",
+        "a2-03",
+        "b1-01",
+        "b2-11",
+        "c1-10"
+      ],
+      "grammar_tags": [
+        "collocations",
+        "register"
+      ],
+      "explanation_ru": "Похожее слово может иметь другое значение: magazine — журнал, shop/store — магазин; actual — фактический, current/relevant — текущий/актуальный; accurate — точный, neat/careful — аккуратный; fabric — ткань, factory — фабрика; sympathetic — сочувствующий, nice/attractive — симпатичный; eventually — в конце концов, possibly — возможно. Проверяй значение в английском контексте.",
+      "feedback_ru": "Похожее русское слово подсказывает неверное значение. Перефразируй смысл по-английски и выбери слово под него; затем составь собственную фразу.",
+      "examples": [
+        {
+          "incorrect": "I buy bread at this magazine.",
+          "correct": "I buy bread at this shop.",
+          "context": "Имеется в виду магазин, не журнал."
+        },
+        {
+          "incorrect": "This is an actual problem for our team.",
+          "correct": "This is a current problem for our team.",
+          "context": "Имеется в виду текущая проблема; actual означало бы реальную, а не мнимую."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "dialogue"
+      ],
+      "remedial_tags": [
+        "false_friend",
+        "meaning_in_context"
+      ],
+      "diagnostic_cues": [
+        "Похожая форма с неверным смыслом",
+        "actual в значении текущий"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "calques",
+      "category": "lexis",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "a1-04",
+        "b1-11",
+        "b2-11",
+        "c1-10"
+      ],
+      "grammar_tags": [
+        "collocations",
+        "phrasal_verbs"
+      ],
+      "explanation_ru": "Перевод слова за словом даёт неестественные сочетания: make a decision, take a photo, do homework, heavy rain. «Чувствовать себя хорошо» — feel well/good, без myself. «Мне нравится» — I like it, а «у меня есть» обычно I have, не at me is. Некоторые кальки грамматичны, но не подходят смыслу или регистру.",
+      "feedback_ru": "Смысл понятен. Проверь привычное сочетание целиком и повтори его в новой фразе: make a decision, do homework. Не записывай такую ошибку как незнание всех слов.",
+      "examples": [
+        {
+          "incorrect": "I feel myself tired.",
+          "correct": "I feel tired.",
+          "context": "Человек сообщает о собственной усталости."
+        },
+        {
+          "incorrect": "We did a decision yesterday.",
+          "correct": "We made a decision yesterday.",
+          "context": "Речь о принятом решении."
+        }
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "error_correction"
+      ],
+      "remedial_tags": [
+        "collocation",
+        "retrieval_chunk"
+      ],
+      "diagnostic_cues": [
+        "Лишнее myself после feel",
+        "do a decision"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "impersonal_subject",
+      "category": "syntax",
+      "levels": [
+        "A1",
+        "A2",
+        "B1"
+      ],
+      "skill_ids": [
+        "a1-01",
+        "a1-03",
+        "a1-10"
+      ],
+      "grammar_tags": [
+        "impersonal_subject",
+        "there_is_are"
+      ],
+      "explanation_ru": "Русское «Холодно», «Идёт дождь», «В комнате есть стол» требует другой структуры. В английском о погоде и времени используют формальное it, а при введении существующего предмета there is/are. It is и there is не взаимозаменяемы.",
+      "feedback_ru": "О погоде или времени начни с it. Впервые сообщаешь, что где-то есть предмет? Используй there is/are.",
+      "examples": [
+        {
+          "incorrect": "Is cold today.",
+          "correct": "It is cold today.",
+          "context": "Погода, полное предложение."
+        },
+        {
+          "incorrect": "In the room is a table.",
+          "correct": "There is a table in the room.",
+          "context": "Нейтрально вводим новый предмет; литературная инверсия здесь не является целью."
+        }
+      ],
+      "exercise_types": [
+        "reorder",
+        "translation",
+        "short_writing"
+      ],
+      "remedial_tags": [
+        "dummy_subject",
+        "existence_vs_weather"
+      ],
+      "diagnostic_cues": [
+        "Пропущенное it о погоде",
+        "Русская безличная структура"
+      ],
+      "evidence_required": "text"
+    },
+    {
+      "id": "pronunciation_vowels",
+      "category": "pronunciation",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "a1-01",
+        "a1-08",
+        "c1-10"
+      ],
+      "grammar_tags": [],
+      "explanation_ru": "Для части русскоязычных учащихся /ɪ/ и /iː/, /æ/ и /e/, /ʊ/ и /uː/ требуют отдельной тренировки. Это различия качества и длительности, а не просто «короткий/длинный русский и». Сначала проверь восприятие ship/sheep, live/leave, bad/bed, full/fool с аудио, затем короткие фразы. Не предполагаем трудность по одному L1.",
+      "feedback_ru": "Прослушай пару и выбери слово. Затем произнеси его в фразе. Сравни положение языка и качество гласного; удлинения звука само по себе недостаточно.",
+      "examples": [
+        {
+          "incorrect": "ship pronounced as sheep",
+          "correct": "ship /ʃɪp/",
+          "context": "Только если в реальном аудио ship воспринимается как sheep; не выводить из орфографии."
+        },
+        {
+          "incorrect": "bad pronounced as bed",
+          "correct": "bad /bæd/",
+          "context": "Только если аудио подтверждает смешение пары в выбранном образце произношения."
+        }
+      ],
+      "exercise_types": [
+        "minimal_pairs",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "remedial_tags": [
+        "vowel_quality",
+        "perception_before_production"
+      ],
+      "diagnostic_cues": [
+        "Слушатель путает минимальную пару",
+        "Повторяемая ошибка распознавания известного слова"
+      ],
+      "evidence_required": "audio"
+    },
+    {
+      "id": "pronunciation_th",
+      "category": "pronunciation",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "a1-03",
+        "a1-04",
+        "c1-10"
+      ],
+      "grammar_tags": [],
+      "explanation_ru": "В русском нет /θ/ и /ð/. Для выбранного стандартного образца English тонкий поток воздуха идёт у передних зубов; /ð/ звонкий. Сравни thin/sin/tin и then/den, не зажимая язык. Реальные английские акценты различаются; исправление нужно ради понятности или выбранной учебной цели, а не стирания акцента.",
+      "feedback_ru": "Проверь: воздух проходит непрерывно, а не взрывается как /t/ или /d/. Для /ð/ добавь голос. Сначала различи слова на слух, потом повтори короткую фразу.",
+      "examples": [
+        {
+          "incorrect": "thin pronounced as sin",
+          "correct": "thin /θɪn/",
+          "context": "Аудио показывает потерю различия thin/sin в целевом образце."
+        },
+        {
+          "incorrect": "then pronounced as den",
+          "correct": "then /ðen/",
+          "context": "Аудио подтверждает смешение; учитываем акцент и понятность."
+        }
+      ],
+      "exercise_types": [
+        "minimal_pairs",
+        "spoken_response"
+      ],
+      "remedial_tags": [
+        "dental_fricatives",
+        "voicing",
+        "perception_before_production"
+      ],
+      "diagnostic_cues": [
+        "Подтверждённая замена /θ/ на /s,t/",
+        "Подтверждённая замена /ð/ на /d,z/"
+      ],
+      "evidence_required": "audio"
+    },
+    {
+      "id": "pronunciation_wv",
+      "category": "pronunciation",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "skill_ids": [
+        "a1-04",
+        "a1-08",
+        "c1-10"
+      ],
+      "grammar_tags": [],
+      "explanation_ru": "Русское /в/ не даёт готового английского различия /w/ и /v/. Для /w/ округли губы без касания верхних зубов; для /v/ верхние зубы касаются нижней губы. Используй west/vest, wine/vine. Ошибку устанавливают по аудио, а не по родному языку.",
+      "feedback_ru": "Сравни губы: /w/ округление без зубов; /v/ зубы у нижней губы. Прослушай west/vest, затем произнеси свою короткую фразу.",
+      "examples": [
+        {
+          "incorrect": "wine pronounced as vine",
+          "correct": "wine /waɪn/",
+          "context": "Аудио подтверждает потерю /w/–/v/ различия."
+        }
+      ],
+      "exercise_types": [
+        "minimal_pairs",
+        "spoken_response"
+      ],
+      "remedial_tags": [
+        "lip_position",
+        "w_vs_v"
+      ],
+      "diagnostic_cues": [
+        "Смешение /w/ и /v/ подтверждено аудио"
+      ],
+      "evidence_required": "audio"
+    },
+    {
+      "id": "pronunciation_final_voicing",
+      "category": "pronunciation",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "skill_ids": [
+        "a1-02",
+        "a1-11",
+        "c1-10"
+      ],
+      "grammar_tags": [],
+      "explanation_ru": "В русском конечные звонкие согласные оглушаются. В английском смысловые пары bag/back, leave/leaf различаются работой голосовых связок, длительностью предыдущего гласного и другими признаками. Не требуй искусственного добавления гласного после конечного согласного; отрабатывай целую пару в фразе.",
+      "feedback_ru": "Сохрани различие bag/back в конце слова и длительность гласного перед согласным. Не добавляй отдельный слог после слова.",
+      "examples": [
+        {
+          "incorrect": "leave perceived as leaf",
+          "correct": "leave /liːv/",
+          "context": "Слушатель по аудио слышит leaf вместо leave; возможны разные фонетические признаки."
+        }
+      ],
+      "exercise_types": [
+        "minimal_pairs",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "remedial_tags": [
+        "final_contrast",
+        "preceding_vowel"
+      ],
+      "diagnostic_cues": [
+        "Потеря различия конечных согласных",
+        "Лишний гласный после конечного согласного"
+      ],
+      "evidence_required": "audio"
+    },
+    {
+      "id": "word_stress",
+      "category": "prosody",
+      "levels": [
+        "A1",
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "a1-07",
+        "a2-11",
+        "c1-10"
+      ],
+      "grammar_tags": [],
+      "explanation_ru": "В английском место ударения хранится вместе со словом и может меняться в семье слов: PHOtograph, phoTOGraphy. Русское ударение не подсказывает английское. В безударных слогах часто появляется /ə/, но не превращай все гласные в шва. Отмечай ударный слог в новых словах и проверяй аудиословарём.",
+      "feedback_ru": "Прослушай слово и отметь ударный слог. Затем произнеси слово в короткой фразе, ослабляя остальные слоги без потери понятности.",
+      "examples": [
+        {
+          "incorrect": "photography with first-syllable stress",
+          "correct": "photography /fəˈtɒɡrəfi/",
+          "context": "Наблюдаемое аудио; дан британский образец, другие нормативные гласные возможны."
+        }
+      ],
+      "exercise_types": [
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "remedial_tags": [
+        "lexical_stress",
+        "word_family",
+        "schwa"
+      ],
+      "diagnostic_cues": [
+        "Аудио подтверждает смещённое ударение",
+        "Путаница ударения в семье слов"
+      ],
+      "evidence_required": "audio"
+    },
+    {
+      "id": "sentence_stress",
+      "category": "prosody",
+      "levels": [
+        "A2",
+        "B1",
+        "B2",
+        "C1"
+      ],
+      "skill_ids": [
+        "a1-10",
+        "b1-09",
+        "c1-08",
+        "c1-10"
+      ],
+      "grammar_tags": [],
+      "explanation_ru": "Английское фразовое ударение помогает показать новую информацию и противопоставление: I wanted the BLUE one. Служебные слова часто ослабляются, но могут получать ударение ради контраста. Ритм не сводится к правилу одинаковых промежутков. Тренируй смысловые группы, паузы и ударные слова по реальному аудио.",
+      "feedback_ru": "Выдели новое или противопоставленное слово, прочитай фразу смысловыми группами. Сравни запись с образцом; оцени понятность смысла, а не отсутствие русского акцента.",
+      "examples": [
+        {
+          "incorrect": "Equal strong stress on every word obscures intended contrast",
+          "correct": "I wanted the BLUE one.",
+          "context": "Пример обратной связи по аудио, когда нужно противопоставить цвет; равные ударения сами по себе не грамматическая ошибка."
+        }
+      ],
+      "exercise_types": [
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "remedial_tags": [
+        "focus_stress",
+        "thought_groups",
+        "connected_speech"
+      ],
+      "diagnostic_cues": [
+        "Слушатель не распознаёт фокус",
+        "Наблюдаемые паузы разрывают смысловые группы"
+      ],
+      "evidence_required": "audio"
+    }
+  ]
+}

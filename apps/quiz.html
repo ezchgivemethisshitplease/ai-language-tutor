@@ -16,6 +16,8 @@
   .dots span { width: 9px; height: 9px; border-radius: 50%; background: var(--surface-2); transition: background .2s var(--ease); }
   .dots .cur { background: var(--ink-soft); }
   .dots .ok { background: var(--success); }
+  .dots .pending { background: var(--warning); }
+  .fb-box.pending { background: var(--warning-soft); color: var(--warning); }
   .dots .bad { background: var(--error); }
   .qcard { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-1); padding: 26px 22px; animation: tut-rise .2s var(--ease); }
   .qtype { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 12px; }
@@ -55,8 +57,8 @@
 </style>
 </head>
 <body style="min-height:100vh;display:flex;flex-direction:column">
-<header>
-  <div class="brand"><b>Tutor</b><span>Quiz</span></div>
+<header class="activity-header">
+  <div class="activity-heading"><a class="back-to-chat" href="index.html">← Моё обучение</a><a class="back-to-chat" href="chat.html">К занятию</a><div class="brand"><b>Tutor</b><span>Упражнения</span></div></div>
   <div class="meta"><span id="qnum">1</span>/<span id="qtotal">0</span></div>
 </header>
 <main>
@@ -70,10 +72,10 @@
         <div class="placed" id="placed" aria-label="Your sentence"></div>
         <div class="bank" id="bank" aria-label="Word bank"></div>
       </div>
-      <button class="primary hidden" id="check">Check</button>
+      <button class="primary hidden" id="check">Проверить</button>
       <div class="feedback hidden" id="feedback">
         <div class="fb-box" id="fb-box"><b id="fb-mark"></b><span id="fb-text"></span></div>
-        <button class="primary" id="next">Next</button>
+        <button class="primary" id="next">Далее</button>
       </div>
     </div>
   </div>
@@ -82,13 +84,14 @@
       <circle cx="55" cy="55" r="46" fill="none" stroke="var(--surface-2)" stroke-width="10"></circle>
       <circle id="ring-fg" cx="55" cy="55" r="46" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round" transform="rotate(-90 55 55)"></circle>
       <text id="ring-num" x="55" y="52" text-anchor="middle" style="font-family:var(--font-display);font-weight:700;font-size:26px" fill="var(--ink)"></text>
-      <text x="55" y="72" text-anchor="middle" style="font-size:11px;font-weight:600" fill="var(--ink-faint)">correct</text>
+      <text x="55" y="72" text-anchor="middle" style="font-size:11px;font-weight:600" fill="var(--ink-faint)">принято</text>
     </svg>
     <div class="review" id="review"></div>
     <div class="added hidden" id="added"></div>
-    <div><button class="primary" id="close">Done</button></div>
+    <div><button class="primary" id="close">Готово</button></div>
   </div>
 </main>
+<script src="client.js"></script>
 <script>
 (() => {
   const DEMO = { title: 'Demo quiz', questions: [
@@ -98,14 +101,16 @@
     { type: 'reorder', words: ['always', 'I', 'coffee', 'drink', 'in', 'the', 'morning'], answer: 'i always drink coffee in the morning', display: 'I always drink coffee in the morning.', explain: 'Frequency adverbs go BEFORE the main verb: I always drink…' },
     { type: 'choice', prompt: 'It depends ___ the weather.', options: ['on', 'of', 'in', 'from'], correct: 0, explain: 'Depend ON — never “depend of”.' },
   ]};
+  let draftKey;
   let quiz = DEMO, i = 0, answered = false, placed = [], results = [], live = false;
   const $ = id => document.getElementById(id);
   const esc = s => { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
+  const norm = value => value.normalize('NFC').replaceAll('’', "'").replace(/\s+/g, ' ').trim().toLowerCase().replace(/[.!?]+$/, '');
   const primaryAns = q => q.answers ? q.answers[0] : q.answer;
 
   function renderDots() {
     $('dots').innerHTML = quiz.questions.map((_, d) => {
-      const cls = d < results.length ? (results[d].correct ? 'ok' : 'bad') : d === i ? 'cur' : '';
+      const cls = d < results.length ? (results[d].correct === null ? 'pending' : results[d].correct ? 'ok' : 'bad') : d === i ? 'cur' : '';
       return `<span class="${cls}"></span>`;
     }).join('');
   }
@@ -121,7 +126,7 @@
     $('feedback').classList.add('hidden'); $('check').classList.add('hidden');
     $('options').classList.toggle('hidden', q.type !== 'choice');
     $('reorder').classList.toggle('hidden', q.type !== 'reorder');
-    $('qtype').textContent = q.type === 'choice' ? 'Choose the answer' : q.type === 'gap' ? 'Fill the gap' : 'Put the words in order';
+    $('qtype').textContent = q.type === 'choice' ? 'Выберите ответ' : q.type === 'gap' ? 'Заполните пропуск' : 'Составьте предложение';
     if (q.type === 'gap') {
       const p = q.prompt.split('___');
       $('prompt').innerHTML = esc(p[0]) + '<input id="gap" aria-label="Type the missing word" autocomplete="off">' + esc(p[1] ?? '');
@@ -145,30 +150,31 @@
     $('check').classList.toggle('hidden', placed.length !== q.words.length || answered);
   }
 
-  function feedback(correct, q) {
+  function feedback(correct, q, response) {
     answered = true;
-    results.push({ q, correct });
+    results.push({ q, correct, response });
+    if (live) localStorage.setItem(draftKey, JSON.stringify(results));
     renderDots();
     $('check').classList.add('hidden');
     const box = $('fb-box');
-    box.className = 'fb-box ' + (correct ? 'ok' : 'bad');
-    $('fb-mark').textContent = correct ? '✓' : '✗';
+    box.className = 'fb-box ' + (correct === null ? 'pending' : correct ? 'ok' : 'bad');
+    $('fb-mark').textContent = correct === null ? '?' : correct ? '✓' : '✗';
     const fix = correct ? '' :
       q.type === 'choice' ? `Correct answer: ${q.options[q.correct]}. ` :
       q.type === 'gap' ? `Correct answer: ${primaryAns(q)}. ` :
       `Correct order: ${q.display} `;
-    $('fb-text').textContent = fix + (q.explain || '');
-    $('next').textContent = i + 1 >= quiz.questions.length ? 'See results' : 'Next';
+    $('fb-text').textContent = correct === null ? 'Вариант требует проверки: возможна другая правильная формулировка. ' + (q.explain || '') : fix + (q.explain || '');
+    $('next').textContent = i + 1 >= quiz.questions.length ? 'Результаты' : 'Далее';
     $('feedback').classList.remove('hidden');
   }
 
   function checkGap() {
     const q = quiz.questions[i];
-    const val = $('gap').value.trim().toLowerCase();
-    const ok = (q.answers ?? [q.answer]).map(a => a.toLowerCase()).includes(val);
-    $('gap').classList.add(ok ? 'ok' : 'bad');
+    const val = $('gap').value.trim();
+    const ok = (q.answers ?? [q.answer]).map(norm).includes(norm(val)) ? true : q.exhaustive === true ? false : null;
+    if (ok !== null) $('gap').classList.add(ok ? 'ok' : 'bad');
     $('gap').disabled = true;
-    feedback(ok, q);
+    feedback(ok, q, val);
   }
 
   $('options').addEventListener('click', e => {
@@ -180,7 +186,7 @@
       else if (oi === pick) el.classList.add('wrong');
       el.disabled = true;
     });
-    feedback(ok, q);
+    feedback(ok, q, pick);
   });
   $('placed').addEventListener('click', e => {
     const b = e.target.closest('button');
@@ -196,7 +202,8 @@
     const q = quiz.questions[i];
     if (q.type === 'gap') return checkGap();
     const str = placed.map(wi => q.words[wi]).join(' ').toLowerCase();
-    feedback(str === q.answer.toLowerCase(), q);
+    const ok = (q.answers || [q.answer]).map(norm).includes(norm(str)) ? true : q.exhaustive === true ? false : null;
+    feedback(ok, q, str);
   });
   $('next').addEventListener('click', () => { i++; render(); });
   $('close').addEventListener('click', () => window.close());
@@ -207,29 +214,47 @@
     const C = 2 * Math.PI * 46;
     $('ring-fg').setAttribute('stroke-dasharray', (C * score / total).toFixed(1) + ' ' + C.toFixed(1));
     $('ring-num').textContent = `${score}/${total}`;
+    const pending = results.filter(r => r.correct === null).length;
+    Tutor.status(`${score}: принято; ${pending}: требуют проверки. Это результат заданий, не оценка CEFR.`);
     $('review').innerHTML = results.map(r => {
-      const s = r.q.type === 'reorder' ? r.q.display : r.q.type === 'gap' ? r.q.prompt.replace('___', primaryAns(r.q)) : r.q.prompt;
-      const c = r.correct ? '' : `<div class="c">→ ${esc(r.q.type === 'choice' ? r.q.options[r.q.correct] + ' — ' + r.q.explain : r.q.explain)}</div>`;
-      return `<div class="rrow"><span class="mark" style="color:var(--${r.correct ? 'success' : 'error'})">${r.correct ? '✓' : '✗'}</span><div><div class="s">${esc(s)}</div>${c}</div></div>`;
+      const s = r.q.type === 'reorder' ? r.response : r.q.prompt.replace('___', r.q.type === 'choice' ? r.q.options[r.response] : r.response);
+      const c = r.correct === null ? '<div class="c">Нужна проверка по контексту</div>' : r.correct ? '' : `<div class="c">→ ${esc(r.q.type === 'choice' ? r.q.options[r.q.correct] + ' — ' + r.q.explain : r.q.explain)}</div>`;
+      return `<div class="rrow"><span class="mark" style="color:var(--${r.correct === null ? 'warning' : r.correct ? 'success' : 'error'})">${r.correct === null ? '?' : r.correct ? '✓' : '✗'}</span><div><div class="s">${esc(s)}</div>${c}</div></div>`;
     }).join('');
     const missed = total - score;
     if (missed > 0 && live) {
-      $('added').textContent = `${missed} missed item${missed > 1 ? 's' : ''} will be added to your deck`;
+      $('added').textContent = `${missed}: разберите эти ответы с преподавателем. Карточки автоматически не добавляются.`;
       $('added').classList.remove('hidden');
     }
     if (live) {
       try {
-        await fetch('/api/quiz', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: quiz.title, score, total,
-            missed: results.filter(r => !r.correct).map(r => ({ prompt: r.q.prompt || r.q.display, answer: r.q.type === 'choice' ? r.q.options[r.q.correct] : primaryAns(r.q) || r.q.display, explain: r.q.explain })) }) });
-      } catch (e) {}
+        await Tutor.post('/api/quiz', {activity_id: quiz.activity_id, answers: results.map(r => r.response)});
+        localStorage.removeItem(draftKey);
+      } catch (error) {
+        Tutor.status('Результат не сохранён. Ответы остаются в браузере.', async () => {
+          try { const replay = await Tutor.flush(); if (replay.conflicts) throw new Error("Unresolved result"); localStorage.removeItem(draftKey); Tutor.status('Сохранено'); }
+          catch (error) { Tutor.status('Сохранение пока недоступно.', () => location.reload()); }
+        });
+      }
     }
   }
 
-  fetch('/api/quiz').then(r => r.ok ? r.json() : null).then(d => {
-    if (d && Array.isArray(d.questions) && d.questions.length) { quiz = d; live = true; }
-    render();
-  }).catch(() => render());
+  (async () => {
+    try {
+      if (new URLSearchParams(location.search).get('demo') === '1') {
+        Tutor.status('Демонстрация: результаты не сохраняются.');
+      } else {
+        await Tutor.flush();
+        const response = await fetch('/api/quiz');
+        quiz = await response.json(); live = true;
+        const context = await Tutor.ready;
+        draftKey = `tutor:quiz-draft:${location.origin}:${context.namespace}:${quiz.activity_id}`;
+        results = JSON.parse(localStorage.getItem(draftKey) || '[]');
+        i = results.length;
+      }
+      render();
+    } catch (error) { Tutor.status('Не удалось загрузить тест. Проверьте сервер и подготовленный файл.', () => location.reload()); }
+  })();
 })();
 </script>
 </body>

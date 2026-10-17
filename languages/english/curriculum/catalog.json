@@ -1,0 +1,3422 @@
+{
+  "schema_version": 1,
+  "language": "english",
+  "levels": [
+    "A1",
+    "A2",
+    "B1",
+    "B2",
+    "C1"
+  ],
+  "domains": [
+    "reading",
+    "listening",
+    "writing",
+    "speaking",
+    "grammar",
+    "vocabulary",
+    "pronunciation"
+  ],
+  "exercise_types": [
+    "cloze",
+    "translation",
+    "transformation",
+    "reorder",
+    "error_correction",
+    "reading_comprehension",
+    "dialogue",
+    "short_writing",
+    "extended_writing",
+    "listening_comprehension",
+    "spoken_response",
+    "minimal_pairs"
+  ],
+  "units": [
+    {
+      "id": "a1-01",
+      "level": "A1",
+      "title": "Hello & introductions",
+      "path": "languages/english/curriculum/a1/unit-01.md",
+      "prerequisites": [],
+      "grammar_tags": [
+        "be_present",
+        "subject_pronouns"
+      ],
+      "outcomes": [
+        "Can greet people, introduce myself and others, and give basic personal information using simple fixed phrases."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "be_omission",
+        "impersonal_subject",
+        "pronunciation_vowels"
+      ],
+      "target_vocabulary": [
+        "hello",
+        "goodbye",
+        "name",
+        "student",
+        "teacher",
+        "friend",
+        "please",
+        "thanks",
+        "yes",
+        "no",
+        "sorry",
+        "nice"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-02",
+      "level": "A1",
+      "title": "People & family",
+      "path": "languages/english/curriculum/a1/unit-02.md",
+      "prerequisites": [
+        "a1-01"
+      ],
+      "grammar_tags": [
+        "have_got",
+        "possessives",
+        "plurals"
+      ],
+      "outcomes": [
+        "Can talk about my family, say who people are, and describe what I have using simple possessives and numbers."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "pronunciation_final_voicing"
+      ],
+      "target_vocabulary": [
+        "mother",
+        "father",
+        "sister",
+        "brother",
+        "son",
+        "daughter",
+        "parents",
+        "baby",
+        "wife",
+        "husband",
+        "grandmother",
+        "grandfather"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-03",
+      "level": "A1",
+      "title": "Home & things",
+      "path": "languages/english/curriculum/a1/unit-03.md",
+      "prerequisites": [
+        "a1-01"
+      ],
+      "grammar_tags": [
+        "there_is_are",
+        "articles",
+        "demonstratives"
+      ],
+      "outcomes": [
+        "Can describe my home and the things in a room, saying what there is and pointing to objects near and far."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "articles",
+        "impersonal_subject",
+        "pronunciation_th"
+      ],
+      "target_vocabulary": [
+        "house",
+        "room",
+        "kitchen",
+        "bedroom",
+        "door",
+        "window",
+        "table",
+        "chair",
+        "bed",
+        "wall",
+        "floor",
+        "garden"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-04",
+      "level": "A1",
+      "title": "Daily routines & time",
+      "path": "languages/english/curriculum/a1/unit-04.md",
+      "prerequisites": [
+        "a1-01"
+      ],
+      "grammar_tags": [
+        "present_simple",
+        "auxiliaries",
+        "frequency_adverbs"
+      ],
+      "outcomes": [
+        "Can describe my daily routine, say how often I do things, and tell the time."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "word_order",
+        "auxiliaries",
+        "negation",
+        "present_simple",
+        "prepositions_time",
+        "calques",
+        "pronunciation_th",
+        "pronunciation_wv"
+      ],
+      "target_vocabulary": [
+        "wake up",
+        "get up",
+        "breakfast",
+        "lunch",
+        "dinner",
+        "sleep",
+        "morning",
+        "afternoon",
+        "evening",
+        "night",
+        "week",
+        "o'clock"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-05",
+      "level": "A1",
+      "title": "Food & drink",
+      "path": "languages/english/curriculum/a1/unit-05.md",
+      "prerequisites": [
+        "a1-03",
+        "a1-04"
+      ],
+      "grammar_tags": [
+        "gerund_infinitive",
+        "some_any",
+        "polite_requests"
+      ],
+      "outcomes": [
+        "Can say what food and drink I like and dislike, and order simple things in a café."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "gerund_infinitive"
+      ],
+      "target_vocabulary": [
+        "bread",
+        "rice",
+        "chicken",
+        "fish",
+        "egg",
+        "milk",
+        "water",
+        "coffee",
+        "tea",
+        "apple",
+        "cheese",
+        "sugar"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-06",
+      "level": "A1",
+      "title": "Places in town",
+      "path": "languages/english/curriculum/a1/unit-06.md",
+      "prerequisites": [
+        "a1-01",
+        "a1-03"
+      ],
+      "grammar_tags": [
+        "prepositions_place",
+        "can",
+        "imperatives"
+      ],
+      "outcomes": [
+        "Can say where places are, ask for and give simple directions, and talk about what I can and can't do."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "prepositions_place",
+        "modals"
+      ],
+      "target_vocabulary": [
+        "street",
+        "shop",
+        "bank",
+        "park",
+        "station",
+        "hospital",
+        "restaurant",
+        "corner",
+        "left",
+        "right",
+        "near",
+        "between"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-07",
+      "level": "A1",
+      "title": "Work & study",
+      "path": "languages/english/curriculum/a1/unit-07.md",
+      "prerequisites": [
+        "a1-04"
+      ],
+      "grammar_tags": [
+        "questions",
+        "word_order",
+        "dates"
+      ],
+      "outcomes": [
+        "Can ask and answer wh- questions about jobs and study, and say dates."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "articles",
+        "word_order",
+        "auxiliaries",
+        "questions",
+        "prepositions_time",
+        "false_friends",
+        "word_stress"
+      ],
+      "target_vocabulary": [
+        "doctor",
+        "nurse",
+        "driver",
+        "cook",
+        "waiter",
+        "farmer",
+        "engineer",
+        "manager",
+        "office",
+        "company",
+        "salary",
+        "meeting"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-08",
+      "level": "A1",
+      "title": "Free time & hobbies",
+      "path": "languages/english/curriculum/a1/unit-08.md",
+      "prerequisites": [
+        "a1-01",
+        "a1-04"
+      ],
+      "grammar_tags": [
+        "present_continuous",
+        "simple_vs_continuous"
+      ],
+      "outcomes": [
+        "Can say what I am doing right now and talk about my hobbies and free-time activities."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "continuous",
+        "verb_prepositions",
+        "pronunciation_vowels",
+        "pronunciation_wv"
+      ],
+      "target_vocabulary": [
+        "read",
+        "play",
+        "run",
+        "swim",
+        "dance",
+        "sing",
+        "watch",
+        "listen",
+        "football",
+        "music",
+        "book",
+        "game"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-09",
+      "level": "A1",
+      "title": "Shopping & money",
+      "path": "languages/english/curriculum/a1/unit-09.md",
+      "prerequisites": [
+        "a1-03",
+        "a1-05"
+      ],
+      "grammar_tags": [
+        "countability",
+        "quantifiers",
+        "prices"
+      ],
+      "outcomes": [
+        "Can ask about prices, buy simple things in a shop, and talk about how much things cost."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "countability",
+        "quantifiers"
+      ],
+      "target_vocabulary": [
+        "money",
+        "price",
+        "cheap",
+        "expensive",
+        "buy",
+        "sell",
+        "customer",
+        "dollar",
+        "cent",
+        "bag",
+        "change",
+        "receipt"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-10",
+      "level": "A1",
+      "title": "Weather, clothes & seasons",
+      "path": "languages/english/curriculum/a1/unit-10.md",
+      "prerequisites": [
+        "a1-08"
+      ],
+      "grammar_tags": [
+        "present_continuous",
+        "connectors",
+        "impersonal_subject"
+      ],
+      "outcomes": [
+        "Can describe the weather and what people are wearing, and join simple ideas with basic connectors."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "impersonal_subject",
+        "sentence_stress"
+      ],
+      "target_vocabulary": [
+        "rain",
+        "sun",
+        "snow",
+        "wind",
+        "hot",
+        "cold",
+        "shirt",
+        "shoes",
+        "coat",
+        "hat",
+        "summer",
+        "winter"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-11",
+      "level": "A1",
+      "title": "Yesterday",
+      "path": "languages/english/curriculum/a1/unit-11.md",
+      "prerequisites": [
+        "a1-01"
+      ],
+      "grammar_tags": [
+        "be_past",
+        "past_time"
+      ],
+      "outcomes": [
+        "Can talk about where I was and how I felt in the past using was/were and simple past time expressions."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "be_omission",
+        "pronunciation_final_voicing"
+      ],
+      "target_vocabulary": [
+        "yesterday",
+        "ago",
+        "last",
+        "before",
+        "then",
+        "happy",
+        "sad",
+        "tired",
+        "busy",
+        "late",
+        "early",
+        "holiday"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a1-12",
+      "level": "A1",
+      "title": "Plans & review",
+      "path": "languages/english/curriculum/a1/unit-12.md",
+      "prerequisites": [
+        "a1-01",
+        "a1-02",
+        "a1-03",
+        "a1-04",
+        "a1-05",
+        "a1-06",
+        "a1-07",
+        "a1-08",
+        "a1-09",
+        "a1-10",
+        "a1-11"
+      ],
+      "grammar_tags": [
+        "going_to",
+        "cumulative_review"
+      ],
+      "outcomes": [
+        "Can talk about simple future plans using going to, and use the full range of A1 grammar to communicate about myself and my world."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "tomorrow",
+        "next",
+        "plan",
+        "visit",
+        "travel",
+        "meet",
+        "party",
+        "weekend",
+        "soon",
+        "ticket",
+        "trip",
+        "ready"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-01",
+      "level": "A2",
+      "title": "My story",
+      "path": "languages/english/curriculum/a2/unit-01.md",
+      "prerequisites": [
+        "a1-04",
+        "a1-11"
+      ],
+      "grammar_tags": [
+        "past_simple",
+        "auxiliaries",
+        "questions"
+      ],
+      "outcomes": [
+        "I can narrate a short sequence of past events in my life and ask and answer simple questions about when things happened."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "auxiliaries",
+        "questions",
+        "negation"
+      ],
+      "target_vocabulary": [
+        "born",
+        "grow up",
+        "childhood",
+        "move",
+        "memory",
+        "happen",
+        "meet",
+        "leave",
+        "become",
+        "ago",
+        "last",
+        "diary"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-02",
+      "level": "A2",
+      "title": "Travel & holidays",
+      "path": "languages/english/curriculum/a2/unit-02.md",
+      "prerequisites": [
+        "a2-01",
+        "a1-08"
+      ],
+      "grammar_tags": [
+        "past_continuous",
+        "narrative_tenses"
+      ],
+      "outcomes": [
+        "I can describe what was happening at a moment in the past and set the background to a story about a trip."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "continuous"
+      ],
+      "target_vocabulary": [
+        "journey",
+        "suitcase",
+        "luggage",
+        "passport",
+        "abroad",
+        "flight",
+        "beach",
+        "coast",
+        "hotel",
+        "tourist",
+        "pack",
+        "sunbathe"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-03",
+      "level": "A2",
+      "title": "Comparing things",
+      "path": "languages/english/curriculum/a2/unit-03.md",
+      "prerequisites": [
+        "a1-03",
+        "a1-09"
+      ],
+      "grammar_tags": [
+        "comparatives",
+        "superlatives",
+        "as_as"
+      ],
+      "outcomes": [
+        "I can compare two or more people, places or objects and say which is the best or worst."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "articles",
+        "false_friends"
+      ],
+      "target_vocabulary": [
+        "cheap",
+        "expensive",
+        "modern",
+        "ancient",
+        "popular",
+        "crowded",
+        "comfortable",
+        "similar",
+        "different",
+        "size",
+        "quality",
+        "value"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-04",
+      "level": "A2",
+      "title": "Future plans",
+      "path": "languages/english/curriculum/a2/unit-04.md",
+      "prerequisites": [
+        "a1-12",
+        "a1-08"
+      ],
+      "grammar_tags": [
+        "future_forms",
+        "going_to",
+        "will"
+      ],
+      "outcomes": [
+        "I can talk about my intentions, make predictions, and offer to do things, choosing the right future form."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "plan",
+        "decide",
+        "intend",
+        "promise",
+        "offer",
+        "hope",
+        "probably",
+        "maybe",
+        "soon",
+        "arrangement",
+        "retire",
+        "save"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-05",
+      "level": "A2",
+      "title": "Health & body",
+      "path": "languages/english/curriculum/a2/unit-05.md",
+      "prerequisites": [
+        "a1-06"
+      ],
+      "grammar_tags": [
+        "should",
+        "must",
+        "have_to",
+        "modals"
+      ],
+      "outcomes": [
+        "I can describe how I feel, say what is wrong, and give and understand simple health advice."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "modals"
+      ],
+      "target_vocabulary": [
+        "headache",
+        "fever",
+        "cough",
+        "ache",
+        "pain",
+        "symptom",
+        "medicine",
+        "prescription",
+        "appointment",
+        "injury",
+        "ill",
+        "recover"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-06",
+      "level": "A2",
+      "title": "Food & restaurants",
+      "path": "languages/english/curriculum/a2/unit-06.md",
+      "prerequisites": [
+        "a1-05",
+        "a1-09"
+      ],
+      "grammar_tags": [
+        "quantifiers",
+        "countability",
+        "too_enough"
+      ],
+      "outcomes": [
+        "I can talk about quantities of food, order a meal, and say whether there is too much, too little or enough of something."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "countability",
+        "quantifiers"
+      ],
+      "target_vocabulary": [
+        "menu",
+        "waiter",
+        "bill",
+        "dish",
+        "starter",
+        "dessert",
+        "vegetarian",
+        "delicious",
+        "order",
+        "recipe",
+        "flavour",
+        "tip"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-07",
+      "level": "A2",
+      "title": "Experiences",
+      "path": "languages/english/curriculum/a2/unit-07.md",
+      "prerequisites": [
+        "a2-01",
+        "a1-02"
+      ],
+      "grammar_tags": [
+        "present_perfect",
+        "perfect_vs_past"
+      ],
+      "outcomes": [
+        "I can talk about life experiences without saying exactly when, and ask others what they have done."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "perfect_vs_past"
+      ],
+      "target_vocabulary": [
+        "experience",
+        "achievement",
+        "adventure",
+        "champion",
+        "record",
+        "explore",
+        "discover",
+        "amazing",
+        "exciting",
+        "boring",
+        "recently",
+        "so far"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-08",
+      "level": "A2",
+      "title": "Getting around",
+      "path": "languages/english/curriculum/a2/unit-08.md",
+      "prerequisites": [
+        "a1-06",
+        "a2-01"
+      ],
+      "grammar_tags": [
+        "purpose_infinitive",
+        "adverbs_manner"
+      ],
+      "outcomes": [
+        "I can explain why I do things, describe how actions are done, and ask for and give directions."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "prepositions_place"
+      ],
+      "target_vocabulary": [
+        "underground",
+        "platform",
+        "fare",
+        "traffic",
+        "corner",
+        "roundabout",
+        "pedestrian",
+        "lane",
+        "direction",
+        "straight",
+        "slowly",
+        "safely"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-09",
+      "level": "A2",
+      "title": "People, then & now",
+      "path": "languages/english/curriculum/a2/unit-09.md",
+      "prerequisites": [
+        "a2-01"
+      ],
+      "grammar_tags": [
+        "used_to",
+        "appearance"
+      ],
+      "outcomes": [
+        "I can describe how people and habits were different in the past, and describe someone's appearance and character."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "appearance",
+        "personality",
+        "curly",
+        "bald",
+        "beard",
+        "moustache",
+        "polite",
+        "shy",
+        "generous",
+        "honest",
+        "lazy",
+        "attractive"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-10",
+      "level": "A2",
+      "title": "Rules & possibilities",
+      "path": "languages/english/curriculum/a2/unit-10.md",
+      "prerequisites": [
+        "a1-04",
+        "a2-04",
+        "a2-05"
+      ],
+      "grammar_tags": [
+        "conditionals_real",
+        "modals"
+      ],
+      "outcomes": [
+        "I can talk about rules, general truths, and real future possibilities and their results."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "negation",
+        "conditionals_real",
+        "modals"
+      ],
+      "target_vocabulary": [
+        "rule",
+        "allowed",
+        "forbidden",
+        "permission",
+        "fine",
+        "warning",
+        "sign",
+        "litter",
+        "behave",
+        "dangerous",
+        "safe",
+        "notice"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-11",
+      "level": "A2",
+      "title": "Entertainment & media",
+      "path": "languages/english/curriculum/a2/unit-11.md",
+      "prerequisites": [
+        "a1-05",
+        "a2-01"
+      ],
+      "grammar_tags": [
+        "gerund_infinitive",
+        "connectors"
+      ],
+      "outcomes": [
+        "I can say what I enjoy and want to do in my free time and connect ideas in the right order."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "gerund_infinitive",
+        "word_stress"
+      ],
+      "target_vocabulary": [
+        "comedy",
+        "documentary",
+        "audience",
+        "channel",
+        "series",
+        "actor",
+        "scene",
+        "review",
+        "headline",
+        "subtitle",
+        "broadcast",
+        "entertaining"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "a2-12",
+      "level": "A2",
+      "title": "Milestone",
+      "path": "languages/english/curriculum/a2/unit-12.md",
+      "prerequisites": [
+        "a2-01",
+        "a2-02",
+        "a2-03",
+        "a2-04",
+        "a2-05",
+        "a2-06",
+        "a2-07",
+        "a2-08",
+        "a2-09",
+        "a2-10",
+        "a2-11"
+      ],
+      "grammar_tags": [
+        "cumulative_review"
+      ],
+      "outcomes": [
+        "I can handle the everyday A2 tasks of the whole level — narrating, comparing, planning, advising and describing — using the structures practised in this course, and identify what needs further practice."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "checkpoint",
+        "revise",
+        "practise",
+        "improve",
+        "progress",
+        "skill",
+        "confident",
+        "fluent",
+        "mistake",
+        "correct",
+        "goal",
+        "achieve"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-01",
+      "level": "B1",
+      "title": "Milestones & life stories",
+      "path": "languages/english/curriculum/b1/unit-01.md",
+      "prerequisites": [
+        "a2-01",
+        "a2-07"
+      ],
+      "grammar_tags": [
+        "perfect_vs_past",
+        "present_perfect"
+      ],
+      "outcomes": [
+        "I can tell the story of my life so far, linking finished events to their effect on my life now."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "perfect_vs_past",
+        "false_friends"
+      ],
+      "target_vocabulary": [
+        "milestone",
+        "graduate",
+        "engaged",
+        "retire",
+        "generation",
+        "upbringing",
+        "relative",
+        "neighbour",
+        "memory",
+        "grow up",
+        "settle down",
+        "look back"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-02",
+      "level": "B1",
+      "title": "Work in progress",
+      "path": "languages/english/curriculum/b1/unit-02.md",
+      "prerequisites": [
+        "b1-01",
+        "a1-08"
+      ],
+      "grammar_tags": [
+        "perfect_continuous",
+        "for_since"
+      ],
+      "outcomes": [
+        "I can talk about activities that started in the past and are still going on, and say how long they have lasted."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "continuous",
+        "tense_aspect"
+      ],
+      "target_vocabulary": [
+        "colleague",
+        "deadline",
+        "commute",
+        "overtime",
+        "promotion",
+        "shift",
+        "apply",
+        "CV",
+        "income",
+        "skilled",
+        "freelance",
+        "keep up"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-03",
+      "level": "B1",
+      "title": "Storytelling",
+      "path": "languages/english/curriculum/b1/unit-03.md",
+      "prerequisites": [
+        "a2-02",
+        "a2-07"
+      ],
+      "grammar_tags": [
+        "past_perfect",
+        "narrative_tenses"
+      ],
+      "outcomes": [
+        "I can tell a story about the past and make clear which events happened before other events."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "tense_aspect"
+      ],
+      "target_vocabulary": [
+        "novel",
+        "plot",
+        "character",
+        "chapter",
+        "author",
+        "fairy tale",
+        "legend",
+        "scene",
+        "twist",
+        "narrator",
+        "imagine",
+        "turn out"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-04",
+      "level": "B1",
+      "title": "Real possibilities",
+      "path": "languages/english/curriculum/b1/unit-04.md",
+      "prerequisites": [
+        "a2-04",
+        "a2-10"
+      ],
+      "grammar_tags": [
+        "future_forms",
+        "conditionals_real",
+        "future_continuous"
+      ],
+      "outcomes": [
+        "I can talk about future plans, predictions and likely results, and choose the right future form."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "conditionals_real"
+      ],
+      "target_vocabulary": [
+        "forecast",
+        "climate",
+        "pollution",
+        "recycle",
+        "opportunity",
+        "arrange",
+        "prevent",
+        "likely",
+        "plan ahead",
+        "warn",
+        "sort out",
+        "run out"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-05",
+      "level": "B1",
+      "title": "Imagine",
+      "path": "languages/english/curriculum/b1/unit-05.md",
+      "prerequisites": [
+        "a2-10",
+        "a2-01"
+      ],
+      "grammar_tags": [
+        "conditionals_unreal",
+        "second_conditional"
+      ],
+      "outcomes": [
+        "I can talk about imaginary or unlikely situations and their results, and say what I would do."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "conditionals_unreal"
+      ],
+      "target_vocabulary": [
+        "afford",
+        "lottery",
+        "wealthy",
+        "budget",
+        "invest",
+        "borrow",
+        "owe",
+        "bargain",
+        "donate",
+        "worth",
+        "save up",
+        "cut back"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-06",
+      "level": "B1",
+      "title": "Habits, past & present",
+      "path": "languages/english/curriculum/b1/unit-06.md",
+      "prerequisites": [
+        "a2-09",
+        "a2-11"
+      ],
+      "grammar_tags": [
+        "used_to",
+        "be_used_to",
+        "gerund_infinitive"
+      ],
+      "outcomes": [
+        "I can compare how things used to be with how they are now, and describe past habits that have changed."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "gerund_infinitive"
+      ],
+      "target_vocabulary": [
+        "routine",
+        "habit",
+        "junk food",
+        "fit",
+        "diet",
+        "exercise",
+        "stress",
+        "sleep",
+        "quit",
+        "cut down",
+        "work out",
+        "give up"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-07",
+      "level": "B1",
+      "title": "He said, she said",
+      "path": "languages/english/curriculum/b1/unit-07.md",
+      "prerequisites": [
+        "b1-03",
+        "b1-04"
+      ],
+      "grammar_tags": [
+        "reported_speech",
+        "say_tell",
+        "backshift"
+      ],
+      "outcomes": [
+        "I can report what other people said, and use *say* and *tell* correctly."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "reported_speech"
+      ],
+      "target_vocabulary": [
+        "journalist",
+        "headline",
+        "rumour",
+        "announce",
+        "interview",
+        "broadcast",
+        "article",
+        "source",
+        "claim",
+        "deny",
+        "point out",
+        "find out"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-08",
+      "level": "B1",
+      "title": "It was made here",
+      "path": "languages/english/curriculum/b1/unit-08.md",
+      "prerequisites": [
+        "a2-01",
+        "a2-07"
+      ],
+      "grammar_tags": [
+        "passive_simple"
+      ],
+      "outcomes": [
+        "I can describe processes and facts where the action matters more than who does it."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "manufacture",
+        "factory",
+        "produce",
+        "invent",
+        "device",
+        "material",
+        "supply",
+        "export",
+        "waste",
+        "process",
+        "carry out",
+        "set up"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-09",
+      "level": "B1",
+      "title": "Reading between the lines",
+      "path": "languages/english/curriculum/b1/unit-09.md",
+      "prerequisites": [
+        "a2-05",
+        "a1-07"
+      ],
+      "grammar_tags": [
+        "modals_deduction",
+        "question_tags"
+      ],
+      "outcomes": [
+        "I can say how sure I am about something based on evidence, and check information with question tags."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "sentence_stress"
+      ],
+      "target_vocabulary": [
+        "evidence",
+        "obvious",
+        "guess",
+        "suspect",
+        "clue",
+        "sure",
+        "doubt",
+        "seem",
+        "notice",
+        "assume",
+        "rule out",
+        "figure out"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-10",
+      "level": "B1",
+      "title": "People & places",
+      "path": "languages/english/curriculum/b1/unit-10.md",
+      "prerequisites": [
+        "a1-07",
+        "a2-01"
+      ],
+      "grammar_tags": [
+        "relative_clauses",
+        "defining_relatives"
+      ],
+      "outcomes": [
+        "I can give extra information about people, things and places in one sentence using relative clauses."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "word_order",
+        "relative_clauses"
+      ],
+      "target_vocabulary": [
+        "neighbourhood",
+        "destination",
+        "landmark",
+        "resident",
+        "abroad",
+        "tourist",
+        "local",
+        "scenery",
+        "accommodation",
+        "crowded",
+        "sightseeing",
+        "put up"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-11",
+      "level": "B1",
+      "title": "Patterns & connections",
+      "path": "languages/english/curriculum/b1/unit-11.md",
+      "prerequisites": [
+        "a2-11"
+      ],
+      "grammar_tags": [
+        "gerund_infinitive",
+        "so_such",
+        "phrasal_verbs"
+      ],
+      "outcomes": [
+        "I can use common verb patterns correctly and link my ideas naturally with everyday phrasal verbs."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [
+        "verb_prepositions",
+        "phrasal_verbs",
+        "gerund_infinitive",
+        "calques"
+      ],
+      "target_vocabulary": [
+        "hobby",
+        "avoid",
+        "manage",
+        "suggest",
+        "practise",
+        "deal with",
+        "get on with",
+        "take up",
+        "give in",
+        "look forward to",
+        "carry on",
+        "end up"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b1-12",
+      "level": "B1",
+      "title": "Milestone",
+      "path": "languages/english/curriculum/b1/unit-12.md",
+      "prerequisites": [
+        "b1-01",
+        "b1-02",
+        "b1-03",
+        "b1-04",
+        "b1-05",
+        "b1-06",
+        "b1-07",
+        "b1-08",
+        "b1-09",
+        "b1-10",
+        "b1-11"
+      ],
+      "grammar_tags": [
+        "cumulative_review"
+      ],
+      "outcomes": [
+        "I can combine the grammar and vocabulary of B1 to handle a PET-style checkpoint covering everything so far."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "review",
+        "progress",
+        "achieve",
+        "confident",
+        "mistake",
+        "improve",
+        "fluent",
+        "challenge",
+        "goal",
+        "feedback",
+        "brush up",
+        "get by"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-01",
+      "level": "B2",
+      "title": "Regrets & what-ifs",
+      "path": "languages/english/curriculum/b2/unit-01.md",
+      "prerequisites": [
+        "b1-05",
+        "b1-03"
+      ],
+      "grammar_tags": [
+        "third_conditional",
+        "wish",
+        "conditionals_unreal"
+      ],
+      "outcomes": [
+        "I can talk about past regrets and imagine how the past could have been different, using the third conditional and *wish / if only*."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [
+        "conditionals_unreal"
+      ],
+      "target_vocabulary": [
+        "regret",
+        "in hindsight",
+        "turn down",
+        "overlook",
+        "hesitate",
+        "impulsive",
+        "resent",
+        "dwell on",
+        "reckless",
+        "come to terms with",
+        "missed opportunity",
+        "apologise"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-02",
+      "level": "B2",
+      "title": "Crossed timelines",
+      "path": "languages/english/curriculum/b2/unit-02.md",
+      "prerequisites": [
+        "b2-01"
+      ],
+      "grammar_tags": [
+        "mixed_conditionals",
+        "conditionals_unreal"
+      ],
+      "outcomes": [
+        "I can connect a past cause to a present result, and a present fact to a past result, using mixed conditionals."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [
+        "conditionals_unreal"
+      ],
+      "target_vocabulary": [
+        "consequence",
+        "long-term",
+        "outcome",
+        "circumstances",
+        "trade-off",
+        "inevitable",
+        "hindrance",
+        "priority",
+        "setback",
+        "foresee",
+        "alter",
+        "knock-on effect"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-03",
+      "level": "B2",
+      "title": "Deep narrative",
+      "path": "languages/english/curriculum/b2/unit-03.md",
+      "prerequisites": [
+        "b1-03",
+        "b1-02"
+      ],
+      "grammar_tags": [
+        "past_perfect_continuous",
+        "participle_clauses",
+        "narrative_tenses"
+      ],
+      "outcomes": [
+        "I can tell a detailed story, showing how long something had been going on before another past event, and combine actions smoothly."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [
+        "tense_aspect"
+      ],
+      "target_vocabulary": [
+        "gradually",
+        "eventually",
+        "suspect",
+        "witness",
+        "tension",
+        "reveal",
+        "overwhelmed",
+        "flashback",
+        "narrator",
+        "unfold",
+        "motive",
+        "coincidence"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-04",
+      "level": "B2",
+      "title": "It is said that…",
+      "path": "languages/english/curriculum/b2/unit-04.md",
+      "prerequisites": [
+        "b1-08",
+        "b1-07"
+      ],
+      "grammar_tags": [
+        "passive_reporting",
+        "passive_complex"
+      ],
+      "outcomes": [
+        "I can report information impersonally when the source is unknown or unimportant, using the passive in any tense."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "allege",
+        "source",
+        "confirm",
+        "estimate",
+        "reportedly",
+        "undergo",
+        "findings",
+        "widespread",
+        "credible",
+        "speculation",
+        "allegedly",
+        "verify"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-05",
+      "level": "B2",
+      "title": "Getting things done",
+      "path": "languages/english/curriculum/b2/unit-05.md",
+      "prerequisites": [
+        "b1-08"
+      ],
+      "grammar_tags": [
+        "causative",
+        "have_get"
+      ],
+      "outcomes": [
+        "I can talk about services and jobs done for me by someone else, using the causative *have / get something done*."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "renovate",
+        "install",
+        "maintenance",
+        "outsource",
+        "estimate",
+        "warranty",
+        "tailor",
+        "convenient",
+        "reliable",
+        "premises",
+        "refurbish",
+        "supplier"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-06",
+      "level": "B2",
+      "title": "Hindsight",
+      "path": "languages/english/curriculum/b2/unit-06.md",
+      "prerequisites": [
+        "b1-09",
+        "b1-01"
+      ],
+      "grammar_tags": [
+        "perfect_modals",
+        "modals_deduction"
+      ],
+      "outcomes": [
+        "I can criticise, deduce and speculate about past actions using perfect modals."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [
+        "modals"
+      ],
+      "target_vocabulary": [
+        "assume",
+        "blame",
+        "warn",
+        "deserve",
+        "negligent",
+        "foolproof",
+        "avoidable",
+        "liable",
+        "oversight",
+        "precaution",
+        "culprit",
+        "verdict"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-07",
+      "level": "B2",
+      "title": "Reporting everything",
+      "path": "languages/english/curriculum/b2/unit-07.md",
+      "prerequisites": [
+        "b1-07",
+        "b1-11"
+      ],
+      "grammar_tags": [
+        "reported_questions",
+        "reported_commands",
+        "reported_speech"
+      ],
+      "outcomes": [
+        "I can report statements, questions and commands accurately, and use precise reporting verbs."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [
+        "questions",
+        "reported_speech"
+      ],
+      "target_vocabulary": [
+        "claim",
+        "deny",
+        "insist",
+        "admit",
+        "suggest",
+        "recommend",
+        "threaten",
+        "persuade",
+        "apologise",
+        "promise",
+        "announce",
+        "complain"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-08",
+      "level": "B2",
+      "title": "Adding layers",
+      "path": "languages/english/curriculum/b2/unit-08.md",
+      "prerequisites": [
+        "b1-10",
+        "b1-08"
+      ],
+      "grammar_tags": [
+        "nondefining_relatives",
+        "reduced_relatives"
+      ],
+      "outcomes": [
+        "I can add extra, non-essential information to a sentence smoothly using relative clauses."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [
+        "relative_clauses"
+      ],
+      "target_vocabulary": [
+        "renowned",
+        "controversial",
+        "pioneering",
+        "acclaimed",
+        "prominent",
+        "underestimate",
+        "influential",
+        "heritage",
+        "exhibit",
+        "masterpiece",
+        "contemporary",
+        "restore"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-09",
+      "level": "B2",
+      "title": "The future, completed",
+      "path": "languages/english/curriculum/b2/unit-09.md",
+      "prerequisites": [
+        "b1-04",
+        "b1-01"
+      ],
+      "grammar_tags": [
+        "future_perfect",
+        "future_continuous"
+      ],
+      "outcomes": [
+        "I can talk about actions in progress at a future time and actions finished by a future point."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "automate",
+        "sustainable",
+        "renewable",
+        "emissions",
+        "breakthrough",
+        "obsolete",
+        "disruptive",
+        "efficiency",
+        "forecast",
+        "deploy",
+        "scalable",
+        "transition"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-10",
+      "level": "B2",
+      "title": "Emphasis & flow",
+      "path": "languages/english/curriculum/b2/unit-10.md",
+      "prerequisites": [
+        "b1-07",
+        "b1-11"
+      ],
+      "grammar_tags": [
+        "inversion",
+        "clefts",
+        "discourse_markers"
+      ],
+      "outcomes": [
+        "I can add emphasis and connect ideas smoothly using inversion, cleft sentences and discourse markers."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "persuasive",
+        "misleading",
+        "target audience",
+        "slogan",
+        "endorse",
+        "manipulate",
+        "appeal",
+        "bias",
+        "exaggerate",
+        "credibility",
+        "subtle",
+        "compelling"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-11",
+      "level": "B2",
+      "title": "Word power",
+      "path": "languages/english/curriculum/b2/unit-11.md",
+      "prerequisites": [
+        "b1-11"
+      ],
+      "grammar_tags": [
+        "word_formation",
+        "collocations",
+        "phrasal_verbs"
+      ],
+      "outcomes": [
+        "I can build new words with prefixes and suffixes, and choose natural word partnerships."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [
+        "verb_prepositions",
+        "phrasal_verbs",
+        "false_friends",
+        "calques"
+      ],
+      "target_vocabulary": [
+        "implement",
+        "sustainability",
+        "accountability",
+        "innovative",
+        "overestimate",
+        "downturn",
+        "streamline",
+        "undertake",
+        "disregard",
+        "feasible",
+        "counterproductive",
+        "turnover"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "b2-12",
+      "level": "B2",
+      "title": "Milestone",
+      "path": "languages/english/curriculum/b2/unit-12.md",
+      "prerequisites": [
+        "b2-01",
+        "b2-02",
+        "b2-03",
+        "b2-04",
+        "b2-05",
+        "b2-06",
+        "b2-07",
+        "b2-08",
+        "b2-09",
+        "b2-10",
+        "b2-11"
+      ],
+      "grammar_tags": [
+        "cumulative_review"
+      ],
+      "outcomes": [
+        "I can combine all B2 grammar under exam conditions and handle B2 First (FCE) Use of English task types."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "consolidate",
+        "transformation",
+        "paraphrase",
+        "register",
+        "accuracy",
+        "fluency",
+        "context",
+        "proficiency",
+        "revise",
+        "assess",
+        "distractor",
+        "benchmark"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-01",
+      "level": "C1",
+      "title": "Nuance & Hedging",
+      "path": "languages/english/curriculum/c1/unit-01.md",
+      "prerequisites": [
+        "b2-04",
+        "b2-06"
+      ],
+      "grammar_tags": [
+        "hedging",
+        "advanced_modality",
+        "register"
+      ],
+      "outcomes": [
+        "I can soften claims, signal uncertainty and distance myself from assertions with the precision expected in academic and professional discourse."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "caveat",
+        "tentative",
+        "plausible",
+        "ostensibly",
+        "presumably",
+        "conjecture",
+        "arguably",
+        "purportedly",
+        "downplay",
+        "qualify",
+        "disclaimer",
+        "nuance"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-02",
+      "level": "C1",
+      "title": "Emphasis Engineered",
+      "path": "languages/english/curriculum/c1/unit-02.md",
+      "prerequisites": [
+        "b2-10"
+      ],
+      "grammar_tags": [
+        "inversion",
+        "emphatic_adverbials"
+      ],
+      "outcomes": [
+        "I can front negative and restrictive adverbials and invert subject and auxiliary to add dramatic emphasis in formal writing and speech."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "decisive",
+        "far-reaching",
+        "unprecedented",
+        "sweeping",
+        "mounting",
+        "watershed",
+        "backlash",
+        "ramifications",
+        "galvanize",
+        "eclipse",
+        "staunch",
+        "upheaval"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-03",
+      "level": "C1",
+      "title": "What Matters Is…",
+      "path": "languages/english/curriculum/c1/unit-03.md",
+      "prerequisites": [
+        "b2-10"
+      ],
+      "grammar_tags": [
+        "clefts",
+        "fronting"
+      ],
+      "outcomes": [
+        "I can restructure sentences with cleft constructions and fronting to spotlight the exact element I want the listener to focus on."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "inequality",
+        "disparity",
+        "scrutiny",
+        "accountability",
+        "transparency",
+        "vested interest",
+        "paramount",
+        "underpin",
+        "erode",
+        "entrenched",
+        "disenfranchise",
+        "grievance"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-04",
+      "level": "C1",
+      "title": "The Unsaid",
+      "path": "languages/english/curriculum/c1/unit-04.md",
+      "prerequisites": [
+        "b1-09",
+        "b1-10"
+      ],
+      "grammar_tags": [
+        "ellipsis",
+        "substitution",
+        "cohesion"
+      ],
+      "outcomes": [
+        "I can leave out or replace repeated words with *so*, *neither*, *one*, *do so* and other pro-forms to keep my speech and writing economical and cohesive."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "concede",
+        "stipulate",
+        "leverage",
+        "mutual",
+        "provisional",
+        "counterpart",
+        "ratify",
+        "amenable",
+        "reciprocal",
+        "deadlock",
+        "concession",
+        "overture"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-05",
+      "level": "C1",
+      "title": "Academic Voice",
+      "path": "languages/english/curriculum/c1/unit-05.md",
+      "prerequisites": [
+        "b2-04",
+        "b2-11"
+      ],
+      "grammar_tags": [
+        "nominalization",
+        "passive_complex",
+        "academic_register"
+      ],
+      "outcomes": [
+        "I can write in an objective academic register, using nominalization and layered passive constructions to foreground processes and findings rather than the people behind them."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "hypothesis",
+        "methodology",
+        "empirical",
+        "correlation",
+        "paradigm",
+        "peer review",
+        "replicate",
+        "inference",
+        "variable",
+        "robust",
+        "ambiguity",
+        "rigorous"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-06",
+      "level": "C1",
+      "title": "Formal Moves",
+      "path": "languages/english/curriculum/c1/unit-06.md",
+      "prerequisites": [
+        "b1-05",
+        "c1-01"
+      ],
+      "grammar_tags": [
+        "subjunctive",
+        "diplomacy"
+      ],
+      "outcomes": [
+        "I can use the subjunctive and diplomatic phrasing to make demands, recommendations and objections sound formal, measured and tactful."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "imperative",
+        "mandate",
+        "contingency",
+        "deferral",
+        "protocol",
+        "consensus",
+        "prudent",
+        "tactful",
+        "reconcile",
+        "impartial",
+        "envoy",
+        "overrule"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-07",
+      "level": "C1",
+      "title": "Compression",
+      "path": "languages/english/curriculum/c1/unit-07.md",
+      "prerequisites": [
+        "b2-03",
+        "b2-08"
+      ],
+      "grammar_tags": [
+        "participle_clauses",
+        "reduced_relatives"
+      ],
+      "outcomes": [
+        "I can compress two clauses into one using participle and reduced relative clauses, writing more economically and elegantly."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "elegant",
+        "concise",
+        "verbose",
+        "succinct",
+        "coherent",
+        "draft",
+        "revise",
+        "allusion",
+        "prose",
+        "excerpt",
+        "render",
+        "convoluted"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-08",
+      "level": "C1",
+      "title": "Weaving Text",
+      "path": "languages/english/curriculum/c1/unit-08.md",
+      "prerequisites": [
+        "b2-10",
+        "c1-04"
+      ],
+      "grammar_tags": [
+        "cohesion",
+        "discourse_markers",
+        "extended_discourse"
+      ],
+      "outcomes": [
+        "I can manage extended discourse with a wide range of cohesive devices, signposting the relationships between ideas and holding a long turn together."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [
+        "sentence_stress"
+      ],
+      "target_vocabulary": [
+        "notwithstanding",
+        "conversely",
+        "albeit",
+        "thereby",
+        "hitherto",
+        "insofar as",
+        "knock-on effect",
+        "crux",
+        "tangent",
+        "premise",
+        "juncture",
+        "offset"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-09",
+      "level": "C1",
+      "title": "Time Under the Microscope",
+      "path": "languages/english/curriculum/c1/unit-09.md",
+      "prerequisites": [
+        "b2-03",
+        "b2-09"
+      ],
+      "grammar_tags": [
+        "aspect_nuance",
+        "narrative_tenses"
+      ],
+      "outcomes": [
+        "I can exploit fine distinctions of tense and aspect to shade meaning in narrative, reportage and hypothetical accounts."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [
+        "tense_aspect"
+      ],
+      "target_vocabulary": [
+        "retrospect",
+        "anticipate",
+        "unfold",
+        "ongoing",
+        "imminent",
+        "protracted",
+        "belated",
+        "concurrent",
+        "hindsight",
+        "precede",
+        "lapse",
+        "culminate"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-10",
+      "level": "C1",
+      "title": "Idiom, collocation & register",
+      "path": "languages/english/curriculum/c1/unit-10.md",
+      "prerequisites": [
+        "b2-11",
+        "c1-01"
+      ],
+      "grammar_tags": [
+        "idioms",
+        "collocations",
+        "register",
+        "irony"
+      ],
+      "outcomes": [
+        "I can deploy idioms, strong collocations and shifts of register, and recognise humour and irony, so as to sound natural and read between the lines."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [
+        "false_friends",
+        "calques",
+        "pronunciation_vowels",
+        "pronunciation_th",
+        "pronunciation_wv",
+        "pronunciation_final_voicing",
+        "word_stress",
+        "sentence_stress"
+      ],
+      "target_vocabulary": [
+        "knack",
+        "banter",
+        "wry",
+        "tongue-in-cheek",
+        "deadpan",
+        "colloquial",
+        "connotation",
+        "verbatim",
+        "quip",
+        "euphemism",
+        "tenor",
+        "rapport"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-11",
+      "level": "C1",
+      "title": "The Art of the Argument",
+      "path": "languages/english/curriculum/c1/unit-11.md",
+      "prerequisites": [
+        "c1-01",
+        "c1-08"
+      ],
+      "grammar_tags": [
+        "argumentation",
+        "concession",
+        "rhetoric"
+      ],
+      "outcomes": [
+        "I can build a persuasive case, concede fairly, rebut counterarguments and use rhetorical moves to prevail in a reasoned debate."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "rebuttal",
+        "refute",
+        "compelling",
+        "fallacy",
+        "rhetoric",
+        "undermine",
+        "substantiate",
+        "corroborate",
+        "counterargument",
+        "sway",
+        "tenable",
+        "dismissive"
+      ],
+      "minutes": 15
+    },
+    {
+      "id": "c1-12",
+      "level": "C1",
+      "title": "Milestone",
+      "path": "languages/english/curriculum/c1/unit-12.md",
+      "prerequisites": [
+        "c1-01",
+        "c1-02",
+        "c1-03",
+        "c1-04",
+        "c1-05",
+        "c1-06",
+        "c1-07",
+        "c1-08",
+        "c1-09",
+        "c1-10",
+        "c1-11"
+      ],
+      "grammar_tags": [
+        "cumulative_review"
+      ],
+      "outcomes": [
+        "I can integrate the full range of C1 grammar, vocabulary and discourse skills across complex spoken and written tasks at CAE level."
+      ],
+      "domains": [
+        "reading",
+        "listening",
+        "writing",
+        "speaking",
+        "grammar",
+        "vocabulary"
+      ],
+      "exercise_types": [
+        "cloze",
+        "translation",
+        "transformation",
+        "reorder",
+        "error_correction",
+        "reading_comprehension",
+        "dialogue",
+        "short_writing",
+        "listening_comprehension",
+        "spoken_response",
+        "extended_writing"
+      ],
+      "l1_error_tags": [],
+      "target_vocabulary": [
+        "synthesize",
+        "articulate",
+        "discern",
+        "holistic",
+        "pertinent",
+        "astute",
+        "cogent",
+        "multifaceted",
+        "scrupulous",
+        "salient",
+        "inextricable",
+        "overarching"
+      ],
+      "minutes": 15
+    }
+  ]
+}

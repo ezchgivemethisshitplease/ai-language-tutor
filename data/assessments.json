@@ -1,0 +1,1985 @@
+{
+  "schema_version": 1,
+  "language": "english",
+  "calibrated": false,
+  "purpose": "Original low-stakes English diagnostic and practice tasks. Level labels describe curriculum design targets, not empirically calibrated item difficulties or CEFR cut scores.",
+  "limitations": [
+    "The 100 original diagnostic items include reading, actual-audio listening scripts, controlled form checks, open writing and real speaking across A1-C1. None is unit-mastery evidence.",
+    "Listening scripts require actual audio delivery with the transcript hidden. The repository provides original scripts, not licensed human recordings or acoustic validation.",
+    "Each stimulus family supplies at most one independent diagnostic trial; prompted, revealed, repeated and transcript-visible trials cannot create new diagnostic evidence.",
+    "Open production may be reviewed by an LLM for provisional feedback. Only genuine human reviews enter confirmed productive evidence; identity is not authenticated.",
+    "No item calibration, standard-setting, rater reliability or outcome validation study has established CEFR measurement properties. Provisional routing is not mastery or certification."
+  ],
+  "rubric_scale": {
+    "0": "Requested communicative outcome is not demonstrated.",
+    "0.5": "Partly demonstrated; substantial support or revision is needed.",
+    "1": "Demonstrated for this specific task and audience; not a global proficiency score."
+  },
+  "items": [
+    {
+      "id": "a1-article-01",
+      "type": "cloze",
+      "skill_id": "a1-03",
+      "level": "A1",
+      "domain": "grammar",
+      "prompt": "Complete with a or an: I live in ___ old house.",
+      "answers": [
+        "an"
+      ],
+      "exhaustive": true,
+      "error_tags": [
+        "articles"
+      ],
+      "grammar_tags": [
+        "articles"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "a1-article-01"
+    },
+    {
+      "id": "a1-routine-01",
+      "type": "transformation",
+      "skill_id": "a1-04",
+      "level": "A1",
+      "domain": "writing",
+      "prompt": "Make this sentence negative: She works on Sundays.",
+      "answers": [
+        "She does not work on Sundays.",
+        "She doesn't work on Sundays."
+      ],
+      "error_tags": [
+        "negation",
+        "auxiliaries"
+      ],
+      "grammar_tags": [
+        "present_simple",
+        "auxiliaries"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "a1-routine-01"
+    },
+    {
+      "id": "a1-question-01",
+      "type": "reorder",
+      "skill_id": "a1-07",
+      "level": "A1",
+      "domain": "grammar",
+      "prompt": "Use every word once to make a question: you / where / work / do",
+      "answers": [
+        "Where do you work?"
+      ],
+      "exhaustive": true,
+      "error_tags": [
+        "word_order",
+        "questions"
+      ],
+      "grammar_tags": [
+        "questions",
+        "word_order"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "a1-question-01"
+    },
+    {
+      "id": "a1-reading-01",
+      "type": "reading_comprehension",
+      "skill_id": "a1-08",
+      "level": "A1",
+      "domain": "reading",
+      "prompt": "Maya usually reads after work. Today she is playing a game with her sister. What is Maya doing today?",
+      "answers": [
+        "She is playing a game with her sister.",
+        "She is playing a game.",
+        "Playing a game."
+      ],
+      "context": "Maya usually reads after work. Today she is playing a game with her sister.",
+      "purpose": "diagnostic",
+      "family_id": "a1-reading-01"
+    },
+    {
+      "id": "a1-writing-01",
+      "type": "short_writing",
+      "skill_id": "a1-04",
+      "level": "A1",
+      "domain": "writing",
+      "prompt": "Write three short sentences about your normal morning. Include one time and one thing you do not do.",
+      "mode": "chat",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "clarity": "The audience can understand the intended message without guessing.",
+        "language_control": "Uses simple words and familiar patterns for the requested everyday message. Errors may occur; the essential meaning remains understandable.",
+        "organisation": "Presents the requested simple messages in an understandable order; elaborate linking is not required."
+      },
+      "purpose": "diagnostic",
+      "family_id": "a1-writing-01"
+    },
+    {
+      "id": "a1-speaking-01",
+      "type": "spoken_response",
+      "skill_id": "a1-01",
+      "level": "A1",
+      "domain": "speaking",
+      "prompt": "In a real voice conversation, introduce yourself and say where you live. You may ask the listener to repeat a question.",
+      "mode": "voice-required",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "intelligibility": "The audience can understand the intended message without guessing.",
+        "language_control": "Uses simple words and familiar patterns for the requested everyday message. Errors may occur; the essential meaning remains understandable.",
+        "organisation": "Presents the requested simple messages in an understandable order; elaborate linking is not required."
+      },
+      "purpose": "diagnostic",
+      "family_id": "a1-speaking-01"
+    },
+    {
+      "id": "a2-past-01",
+      "type": "cloze",
+      "skill_id": "a2-01",
+      "level": "A2",
+      "domain": "grammar",
+      "prompt": "Use the past simple form of go: We ___ to the lake last Saturday.",
+      "answers": [
+        "went"
+      ],
+      "exhaustive": true,
+      "error_tags": [
+        "tense_aspect"
+      ],
+      "grammar_tags": [
+        "past_simple"
+      ],
+      "vocabulary": [
+        "go"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "a2-past-01"
+    },
+    {
+      "id": "a2-past-question-01",
+      "type": "transformation",
+      "skill_id": "a2-01",
+      "level": "A2",
+      "domain": "writing",
+      "prompt": "Ask a yes/no question about this statement: They visited the museum yesterday.",
+      "answers": [
+        "Did they visit the museum yesterday?"
+      ],
+      "error_tags": [
+        "auxiliaries",
+        "questions"
+      ],
+      "grammar_tags": [
+        "past_simple",
+        "questions",
+        "auxiliaries"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "a2-past-question-01"
+    },
+    {
+      "id": "a2-experience-01",
+      "type": "choice",
+      "skill_id": "a2-07",
+      "level": "A2",
+      "domain": "grammar",
+      "prompt": "Choose the sentence that refers to a finished time yesterday.",
+      "answers": [
+        "I saw him yesterday."
+      ],
+      "options": [
+        "I saw him yesterday.",
+        "I have seen him yesterday."
+      ],
+      "error_tags": [
+        "perfect_vs_past"
+      ],
+      "grammar_tags": [
+        "perfect_vs_past"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "a2-experience-01"
+    },
+    {
+      "id": "a2-reading-01",
+      "type": "reading_comprehension",
+      "skill_id": "a2-04",
+      "level": "A2",
+      "domain": "reading",
+      "prompt": "A note says: We planned to meet at six, but my train is late. Can we meet at seven instead? What time does the writer now suggest?",
+      "answers": [
+        "At seven.",
+        "Seven.",
+        "7.",
+        "At 7."
+      ],
+      "context": "We planned to meet at six, but my train is late. Can we meet at seven instead?",
+      "purpose": "diagnostic",
+      "family_id": "a2-reading-01"
+    },
+    {
+      "id": "a2-writing-01",
+      "type": "short_writing",
+      "skill_id": "a2-01",
+      "level": "A2",
+      "domain": "writing",
+      "prompt": "Write a short message to a friend about last weekend. Say where you went, who was there, and one thing you enjoyed.",
+      "mode": "chat",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "clarity": "The audience can understand the intended message without guessing.",
+        "language_control": "Uses common everyday vocabulary and simple patterns to express the requested actions, time and practical reasons. Errors do not prevent the essential exchange.",
+        "organisation": "Links the requested everyday details in a simple sequence using appropriate basic connectors or clear sentence order."
+      },
+      "purpose": "diagnostic",
+      "family_id": "a2-writing-01"
+    },
+    {
+      "id": "a2-speaking-01",
+      "type": "spoken_response",
+      "skill_id": "a2-04",
+      "level": "A2",
+      "domain": "speaking",
+      "prompt": "In a real voice conversation, arrange a visit with a friend: suggest a place and time, answer one follow-up question, and confirm the plan.",
+      "mode": "voice-required",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "intelligibility": "The audience can understand the intended message without guessing.",
+        "language_control": "Uses common everyday vocabulary and simple patterns to express the requested actions, time and practical reasons. Errors do not prevent the essential exchange.",
+        "organisation": "Links the requested everyday details in a simple sequence using appropriate basic connectors or clear sentence order."
+      },
+      "purpose": "diagnostic",
+      "family_id": "a2-speaking-01"
+    },
+    {
+      "id": "b1-duration-01",
+      "type": "cloze",
+      "skill_id": "b1-02",
+      "level": "B1",
+      "domain": "grammar",
+      "prompt": "Choose for or since: I have been working here ___ 2022.",
+      "answers": [
+        "since"
+      ],
+      "exhaustive": true,
+      "error_tags": [
+        "perfect_vs_past",
+        "prepositions_time"
+      ],
+      "grammar_tags": [
+        "perfect_continuous",
+        "for_since"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "b1-duration-01"
+    },
+    {
+      "id": "b1-report-01",
+      "type": "transformation",
+      "skill_id": "b1-07",
+      "level": "B1",
+      "domain": "writing",
+      "prompt": "Yesterday Maya said, \"I am tired.\" Report her words beginning Maya said that...",
+      "answers": [
+        "Maya said that she was tired.",
+        "Maya said that she is tired."
+      ],
+      "context": "No information is given about whether Maya is still tired now.",
+      "error_tags": [
+        "reported_speech"
+      ],
+      "grammar_tags": [
+        "reported_speech"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "b1-report-01"
+    },
+    {
+      "id": "b1-narrative-01",
+      "type": "cloze",
+      "skill_id": "b1-03",
+      "level": "B1",
+      "domain": "grammar",
+      "prompt": "Use the past perfect of leave: When we reached the station, the train ___.",
+      "answers": [
+        "had already left",
+        "had left"
+      ],
+      "error_tags": [
+        "tense_aspect"
+      ],
+      "grammar_tags": [
+        "past_perfect"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "b1-narrative-01"
+    },
+    {
+      "id": "b1-reading-01",
+      "type": "reading_comprehension",
+      "skill_id": "b1-04",
+      "level": "B1",
+      "domain": "reading",
+      "prompt": "The organiser writes: The walk will go ahead if it is dry. If it rains, we will meet inside the library instead. Where will the group meet in wet weather?",
+      "answers": [
+        "Inside the library.",
+        "At the library.",
+        "In the library.",
+        "The library."
+      ],
+      "context": "The walk will go ahead if it is dry. If it rains, we will meet inside the library instead.",
+      "purpose": "diagnostic",
+      "family_id": "b1-reading-01"
+    },
+    {
+      "id": "b1-writing-01",
+      "type": "short_writing",
+      "skill_id": "b1-01",
+      "level": "B1",
+      "domain": "writing",
+      "prompt": "Describe a change in your life. Explain what happened, how you felt, and how your life is different now. Link the main events clearly.",
+      "mode": "chat",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "clarity": "The audience can understand the intended message without guessing.",
+        "language_control": "Has sufficient vocabulary and control to give a connected account, explain reasons or describe consequences on the requested familiar topic; assess whether gaps interrupt the message.",
+        "organisation": "Connects events, reasons or recommendations into a coherent account; the reader or listener can follow the main relationships."
+      },
+      "purpose": "diagnostic",
+      "family_id": "b1-writing-01"
+    },
+    {
+      "id": "b1-speaking-01",
+      "type": "spoken_response",
+      "skill_id": "b1-04",
+      "level": "B1",
+      "domain": "speaking",
+      "prompt": "In a real voice conversation, recommend a plan for a weekend trip. Give reasons, respond to a different suggestion, and agree on one practical next step.",
+      "mode": "voice-required",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "intelligibility": "The audience can understand the intended message without guessing.",
+        "language_control": "Has sufficient vocabulary and control to give a connected account, explain reasons or describe consequences on the requested familiar topic; assess whether gaps interrupt the message.",
+        "organisation": "Connects events, reasons or recommendations into a coherent account; the reader or listener can follow the main relationships."
+      },
+      "purpose": "diagnostic",
+      "family_id": "b1-speaking-01"
+    },
+    {
+      "id": "b2-conditional-01",
+      "type": "cloze",
+      "skill_id": "b2-01",
+      "level": "B2",
+      "domain": "grammar",
+      "prompt": "Use the third conditional form of leave: If we ___ earlier, we would have caught the train.",
+      "answers": [
+        "had left"
+      ],
+      "exhaustive": true,
+      "error_tags": [
+        "conditionals_unreal"
+      ],
+      "grammar_tags": [
+        "third_conditional"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "b2-conditional-01"
+    },
+    {
+      "id": "b2-reporting-01",
+      "type": "transformation",
+      "skill_id": "b2-04",
+      "level": "B2",
+      "domain": "writing",
+      "prompt": "Rewrite without changing the meaning, beginning The bridge is believed...: People believe that the bridge is unsafe.",
+      "answers": [
+        "The bridge is believed to be unsafe."
+      ],
+      "error_tags": [
+        "tense_aspect"
+      ],
+      "grammar_tags": [
+        "passive_reporting"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "b2-reporting-01"
+    },
+    {
+      "id": "b2-mixed-01",
+      "type": "choice",
+      "skill_id": "b2-02",
+      "level": "B2",
+      "domain": "grammar",
+      "prompt": "Choose the sentence describing a past decision with a present result.",
+      "answers": [
+        "If I had accepted the job, I would live in Rome now."
+      ],
+      "options": [
+        "If I had accepted the job, I would live in Rome now.",
+        "If I accept the job, I will live in Rome next year."
+      ],
+      "error_tags": [
+        "conditionals_unreal"
+      ],
+      "grammar_tags": [
+        "mixed_conditionals"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "b2-mixed-01"
+    },
+    {
+      "id": "b2-reading-01",
+      "type": "reading_comprehension",
+      "skill_id": "b2-08",
+      "level": "B2",
+      "domain": "reading",
+      "prompt": "The trial reduced commuting time, although the author warns that volunteers may have been unusually enthusiastic. What limits the finding?",
+      "answers": [
+        "The volunteers may not represent typical workers.",
+        "The volunteers may have been unusually enthusiastic.",
+        "The sample may not be representative."
+      ],
+      "context": "The trial reduced commuting time, although the author warns that volunteers may have been unusually enthusiastic.",
+      "purpose": "diagnostic",
+      "family_id": "b2-reading-01"
+    },
+    {
+      "id": "b2-writing-01",
+      "type": "short_writing",
+      "skill_id": "b2-01",
+      "level": "B2",
+      "domain": "writing",
+      "prompt": "Write a reasoned recommendation on whether a team should work remotely two days each week. Discuss a benefit, a drawback, and a condition that would change your recommendation.",
+      "mode": "chat",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "clarity": "The audience can understand the intended message without guessing.",
+        "language_control": "Uses an appropriate range of vocabulary and structures to sustain the requested reasoning, comparisons and qualifications with generally good control; occasional errors do not obscure the distinctions.",
+        "organisation": "Organises a sustained response so that reasons, alternatives and the conclusion are clear and connected without unnecessary repetition."
+      },
+      "purpose": "diagnostic",
+      "family_id": "b2-writing-01"
+    },
+    {
+      "id": "b2-speaking-01",
+      "type": "spoken_response",
+      "skill_id": "b2-02",
+      "level": "B2",
+      "domain": "speaking",
+      "prompt": "In a real voice discussion, compare two ways to reduce city traffic. Explain trade-offs, respond to one counterargument, and qualify your conclusion.",
+      "mode": "voice-required",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "intelligibility": "The audience can understand the intended message without guessing.",
+        "language_control": "Uses an appropriate range of vocabulary and structures to sustain the requested reasoning, comparisons and qualifications with generally good control; occasional errors do not obscure the distinctions.",
+        "organisation": "Organises a sustained response so that reasons, alternatives and the conclusion are clear and connected without unnecessary repetition."
+      },
+      "purpose": "diagnostic",
+      "family_id": "b2-speaking-01"
+    },
+    {
+      "id": "c1-hedging-01",
+      "type": "choice",
+      "skill_id": "c1-01",
+      "level": "C1",
+      "domain": "grammar",
+      "prompt": "Select the claim best justified by a small, unrepresentative study.",
+      "answers": [
+        "The findings suggest a possible association, but further research is needed."
+      ],
+      "options": [
+        "The findings prove that the treatment always works.",
+        "The findings suggest a possible association, but further research is needed."
+      ],
+      "grammar_tags": [
+        "hedging",
+        "register"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "c1-hedging-01"
+    },
+    {
+      "id": "c1-inversion-01",
+      "type": "transformation",
+      "skill_id": "c1-02",
+      "level": "C1",
+      "domain": "writing",
+      "prompt": "Rewrite for emphasis, beginning Rarely...: We have rarely encountered such a complicated case.",
+      "answers": [
+        "Rarely have we encountered such a complicated case."
+      ],
+      "grammar_tags": [
+        "inversion"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "c1-inversion-01"
+    },
+    {
+      "id": "c1-cleft-01",
+      "type": "transformation",
+      "skill_id": "c1-03",
+      "level": "C1",
+      "domain": "grammar",
+      "prompt": "Complete the cleft sentence to emphasise timing: The timing worried me. What worried me ___.",
+      "answers": [
+        "was the timing"
+      ],
+      "grammar_tags": [
+        "clefts"
+      ],
+      "purpose": "diagnostic",
+      "family_id": "c1-cleft-01"
+    },
+    {
+      "id": "c1-reading-01",
+      "type": "reading_comprehension",
+      "skill_id": "c1-08",
+      "level": "C1",
+      "domain": "reading",
+      "prompt": "The proposal is elegant on paper; whether it survives contact with the budget committee is another matter. What reservation does the writer imply?",
+      "answers": [
+        "The proposal may not receive funding.",
+        "The budget committee may reject it.",
+        "Its practical financial feasibility is uncertain."
+      ],
+      "context": "The proposal is elegant on paper; whether it survives contact with the budget committee is another matter.",
+      "purpose": "diagnostic",
+      "family_id": "c1-reading-01"
+    },
+    {
+      "id": "c1-writing-01",
+      "type": "extended_writing",
+      "skill_id": "c1-08",
+      "level": "C1",
+      "domain": "writing",
+      "prompt": "Write a concise policy recommendation about using AI feedback in language learning. Distinguish established facts from assumptions, address a plausible objection, and adapt the register to an education manager.",
+      "mode": "chat",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "clarity": "The audience can understand the intended message without guessing.",
+        "language_control": "Uses precise qualification, flexible phrasing and well-controlled language to convey the requested nuance and adapt to the audience. Assess complexity where it serves meaning, not as a count of elaborate forms.",
+        "organisation": "Controls the development of the argument, emphasis and cohesion so that qualifications and competing considerations remain clear; avoids mechanical linking that distorts the meaning."
+      },
+      "purpose": "diagnostic",
+      "family_id": "c1-writing-01"
+    },
+    {
+      "id": "c1-speaking-01",
+      "type": "spoken_response",
+      "skill_id": "c1-01",
+      "level": "C1",
+      "domain": "speaking",
+      "prompt": "In a real voice discussion, evaluate whether automated feedback can replace teacher feedback. Qualify claims, respond to an objection, and reformulate one complex point for a non-specialist listener.",
+      "mode": "voice-required",
+      "rubric": {
+        "task_fulfilment": "The response addresses every requested message or action.",
+        "intelligibility": "The audience can understand the intended message without guessing.",
+        "language_control": "Uses precise qualification, flexible phrasing and well-controlled language to convey the requested nuance and adapt to the audience. Assess complexity where it serves meaning, not as a count of elaborate forms.",
+        "organisation": "Controls the development of the argument, emphasis and cohesion so that qualifications and competing considerations remain clear; avoids mechanical linking that distorts the meaning."
+      },
+      "purpose": "diagnostic",
+      "family_id": "c1-speaking-01"
+    },
+    {
+      "id": "diag-a1-reading-01",
+      "family_id": "diag-a1-reading-01",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "a1-03",
+      "level": "A1",
+      "domain": "reading",
+      "prompt": "Where is Nina's desk?",
+      "options": [
+        "In the kitchen.",
+        "Outside the flat.",
+        "In her bedroom."
+      ],
+      "answers": [
+        "In her bedroom."
+      ],
+      "context": "Nina lives in a small flat. There is a kitchen and one bedroom. Her desk is in the bedroom, next to the window. She reads at the desk in the evening."
+    },
+    {
+      "id": "diag-a1-reading-02",
+      "family_id": "diag-a1-reading-02",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "a1-04",
+      "level": "A1",
+      "domain": "reading",
+      "prompt": "When does Leo visit his brother?",
+      "options": [
+        "On Friday at two.",
+        "On Saturday.",
+        "Every morning at eight."
+      ],
+      "answers": [
+        "On Saturday."
+      ],
+      "context": "Leo works in a café from Monday to Friday. He starts at eight in the morning and finishes at two. On Saturday he does not work. He visits his brother."
+    },
+    {
+      "id": "diag-a1-reading-03",
+      "family_id": "diag-a1-reading-03",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "a1-06",
+      "level": "A1",
+      "domain": "reading",
+      "prompt": "Why should visitors bring a drink?",
+      "options": [
+        "The park café is closed.",
+        "The bus ticket includes a drink.",
+        "Children cannot enter the café."
+      ],
+      "answers": [
+        "The park café is closed."
+      ],
+      "context": "The bus to Green Park leaves from stop 4. A ticket is two pounds. Children under five travel free. The park café is closed today, so please bring a drink."
+    },
+    {
+      "id": "diag-a1-reading-04",
+      "family_id": "diag-a1-reading-04",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "a1-09",
+      "level": "A1",
+      "domain": "reading",
+      "prompt": "What costs £3 in today's offer?",
+      "options": [
+        "One bag of apples and one of oranges.",
+        "Two bags of oranges.",
+        "Two bags of apples."
+      ],
+      "answers": [
+        "Two bags of apples."
+      ],
+      "context": "A shop notice says: Apples are £2 a bag. Oranges are £3 a bag. Today, two bags of apples cost £3. The shop closes at six."
+    },
+    {
+      "id": "diag-a1-listening-01",
+      "family_id": "diag-a1-listening-01",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "a1-07",
+      "level": "A1",
+      "domain": "listening",
+      "prompt": "What time does the swimming pool open today?",
+      "options": [
+        "At nine.",
+        "At eight.",
+        "At seven."
+      ],
+      "answers": [
+        "At seven."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "The swimming pool opens at seven today. It usually opens at eight. The café opens at nine. Please use the door next to the café.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-a1-listening-02",
+      "family_id": "diag-a1-listening-02",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "a1-08",
+      "level": "A1",
+      "domain": "listening",
+      "prompt": "What drink does the customer want?",
+      "options": [
+        "Coffee with milk.",
+        "Tea without milk.",
+        "Water."
+      ],
+      "answers": [
+        "Tea without milk."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "Can I have a tea, please? No milk, thank you. My friend wants a coffee with milk. We have water on the table already.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-a1-listening-03",
+      "family_id": "diag-a1-listening-03",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "a1-10",
+      "level": "A1",
+      "domain": "listening",
+      "prompt": "Where is the blue bag?",
+      "options": [
+        "Under the chair.",
+        "On the table.",
+        "Next to the door."
+      ],
+      "answers": [
+        "Under the chair."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "Your blue bag is under the chair. The red bag on the table is mine. Please put your coat next to the door.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-a1-listening-04",
+      "family_id": "diag-a1-listening-04",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "a1-11",
+      "level": "A1",
+      "domain": "listening",
+      "prompt": "What does Eva do on Wednesday evening?",
+      "options": [
+        "She works at the shop.",
+        "She stays at home.",
+        "She plays tennis."
+      ],
+      "answers": [
+        "She plays tennis."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "Eva works at the shop on Monday and Tuesday evenings. On Wednesday she plays tennis with her friend. On Thursday she stays at home.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-a1-writing-01",
+      "family_id": "diag-a1-writing-01",
+      "purpose": "diagnostic",
+      "type": "short_writing",
+      "skill_id": "a1-03",
+      "level": "A1",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write a short message describing your room to a friend. Say what is in it, where one thing is, and one thing you like.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Presents the requested simple messages in an understandable order; elaborate linking is not required.",
+        "language_control": "Uses simple words and familiar patterns for the requested everyday message. Errors may occur; the essential meaning remains understandable."
+      }
+    },
+    {
+      "id": "diag-a1-writing-02",
+      "family_id": "diag-a1-writing-02",
+      "purpose": "diagnostic",
+      "type": "short_writing",
+      "skill_id": "a1-04",
+      "level": "A1",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write four short sentences about a normal work or study day. Include a time and one thing you do not do.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Presents the requested simple messages in an understandable order; elaborate linking is not required.",
+        "language_control": "Uses simple words and familiar patterns for the requested everyday message. Errors may occur; the essential meaning remains understandable."
+      }
+    },
+    {
+      "id": "diag-a1-writing-03",
+      "family_id": "diag-a1-writing-03",
+      "purpose": "diagnostic",
+      "type": "short_writing",
+      "skill_id": "a1-09",
+      "level": "A1",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write a note asking a friend to buy two things for a meal. Give quantities and say when you need them.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Presents the requested simple messages in an understandable order; elaborate linking is not required.",
+        "language_control": "Uses simple words and familiar patterns for the requested everyday message. Errors may occur; the essential meaning remains understandable."
+      }
+    },
+    {
+      "id": "diag-a1-speaking-01",
+      "family_id": "diag-a1-speaking-01",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "a1-01",
+      "level": "A1",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "Introduce yourself in a real voice conversation. Say your name, where you live and one thing you do each day. Respond to one simple question.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Presents the requested simple messages in an understandable order; elaborate linking is not required.",
+        "language_control": "Uses simple words and familiar patterns for the requested everyday message. Errors may occur; the essential meaning remains understandable.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-a1-speaking-02",
+      "family_id": "diag-a1-speaking-02",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "a1-03",
+      "level": "A1",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice conversation, describe your room. Name two things and say where one is. Ask the listener one simple question.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Presents the requested simple messages in an understandable order; elaborate linking is not required.",
+        "language_control": "Uses simple words and familiar patterns for the requested everyday message. Errors may occur; the essential meaning remains understandable.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-a1-speaking-03",
+      "family_id": "diag-a1-speaking-03",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "a1-09",
+      "level": "A1",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice role-play, buy two items in a shop. Ask a price, state a quantity and respond to a question from the shop assistant.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Presents the requested simple messages in an understandable order; elaborate linking is not required.",
+        "language_control": "Uses simple words and familiar patterns for the requested everyday message. Errors may occur; the essential meaning remains understandable.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-a2-reading-01",
+      "family_id": "diag-a2-reading-01",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "a2-01",
+      "level": "A2",
+      "domain": "reading",
+      "prompt": "Why did Omar change how he travels to work?",
+      "options": [
+        "His colleague gave him a new bicycle.",
+        "He moved nearer to his old workplace.",
+        "The bus journey took too long.",
+        "His employer stopped the bus service."
+      ],
+      "answers": [
+        "The bus journey took too long."
+      ],
+      "context": "Last month Omar moved to a new town for work. At first he took the bus, but the journey was slow. A colleague showed him a quiet route for cycling. He bought a second-hand bicycle and now gets to work in twenty minutes."
+    },
+    {
+      "id": "diag-a2-reading-02",
+      "family_id": "diag-a2-reading-02",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "a2-03",
+      "level": "A2",
+      "domain": "reading",
+      "prompt": "What was the main reason for choosing the Central Hotel?",
+      "options": [
+        "Its lower noise level.",
+        "Its convenient location.",
+        "Its larger rooms.",
+        "Its swimming pool."
+      ],
+      "answers": [
+        "Its convenient location."
+      ],
+      "context": "We tried two hotels. The Hill Hotel had larger rooms and a swimming pool, but it was outside the city. The Central Hotel was noisier, yet we chose it because we could walk to the museum and the station. We did not need a taxi."
+    },
+    {
+      "id": "diag-a2-reading-03",
+      "family_id": "diag-a2-reading-03",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "a2-04",
+      "level": "A2",
+      "domain": "reading",
+      "prompt": "What does the writer want Ana to do?",
+      "options": [
+        "Reply before the writer buys tickets.",
+        "Buy tickets for the six o'clock film.",
+        "Cancel the writer's class.",
+        "Meet at the cinema at six."
+      ],
+      "answers": [
+        "Reply before the writer buys tickets."
+      ],
+      "context": "Hi Ana, I cannot meet you at the cinema at six because my class now ends at six thirty. Could we get something to eat at seven and see the later film? I have not bought tickets yet. Let me know before I book."
+    },
+    {
+      "id": "diag-a2-reading-04",
+      "family_id": "diag-a2-reading-04",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "a2-05",
+      "level": "A2",
+      "domain": "reading",
+      "prompt": "Which statement matches the notice?",
+      "options": [
+        "Everyone must bring their own tools.",
+        "Lunch must be bought nearby.",
+        "Children must work without adults.",
+        "Beginners are welcome."
+      ],
+      "answers": [
+        "Beginners are welcome."
+      ],
+      "context": "Our community garden needs help on Sunday. You do not need gardening experience: we will show you what to do. Wear old clothes and bring gloves if you have them. Tools and lunch are provided. Children can come with an adult."
+    },
+    {
+      "id": "diag-a2-listening-01",
+      "family_id": "diag-a2-listening-01",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "a2-01",
+      "level": "A2",
+      "domain": "listening",
+      "prompt": "Where should the listener collect the scarf?",
+      "options": [
+        "At the main information desk.",
+        "At the café near the exit.",
+        "At the ticket office.",
+        "At the desk on platform two."
+      ],
+      "answers": [
+        "At the café near the exit."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "Hello, this is the station information desk. We have found your green scarf. The information desk closes in ten minutes, so I am taking it to the café near the exit. It stays open until nine. Ask the person behind the café counter, and tell them your name.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-a2-listening-02",
+      "family_id": "diag-a2-listening-02",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "a2-03",
+      "level": "A2",
+      "domain": "listening",
+      "prompt": "What would the host like the listener to bring?",
+      "options": [
+        "Some bread.",
+        "A dessert.",
+        "A green salad.",
+        "Some pasta."
+      ],
+      "answers": [
+        "A green salad."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "Hi, thanks for offering to bring something for dinner. I have bread and I am making pasta. My sister is bringing a cake, so we do not need another dessert. Could you bring a green salad? Please put the dressing in a separate container because one guest does not like it.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-a2-listening-03",
+      "family_id": "diag-a2-listening-03",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "a2-04",
+      "level": "A2",
+      "domain": "listening",
+      "prompt": "Why did the speaker return the jacket?",
+      "options": [
+        "It was the wrong size.",
+        "It cost more than expected.",
+        "It arrived too late.",
+        "Its colour was different from the picture."
+      ],
+      "answers": [
+        "Its colour was different from the picture."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "I ordered a jacket online because it was cheaper than the one in town. It arrived the next day and fitted well. But the picture showed a dark green jacket, and the one I received was yellow. I sent it back and asked for the green one.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-a2-listening-04",
+      "family_id": "diag-a2-listening-04",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "a2-06",
+      "level": "A2",
+      "domain": "listening",
+      "prompt": "What must the caller do before borrowing an instrument?",
+      "options": [
+        "Book a short introduction.",
+        "Buy a membership for a year.",
+        "Bring their own music book.",
+        "Pay for a full course of lessons."
+      ],
+      "answers": [
+        "Book a short introduction."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "Our music room lends guitars to adult beginners for a week at a time. There is no membership fee. Before you take a guitar home, book a short introduction so that a member of staff can show you how to look after it. Lessons and music books are available separately.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-a2-writing-01",
+      "family_id": "diag-a2-writing-01",
+      "purpose": "diagnostic",
+      "type": "short_writing",
+      "skill_id": "a2-01",
+      "level": "A2",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write a message about a day trip you took. Explain where you went, what happened and whether you would go again.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Links the requested everyday details in a simple sequence using appropriate basic connectors or clear sentence order.",
+        "language_control": "Uses common everyday vocabulary and simple patterns to express the requested actions, time and practical reasons. Errors do not prevent the essential exchange."
+      }
+    },
+    {
+      "id": "diag-a2-writing-02",
+      "family_id": "diag-a2-writing-02",
+      "purpose": "diagnostic",
+      "type": "short_writing",
+      "skill_id": "a2-03",
+      "level": "A2",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Compare two places to stay for a short visit. Mention a difference, choose one and give a practical reason.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Links the requested everyday details in a simple sequence using appropriate basic connectors or clear sentence order.",
+        "language_control": "Uses common everyday vocabulary and simple patterns to express the requested actions, time and practical reasons. Errors do not prevent the essential exchange."
+      }
+    },
+    {
+      "id": "diag-a2-writing-03",
+      "family_id": "diag-a2-writing-03",
+      "purpose": "diagnostic",
+      "type": "short_writing",
+      "skill_id": "a2-04",
+      "level": "A2",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "You cannot attend an agreed meeting. Write a message explaining why, suggesting another time and asking for confirmation.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Links the requested everyday details in a simple sequence using appropriate basic connectors or clear sentence order.",
+        "language_control": "Uses common everyday vocabulary and simple patterns to express the requested actions, time and practical reasons. Errors do not prevent the essential exchange."
+      }
+    },
+    {
+      "id": "diag-a2-speaking-01",
+      "family_id": "diag-a2-speaking-01",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "a2-01",
+      "level": "A2",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice conversation, describe a recent trip. Say what happened first and next, and answer one question about the experience.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Links the requested everyday details in a simple sequence using appropriate basic connectors or clear sentence order.",
+        "language_control": "Uses common everyday vocabulary and simple patterns to express the requested actions, time and practical reasons. Errors do not prevent the essential exchange.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-a2-speaking-02",
+      "family_id": "diag-a2-speaking-02",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "a2-03",
+      "level": "A2",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice discussion, compare two places for a short visit. Give a reason for your preference and respond to a different suggestion.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Links the requested everyday details in a simple sequence using appropriate basic connectors or clear sentence order.",
+        "language_control": "Uses common everyday vocabulary and simple patterns to express the requested actions, time and practical reasons. Errors do not prevent the essential exchange.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-a2-speaking-03",
+      "family_id": "diag-a2-speaking-03",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "a2-04",
+      "level": "A2",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice role-play, rearrange a meeting. Explain a problem, suggest an alternative and confirm the final time.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Links the requested everyday details in a simple sequence using appropriate basic connectors or clear sentence order.",
+        "language_control": "Uses common everyday vocabulary and simple patterns to express the requested actions, time and practical reasons. Errors do not prevent the essential exchange.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-b1-reading-01",
+      "family_id": "diag-b1-reading-01",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "b1-01",
+      "level": "B1",
+      "domain": "reading",
+      "prompt": "How did volunteering affect Elena's plans?",
+      "options": [
+        "She concluded that customers did not want recommendations.",
+        "She decided to gain relevant work experience before opening a shop.",
+        "She abandoned her interest in selling books.",
+        "She decided to invest her savings immediately."
+      ],
+      "answers": [
+        "She decided to gain relevant work experience before opening a shop."
+      ],
+      "context": "Elena had always wanted to run a small bookshop. When the town library invited volunteers to organise a weekend book exchange, she signed up. She enjoyed recommending books, but dealing with boxes, prices and schedules was less enjoyable. The experience did not end her ambition. It persuaded her to work in a shop first, so that she could learn the practical side before investing her savings."
+    },
+    {
+      "id": "diag-b1-reading-02",
+      "family_id": "diag-b1-reading-02",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "b1-04",
+      "level": "B1",
+      "domain": "reading",
+      "prompt": "What has the manager decided?",
+      "options": [
+        "To continue the experiment on a limited schedule.",
+        "To open early every day permanently.",
+        "To end all morning sessions.",
+        "To hire extra afternoon staff immediately."
+      ],
+      "answers": [
+        "To continue the experiment on a limited schedule."
+      ],
+      "context": "The sports centre tested an earlier opening time for a month. Morning attendance rose, especially among people starting work at nine. However, the centre needed an extra member of staff, and afternoon attendance fell slightly. The manager will keep the early opening for two days a week while collecting more information. A permanent daily change has not been agreed."
+    },
+    {
+      "id": "diag-b1-reading-03",
+      "family_id": "diag-b1-reading-03",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "b1-08",
+      "level": "B1",
+      "domain": "reading",
+      "prompt": "Why has the committee suggested an indoor sign?",
+      "options": [
+        "To prevent the company from helping with repairs.",
+        "To replace the hall's entrance.",
+        "To increase the number of advertisements outside.",
+        "To find a compromise between funding repairs and limiting advertising."
+      ],
+      "answers": [
+        "To find a compromise between funding repairs and limiting advertising."
+      ],
+      "context": "A local company offered to repair the village hall for free, provided that its logo could appear above the entrance for five years. Some residents welcomed the offer because the roof urgently needed attention. Others felt that the building should not become an advertisement. The committee has asked the company whether a smaller sign inside the hall would be acceptable."
+    },
+    {
+      "id": "diag-b1-reading-04",
+      "family_id": "diag-b1-reading-04",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "b1-09",
+      "level": "B1",
+      "domain": "reading",
+      "prompt": "What helped Sam manage his study time?",
+      "options": [
+        "Receiving answers from classmates.",
+        "Replacing recordings with longer explanations.",
+        "Regular planning discussions with classmates.",
+        "Easier assignments introduced by the course."
+      ],
+      "answers": [
+        "Regular planning discussions with classmates."
+      ],
+      "context": "Sam joined an online course because he could study after his children went to bed. He liked the recorded explanations and the ability to repeat difficult sections. Yet he often put assignments off until the last evening. A weekly video meeting with two classmates helped: they compared plans rather than sharing answers. Sam now finishes most tasks earlier, although the course content has not changed."
+    },
+    {
+      "id": "diag-b1-listening-01",
+      "family_id": "diag-b1-listening-01",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "b1-01",
+      "level": "B1",
+      "domain": "listening",
+      "prompt": "What changed the speaker's experience of audiobooks?",
+      "options": [
+        "Choosing a shorter book each time.",
+        "Reading the whole book before listening.",
+        "Listening to a sample before choosing.",
+        "Increasing the playback speed."
+      ],
+      "answers": [
+        "Listening to a sample before choosing."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "I used to choose audiobooks just because I liked the author. A few disappointed me, even though I had enjoyed the printed books. Then a friend suggested listening to a sample before buying. I discovered that the narrator's voice and pace mattered a lot to me. I still listen to long novels, but now I check who is reading them first.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-b1-listening-02",
+      "family_id": "diag-b1-listening-02",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "b1-04",
+      "level": "B1",
+      "domain": "listening",
+      "prompt": "What has changed about Sunday's walk?",
+      "options": [
+        "The time when the group will meet.",
+        "The part of the river the group will follow.",
+        "The place where the group will meet.",
+        "The day when the group will walk."
+      ],
+      "answers": [
+        "The part of the river the group will follow."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "Sunday's walk is still going ahead, and we will meet outside the station at the usual time, ten fifteen. The wooden bridge has closed for repairs, so we cannot use the path on the north side of the river. We will follow the south side instead. It is about the same distance. Bring lunch as planned.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-b1-listening-03",
+      "family_id": "diag-b1-listening-03",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "b1-08",
+      "level": "B1",
+      "domain": "listening",
+      "prompt": "Why did the speaker prefer the new cleaning arrangement?",
+      "options": [
+        "It made responsibilities clearer.",
+        "It reduced the number of people sharing.",
+        "It let people clean whenever they remembered.",
+        "It gave one person all the shared tasks."
+      ],
+      "answers": [
+        "It made responsibilities clearer."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "When we first shared the flat, we agreed that everyone would help keep it clean. That sounded fair, but nobody knew who should do what, and we kept arguing. Now each of us has one shared area to clean each week, and we swap areas on Sunday. The work takes just as long, but at least we know what we have agreed to do.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-b1-listening-04",
+      "family_id": "diag-b1-listening-04",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "b1-09",
+      "level": "B1",
+      "domain": "listening",
+      "prompt": "What will happen to Thursday's choir rehearsal?",
+      "options": [
+        "It will begin at the usual time in a smaller room.",
+        "It will take place online instead.",
+        "It will be replaced by the weekend concert.",
+        "It will start later in the usual room."
+      ],
+      "answers": [
+        "It will start later in the usual room."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "We cannot enter the hall until seven thirty on Thursday because another group is using it. I considered booking a smaller room, but it would not have enough space for us. So this week's rehearsal will start half an hour later, at seven thirty, in our usual hall. We will still finish at nine. The weekend concert is unchanged.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-b1-writing-01",
+      "family_id": "diag-b1-writing-01",
+      "purpose": "diagnostic",
+      "type": "short_writing",
+      "skill_id": "b1-01",
+      "level": "B1",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Describe a decision that changed a routine in your life. Explain the situation, the change and what you learned from it.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Connects events, reasons or recommendations into a coherent account; the reader or listener can follow the main relationships.",
+        "language_control": "Has sufficient vocabulary and control to give a connected account, explain reasons or describe consequences on the requested familiar topic; assess whether gaps interrupt the message."
+      }
+    },
+    {
+      "id": "diag-b1-writing-02",
+      "family_id": "diag-b1-writing-02",
+      "purpose": "diagnostic",
+      "type": "short_writing",
+      "skill_id": "b1-04",
+      "level": "B1",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write to a community group proposing an activity. Explain who it would help, what could go wrong and an alternative if the plan cannot go ahead.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Connects events, reasons or recommendations into a coherent account; the reader or listener can follow the main relationships.",
+        "language_control": "Has sufficient vocabulary and control to give a connected account, explain reasons or describe consequences on the requested familiar topic; assess whether gaps interrupt the message."
+      }
+    },
+    {
+      "id": "diag-b1-writing-03",
+      "family_id": "diag-b1-writing-03",
+      "purpose": "diagnostic",
+      "type": "short_writing",
+      "skill_id": "b1-09",
+      "level": "B1",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write advice for a friend who keeps postponing online study. Explain two practical actions and why they could help.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Connects events, reasons or recommendations into a coherent account; the reader or listener can follow the main relationships.",
+        "language_control": "Has sufficient vocabulary and control to give a connected account, explain reasons or describe consequences on the requested familiar topic; assess whether gaps interrupt the message."
+      }
+    },
+    {
+      "id": "diag-b1-speaking-01",
+      "family_id": "diag-b1-speaking-01",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "b1-01",
+      "level": "B1",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice conversation, explain a change in your work or study routine. Give a sequence of events and respond to a follow-up question about its effect.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Connects events, reasons or recommendations into a coherent account; the reader or listener can follow the main relationships.",
+        "language_control": "Has sufficient vocabulary and control to give a connected account, explain reasons or describe consequences on the requested familiar topic; assess whether gaps interrupt the message.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-b1-speaking-02",
+      "family_id": "diag-b1-speaking-02",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "b1-04",
+      "level": "B1",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice discussion, propose a community event. Give reasons, respond to a practical difficulty and agree on one next action.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Connects events, reasons or recommendations into a coherent account; the reader or listener can follow the main relationships.",
+        "language_control": "Has sufficient vocabulary and control to give a connected account, explain reasons or describe consequences on the requested familiar topic; assess whether gaps interrupt the message.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-b1-speaking-03",
+      "family_id": "diag-b1-speaking-03",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "b1-09",
+      "level": "B1",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice conversation, advise a friend who postpones study. Explain an approach, check their understanding and adapt your advice to one objection.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Connects events, reasons or recommendations into a coherent account; the reader or listener can follow the main relationships.",
+        "language_control": "Has sufficient vocabulary and control to give a connected account, explain reasons or describe consequences on the requested familiar topic; assess whether gaps interrupt the message.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-b2-reading-01",
+      "family_id": "diag-b2-reading-01",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "b2-01",
+      "level": "B2",
+      "domain": "reading",
+      "prompt": "Which conclusion is best supported?",
+      "options": [
+        "The increase in trade cannot confidently be attributed to the cycle lane alone.",
+        "The cycle lane definitely caused the entire increase in trade.",
+        "All nearby shops experienced the same change in sales.",
+        "Seasonal demand has been ruled out as an explanation."
+      ],
+      "answers": [
+        "The increase in trade cannot confidently be attributed to the cycle lane alone."
+      ],
+      "context": "A council report credits a new cycle lane with increasing local trade. Shopkeepers interviewed near the lane described busier weekends, and card payments in the area rose. However, the report compares this spring with the previous winter, when several streets were closed for repairs. It also excludes nearby streets without a cycle lane. The change may have helped businesses, but the evidence does not isolate its effect from seasonal demand or the end of the roadworks."
+    },
+    {
+      "id": "diag-b2-reading-02",
+      "family_id": "diag-b2-reading-02",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "b2-04",
+      "level": "B2",
+      "domain": "reading",
+      "prompt": "Why is the company reviewing its interviews?",
+      "options": [
+        "Anonymous applications made the shortlist less varied.",
+        "Applicants have refused to attend interviews.",
+        "University names are required to evaluate interview answers.",
+        "Changes at the initial stage have not resolved the whole recruitment problem."
+      ],
+      "answers": [
+        "Changes at the initial stage have not resolved the whole recruitment problem."
+      ],
+      "context": "An employer introduced anonymous applications to reduce bias in initial recruitment. Applicants' names and university names were removed before shortlisting. The shortlist became more varied, but the final hiring pattern changed little. The company now plans to review interview questions and panel training as well. Its director described anonymous applications as a useful first step rather than a complete solution."
+    },
+    {
+      "id": "diag-b2-reading-03",
+      "family_id": "diag-b2-reading-03",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "b2-06",
+      "level": "B2",
+      "domain": "reading",
+      "prompt": "What do the organisers value about refusing some repairs?",
+      "options": [
+        "It allows volunteers to avoid explaining their decisions.",
+        "It proves that most household objects are unsafe.",
+        "It can demonstrate responsible judgment and strengthen trust.",
+        "It guarantees that visitors will buy replacements."
+      ],
+      "answers": [
+        "It can demonstrate responsible judgment and strengthen trust."
+      ],
+      "context": "The city's repair café is often presented as a way to save money. Volunteers say that this is only part of its appeal. Visitors learn how ordinary objects work, meet neighbours and sometimes discover that an item cannot be repaired safely. Rather than promising to fix everything, the café explains the limits of repairs. The organisers believe that an honest refusal can build more trust than an unsuccessful attempt to please every visitor."
+    },
+    {
+      "id": "diag-b2-reading-04",
+      "family_id": "diag-b2-reading-04",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "b2-09",
+      "level": "B2",
+      "domain": "reading",
+      "prompt": "What is the purpose of the next trial's design?",
+      "options": [
+        "To prove the first trial's conclusion without collecting more data.",
+        "To separate the workshop's effect from differences in who chooses to attend.",
+        "To ensure that only highly motivated students receive invitations.",
+        "To compare assignment topics rather than completion behaviour."
+      ],
+      "answers": [
+        "To separate the workshop's effect from differences in who chooses to attend."
+      ],
+      "context": "A university trial offered students an optional weekly planning workshop. Participants submitted more assignments on time than non-participants. The organisers would like to expand the scheme, but students who volunteered may already have been more motivated. The next trial will allocate invitations randomly and compare results across similar courses. The researchers want to establish whether the workshop changes behaviour, rather than merely attracting students likely to do well."
+    },
+    {
+      "id": "diag-b2-listening-01",
+      "family_id": "diag-b2-listening-01",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "b2-01",
+      "level": "B2",
+      "domain": "listening",
+      "prompt": "What mainly disappointed the speaker about the flexible rail pass?",
+      "options": [
+        "The price was higher than the advertised price.",
+        "The practical restrictions conflicted with the promise of spontaneity.",
+        "The routes excluded the places the speaker wanted to visit.",
+        "The trains took longer than the timetable suggested."
+      ],
+      "answers": [
+        "The practical restrictions conflicted with the promise of spontaneity."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "The rail pass was advertised as a way to make plans as you travelled. It did cover the routes I wanted, and the price was reasonable. What I had not understood was that seats on several useful trains had to be reserved days ahead. I do not object to reservations in principle. I object to selling the pass as freedom to decide on the morning, when that was not realistic for much of my route.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-b2-listening-02",
+      "family_id": "diag-b2-listening-02",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "b2-04",
+      "level": "B2",
+      "domain": "listening",
+      "prompt": "Why does the speaker favour delaying the release?",
+      "options": [
+        "To add the optional features requested by the largest customer.",
+        "To avoid publishing the results of an unfinished trial.",
+        "To make the existing core function dependable before expansion.",
+        "To replace the original product with a different design."
+      ],
+      "answers": [
+        "To make the existing core function dependable before expansion."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "I am not asking for another month so that we can add more features. We have already postponed the optional ones, which was sensible. But the main function still fails when several people use it at once. Launching now would mean asking customers to rely on something we know is unreliable. A narrower product that works is worth releasing; the current version is narrow without yet being dependable.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-b2-listening-03",
+      "family_id": "diag-b2-listening-03",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "b2-06",
+      "level": "B2",
+      "domain": "listening",
+      "prompt": "How has the speaker's view of the translation changed?",
+      "options": [
+        "The speaker now prefers the smoother version for its speed.",
+        "The speaker now sees the awkward wording as evidence of careless editing.",
+        "The speaker now thinks readers should consult the original language.",
+        "The speaker now values wording that preserves the character's uncertainty."
+      ],
+      "answers": [
+        "The speaker now values wording that preserves the character's uncertainty."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "At first I preferred the earlier translation because the dialogue sounded smoother. The new version occasionally makes you pause over a phrase. Reading both more closely, I realised that those pauses occur where the character is struggling to say what she means. The older version gives her a confidence she does not have in the original. I still find the new one less comfortable to read, but I think that discomfort sometimes serves the story.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-b2-listening-04",
+      "family_id": "diag-b2-listening-04",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "b2-09",
+      "level": "B2",
+      "domain": "listening",
+      "prompt": "What is the speaker's concern about moving the club online?",
+      "options": [
+        "It may weaken the informal contact that members value.",
+        "It may prevent members from hearing the main speaker.",
+        "It may cost more than renting the current hall.",
+        "It may make the formal programme too short."
+      ],
+      "answers": [
+        "It may weaken the informal contact that members value."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "Moving our monthly club meeting online would certainly save the hall fee, and I know some members would welcome avoiding the journey. My hesitation concerns the time before and after the talk. That is when new members introduce themselves and people arrange smaller activities. We could reproduce some of that online, but it would take planning. Keeping the lecture and dropping everything around it would preserve the timetable rather than the whole experience.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-b2-writing-01",
+      "family_id": "diag-b2-writing-01",
+      "purpose": "diagnostic",
+      "type": "extended_writing",
+      "skill_id": "b2-01",
+      "level": "B2",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write a recommendation about a trial to reduce traffic near a school. Weigh benefits against a plausible disadvantage, identify evidence needed and explain what would change your recommendation.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Organises a sustained response so that reasons, alternatives and the conclusion are clear and connected without unnecessary repetition.",
+        "language_control": "Uses an appropriate range of vocabulary and structures to sustain the requested reasoning, comparisons and qualifications with generally good control; occasional errors do not obscure the distinctions."
+      }
+    },
+    {
+      "id": "diag-b2-writing-02",
+      "family_id": "diag-b2-writing-02",
+      "purpose": "diagnostic",
+      "type": "extended_writing",
+      "skill_id": "b2-04",
+      "level": "B2",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write to a manager about making recruitment criteria public. Distinguish the aim of transparency from the practical timing of publication and propose an implementable approach.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Organises a sustained response so that reasons, alternatives and the conclusion are clear and connected without unnecessary repetition.",
+        "language_control": "Uses an appropriate range of vocabulary and structures to sustain the requested reasoning, comparisons and qualifications with generally good control; occasional errors do not obscure the distinctions."
+      }
+    },
+    {
+      "id": "diag-b2-writing-03",
+      "family_id": "diag-b2-writing-03",
+      "purpose": "diagnostic",
+      "type": "extended_writing",
+      "skill_id": "b2-06",
+      "level": "B2",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Evaluate a community repair scheme for a local newsletter. Discuss financial, educational and social outcomes without assuming that every repaired item proves the scheme succeeds.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Organises a sustained response so that reasons, alternatives and the conclusion are clear and connected without unnecessary repetition.",
+        "language_control": "Uses an appropriate range of vocabulary and structures to sustain the requested reasoning, comparisons and qualifications with generally good control; occasional errors do not obscure the distinctions."
+      }
+    },
+    {
+      "id": "diag-b2-speaking-01",
+      "family_id": "diag-b2-speaking-01",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "b2-01",
+      "level": "B2",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice discussion, compare two ways to reduce traffic near a school. Weigh trade-offs, respond to a counterargument and state a qualified recommendation.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Organises a sustained response so that reasons, alternatives and the conclusion are clear and connected without unnecessary repetition.",
+        "language_control": "Uses an appropriate range of vocabulary and structures to sustain the requested reasoning, comparisons and qualifications with generally good control; occasional errors do not obscure the distinctions.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-b2-speaking-02",
+      "family_id": "diag-b2-speaking-02",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "b2-04",
+      "level": "B2",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice meeting, argue for publishing recruitment criteria at a useful time. Address a concern about flexibility and negotiate a practical next step.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Organises a sustained response so that reasons, alternatives and the conclusion are clear and connected without unnecessary repetition.",
+        "language_control": "Uses an appropriate range of vocabulary and structures to sustain the requested reasoning, comparisons and qualifications with generally good control; occasional errors do not obscure the distinctions.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-b2-speaking-03",
+      "family_id": "diag-b2-speaking-03",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "b2-06",
+      "level": "B2",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice discussion, evaluate a repair scheme using more than financial outcomes. Respond to criticism and reformulate one point for a non-specialist listener.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Organises a sustained response so that reasons, alternatives and the conclusion are clear and connected without unnecessary repetition.",
+        "language_control": "Uses an appropriate range of vocabulary and structures to sustain the requested reasoning, comparisons and qualifications with generally good control; occasional errors do not obscure the distinctions.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-c1-reading-01",
+      "family_id": "diag-c1-reading-01",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "c1-01",
+      "level": "C1",
+      "domain": "reading",
+      "prompt": "What distinction is central to the writer's criticism?",
+      "options": [
+        "Written submissions versus face-to-face meetings.",
+        "Public consultation versus unanimous agreement.",
+        "The cost of consultation versus its duration.",
+        "Participation volume versus demonstrable influence on decisions."
+      ],
+      "answers": [
+        "Participation volume versus demonstrable influence on decisions."
+      ],
+      "context": "The committee describes its consultation as extensive, citing hundreds of written submissions. Quantity, however, tells us little about whose concerns shaped the final proposal. A transparent account would distinguish suggestions incorporated into the design from those considered and rejected, and explain the latter decisions. This would not require accepting every demand. It would allow participants to judge whether consultation informed a decision or merely accompanied one already taken. Without that account, the headline participation figure is an incomplete measure of the process's value."
+    },
+    {
+      "id": "diag-c1-reading-02",
+      "family_id": "diag-c1-reading-02",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "c1-04",
+      "level": "C1",
+      "domain": "reading",
+      "prompt": "What made the original analysis inadequate?",
+      "options": [
+        "It gave complaints more weight than usage data from the start.",
+        "It showed that accessibility settings should never be evaluated.",
+        "It measured frequency without considering the consequences for dependent users.",
+        "Its usage counts were necessarily inaccurate."
+      ],
+      "answers": [
+        "It measured frequency without considering the consequences for dependent users."
+      ],
+      "context": "A product team removed a rarely used accessibility setting after a usage study. The aggregate figures seemed decisive, yet they concealed dependence: the few people using the setting relied on it to complete essential tasks. When complaints arrived, the team initially interpreted them as resistance to change. Reinstating the feature required little development time; understanding why the original analysis had misled them took longer. The episode illustrates how a sound count can support a poor decision when the question being counted is too narrow."
+    },
+    {
+      "id": "diag-c1-reading-03",
+      "family_id": "diag-c1-reading-03",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "c1-07",
+      "level": "C1",
+      "domain": "reading",
+      "prompt": "How does the display seek to maintain authority?",
+      "options": [
+        "By avoiding any statement about objects with uncertain origins.",
+        "By showing the evidence and limits behind its claims.",
+        "By presenting every interpretation as equally supported.",
+        "By replacing historical records with visitors' opinions."
+      ],
+      "answers": [
+        "By showing the evidence and limits behind its claims."
+      ],
+      "context": "The museum's new display acknowledges uncertainty about the origins of several objects. Some trustees feared that this would undermine authority. Instead, the accompanying notes distinguish established records from plausible inferences and identify gaps that further research might address. Visitors are invited to see how knowledge is assembled, rather than simply being asked to trust an institutional voice. The approach risks appearing less definitive, but that risk is deliberate: authority here rests on making the basis of a claim inspectable."
+    },
+    {
+      "id": "diag-c1-reading-04",
+      "family_id": "diag-c1-reading-04",
+      "purpose": "diagnostic",
+      "type": "reading_comprehension",
+      "skill_id": "c1-09",
+      "level": "C1",
+      "domain": "reading",
+      "prompt": "What qualification does the writer add to the idea of reversibility?",
+      "options": [
+        "Undoing a rule may leave consequences that cannot readily be undone.",
+        "A policy is reversible whenever its wording can be deleted.",
+        "Reversible policies never justify limited trials.",
+        "Caution is necessary only when a rule is permanent."
+      ],
+      "answers": [
+        "Undoing a rule may leave consequences that cannot readily be undone."
+      ],
+      "context": "An editorial praises a policy for being reversible, as though reversibility removed the need for caution. Yet a formal right to undo a decision is not the same as a practical ability to restore what preceded it. A trial may alter expectations, displace staff or cause records to be lost. These effects can persist after the rule itself is withdrawn. Reversibility remains a useful design aim, but it should be specified in terms of recoverable consequences rather than treated as a reassuring label."
+    },
+    {
+      "id": "diag-c1-listening-01",
+      "family_id": "diag-c1-listening-01",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "c1-01",
+      "level": "C1",
+      "domain": "listening",
+      "prompt": "What is the reviewer's attitude towards the pianist's changes?",
+      "options": [
+        "They are justified mainly because the audience recognised them.",
+        "They are an impressive display that distracts from a weak composition.",
+        "They reveal possibilities in the music, despite initially seeming excessive.",
+        "They are acceptable as an experiment but unsuitable for the concert."
+      ],
+      "answers": [
+        "They reveal possibilities in the music, despite initially seeming excessive."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "In the opening movement, I wondered whether the pianist was determined to make every familiar phrase sound unfamiliar. The pauses seemed almost wilful. Yet by the finale, those interruptions had begun to make sense: themes that usually glide past had acquired an awkwardness, even a vulnerability, I had not heard before. I would not want every performance to follow her example. That would turn an interpretation into a mannerism. But this one earned its departures from convention, and the long silence before the applause felt appropriate.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-c1-listening-02",
+      "family_id": "diag-c1-listening-02",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "c1-04",
+      "level": "C1",
+      "domain": "listening",
+      "prompt": "What point is the editor making about effortless prose?",
+      "options": [
+        "It may depend on extensive work that the finished text conceals.",
+        "It is best preserved by limiting the editor's involvement.",
+        "It usually emerges when an author keeps the first draft intact.",
+        "It is less suitable than visibly complex writing for serious subjects."
+      ],
+      "answers": [
+        "It may depend on extensive work that the finished text conceals."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "People describe her essays as conversational, as if she had merely thought aloud and sent the recording to a printer. Having edited three of them, I can say that the apparent ease is painstakingly made. We once spent an afternoon moving a single sentence, not because it was unclear, but because its position changed how the whole argument unfolded. None of that labour should be visible to the reader. The mistake is to assume that, because the writing asks little effort of us, it asked little of her.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-c1-listening-03",
+      "family_id": "diag-c1-listening-03",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "c1-07",
+      "level": "C1",
+      "domain": "listening",
+      "prompt": "What does the speaker imply about the proposed restoration?",
+      "options": [
+        "Matching the oldest surviving photograph is the least subjective choice.",
+        "Leaving the garden untouched would preserve its intended design.",
+        "The residents' memories provide a more precise plan than the archives.",
+        "Choosing a historical version also means choosing what later history to remove."
+      ],
+      "answers": [
+        "Choosing a historical version also means choosing what later history to remove."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "The proposal is to restore the garden to its original design. The phrase sounds reassuringly precise, until you ask which original they mean. The first plan was altered before the planting was finished; the photograph everyone quotes was taken twenty years later. And the trees residents now associate with the place were added later still. A restoration could be worthwhile, but it would be an interpretation of the garden's history, not a neutral act of turning back the clock. We ought to be candid about what we would lose as well as what we hope to recover.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-c1-listening-04",
+      "family_id": "diag-c1-listening-04",
+      "purpose": "diagnostic",
+      "type": "listening_comprehension",
+      "skill_id": "c1-09",
+      "level": "C1",
+      "domain": "listening",
+      "prompt": "How does the speaker explain the value of the apprenticeship?",
+      "options": [
+        "It replaced formal instruction with the freedom to make mistakes alone.",
+        "It developed judgment through guided exposure to ordinary decisions.",
+        "It provided a set of rules that could be applied without discussion.",
+        "It accelerated training by keeping beginners away from routine work."
+      ],
+      "answers": [
+        "It developed judgment through guided exposure to ordinary decisions."
+      ],
+      "delivery": {
+        "type": "tts",
+        "text": "What I learned from the apprenticeship rarely arrived in the form of a lesson. I would watch my supervisor reject a piece that looked perfectly serviceable, then ask why. Sometimes the explanation concerned a flaw I could learn to spot; sometimes it concerned what a particular customer would notice or tolerate. This was not an argument against technical instruction. It was instruction in recognising when a rule settles the matter and when you need a more situated judgment. Without the questions and explanations, merely standing beside an expert would have taught me far less.",
+        "max_plays": 2,
+        "transcript_visible": false
+      }
+    },
+    {
+      "id": "diag-c1-writing-01",
+      "family_id": "diag-c1-writing-01",
+      "purpose": "diagnostic",
+      "type": "extended_writing",
+      "skill_id": "c1-01",
+      "level": "C1",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write a briefing on evaluating a public consultation. Distinguish participation from influence, qualify claims that the available evidence cannot support and propose a transparent reporting approach.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Controls the development of the argument, emphasis and cohesion so that qualifications and competing considerations remain clear; avoids mechanical linking that distorts the meaning.",
+        "language_control": "Uses precise qualification, flexible phrasing and well-controlled language to convey the requested nuance and adapt to the audience. Assess complexity where it serves meaning, not as a count of elaborate forms."
+      }
+    },
+    {
+      "id": "diag-c1-writing-02",
+      "family_id": "diag-c1-writing-02",
+      "purpose": "diagnostic",
+      "type": "extended_writing",
+      "skill_id": "c1-04",
+      "level": "C1",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write a critique of a decision based on low feature usage. Explain what the count establishes, what it leaves uncertain and how dependence should affect the recommendation.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Controls the development of the argument, emphasis and cohesion so that qualifications and competing considerations remain clear; avoids mechanical linking that distorts the meaning.",
+        "language_control": "Uses precise qualification, flexible phrasing and well-controlled language to convey the requested nuance and adapt to the audience. Assess complexity where it serves meaning, not as a count of elaborate forms."
+      }
+    },
+    {
+      "id": "diag-c1-writing-03",
+      "family_id": "diag-c1-writing-03",
+      "purpose": "diagnostic",
+      "type": "extended_writing",
+      "skill_id": "c1-09",
+      "level": "C1",
+      "domain": "writing",
+      "mode": "chat",
+      "prompt": "Write a risk recommendation for a supposedly reversible policy trial. Identify residual consequences, set out a recovery standard and address an objection from someone who favours rapid experimentation.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Controls the development of the argument, emphasis and cohesion so that qualifications and competing considerations remain clear; avoids mechanical linking that distorts the meaning.",
+        "language_control": "Uses precise qualification, flexible phrasing and well-controlled language to convey the requested nuance and adapt to the audience. Assess complexity where it serves meaning, not as a count of elaborate forms."
+      }
+    },
+    {
+      "id": "diag-c1-speaking-01",
+      "family_id": "diag-c1-speaking-01",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "c1-01",
+      "level": "C1",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice briefing, evaluate what a consultation participation figure can establish. Qualify uncertainty, answer a challenging question and reformulate a technical distinction for a public audience.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Controls the development of the argument, emphasis and cohesion so that qualifications and competing considerations remain clear; avoids mechanical linking that distorts the meaning.",
+        "language_control": "Uses precise qualification, flexible phrasing and well-controlled language to convey the requested nuance and adapt to the audience. Assess complexity where it serves meaning, not as a count of elaborate forms.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-c1-speaking-02",
+      "family_id": "diag-c1-speaking-02",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "c1-04",
+      "level": "C1",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice discussion, challenge a feature-removal decision based on aggregate usage. Distinguish measurement from interpretation and respond to a reasoned objection without overstating the evidence.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Controls the development of the argument, emphasis and cohesion so that qualifications and competing considerations remain clear; avoids mechanical linking that distorts the meaning.",
+        "language_control": "Uses precise qualification, flexible phrasing and well-controlled language to convey the requested nuance and adapt to the audience. Assess complexity where it serves meaning, not as a count of elaborate forms.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    },
+    {
+      "id": "diag-c1-speaking-03",
+      "family_id": "diag-c1-speaking-03",
+      "purpose": "diagnostic",
+      "type": "spoken_response",
+      "skill_id": "c1-09",
+      "level": "C1",
+      "domain": "speaking",
+      "mode": "voice-required",
+      "prompt": "In a real voice meeting, evaluate a reversible policy trial. Clarify hidden assumptions, negotiate what must be preserved and summarise the limits of the agreed recommendation.",
+      "rubric": {
+        "task_fulfilment": "The response addresses each communicative action in this specific prompt.",
+        "organisation": "Controls the development of the argument, emphasis and cohesion so that qualifications and competing considerations remain clear; avoids mechanical linking that distorts the meaning.",
+        "language_control": "Uses precise qualification, flexible phrasing and well-controlled language to convey the requested nuance and adapt to the audience. Assess complexity where it serves meaning, not as a count of elaborate forms.",
+        "intelligibility": "The actual speech is understandable; a transcript alone cannot establish this.",
+        "interaction": "Performs the interaction requested in this prompt (asking, responding or confirming) without the reviewer supplying the answer."
+      }
+    }
+  ],
+  "authorship": "All passages, listening delivery scripts, distractors and production prompts are original project-authored material; no proprietary exam or frequency corpus is redistributed."
+}

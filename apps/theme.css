@@ -1,15 +1,15 @@
 /* Shared theme — AI language tutor. Tokens only: no layout classes. */
 :root {
-  --bg: #FAF7F2;
+  --bg: #F5F6F5;
   --surface: #FFFFFF;
-  --surface-2: #F3EEE6;
-  --ink: #1F1B17;
-  --ink-soft: #5C554C;
-  --ink-faint: #9C948A;
-  --line: #E9E2D8;
-  --accent: #0E9F6E;
-  --accent-strong: #067A54;
-  --accent-soft: #DFF2EA;
+  --surface-2: #ECF0ED;
+  --ink: #192C2A;
+  --ink-soft: #50625F;
+  --ink-faint: #667975;
+  --line: #DCE4E0;
+  --accent: #317C68;
+  --accent-strong: #235E50;
+  --accent-soft: #E0EFE6;
   --on-accent: #FFFFFF;
   --success: #0E9F6E;
   --error: #C6432C;
@@ -33,16 +33,16 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #221E1A;
-    --surface: #2C2723;
-    --surface-2: #363029;
-    --ink: #F1EBE2;
-    --ink-soft: #BBB1A4;
-    --ink-faint: #857C71;
-    --line: #3E372F;
-    --accent: #22B583;
-    --accent-strong: #4FD3A4;
-    --accent-soft: #1E3A30;
+    --bg: #111B1B;
+    --surface: #192626;
+    --surface-2: #233333;
+    --ink: #EDF4F0;
+    --ink-soft: #B8CCC6;
+    --ink-faint: #95B0A6;
+    --line: #304542;
+    --accent: #80C8AD;
+    --accent-strong: #A4DECA;
+    --accent-soft: #25433A;
     --on-accent: #0B241B;
     --success: #34C795;
     --error: #F08A73;
@@ -63,6 +63,16 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); -w
 a { color: var(--accent-strong); }
 a:hover { color: var(--accent); }
 button { font-family: inherit; }
+.activity-header { gap: 12px; flex-wrap: wrap; }
+.activity-heading { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; min-width: 0; }
+.back-to-chat { display: inline-flex; align-items: center; min-height: 36px; padding: 0 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink-soft); font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; box-sizing: border-box; }
+.back-to-chat:hover { background: var(--surface-2); color: var(--accent-strong); }
+.activity-header .meta { margin-left: auto; }
+@media (max-width: 420px) {
+  .activity-heading { gap: 10px; }
+  .activity-header { gap: 10px; }
+  .back-to-chat { min-height: 40px; padding: 0 9px; font-size: 11px; }
+}
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 @keyframes tut-pop { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
 @keyframes tut-rise { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }

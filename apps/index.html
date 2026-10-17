@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark">
+<title>Tutor — Моё обучение</title><link rel="stylesheet" href="theme.css"><link rel="stylesheet" href="platform.css"><script src="client.js" defer></script><script src="platform.js" defer></script>
+</head>
+<body data-page="home">
+<a class="skip-link" href="#main">К обучению</a>
+<aside class="platform-nav" aria-label="Главная навигация">
+<a class="platform-brand" href="index.html"><span class="platform-mark" aria-hidden="true">t</span><span>Tutor<small>ENGLISH STUDIO</small></span></a>
+<p class="nav-caption">МОЁ ОБУЧЕНИЕ</p><nav>
+<a class="platform-link selected" href="index.html" aria-current="page"><span aria-hidden="true">◈</span> Сегодня</a>
+<a class="platform-link" href="#directions"><span aria-hidden="true">↗</span> Мои направления</a>
+<a class="platform-link" href="chat.html"><span aria-hidden="true">◌</span> Занятие</a>
+<a class="platform-link" href="dashboard.html"><span aria-hidden="true">▥</span> Мой прогресс</a></nav>
+<p class="nav-caption">ПРАКТИКА</p><nav>
+<a class="platform-link" href="flashcards.html"><span aria-hidden="true">▱</span> Повторение</a><a class="platform-link" href="quiz.html"><span aria-hidden="true">✓</span> Упражнения</a><a class="platform-link" href="reader.html"><span aria-hidden="true">≡</span> Чтение</a><a class="platform-link" href="dictation.html"><span aria-hidden="true">♫</span> Диктант</a></nav>
+<div class="nav-bottom"><a class="platform-link" href="chat.html?settings=1"><span aria-hidden="true">⚙</span> Мой подход</a><a class="nav-help" href="guide.html">Что умеет Tutor ↗</a></div>
+</aside>
+<div class="platform-main">
+<header class="platform-topbar"><a class="mobile-brand" href="index.html">Tutor</a><span id="date-label">МОЁ ОБУЧЕНИЕ</span><div class="topbar-actions"><span class="service-status" id="service-status">Проверяем подключение</span><a class="avatar-link" href="chat.html?settings=1" aria-label="Настройки моего обучения">Я</a></div></header>
+<main id="main" class="page-content">
+<div class="page-heading"><div><p class="overline">ЛИЧНЫЙ УЧЕБНЫЙ КАБИНЕТ</p><h1>Английский для твоей жизни.</h1><p class="page-intro">Выбери, что тебе нужно сейчас. Преподаватель подстроит примеры и объяснения.</p></div><a class="text-link" href="chat.html?settings=1">Мой подход ↗</a></div>
+<div id="page-error" class="platform-notice" role="status" hidden><span id="page-error-text"></span><button id="reload-page" type="button">Повторить</button></div>
+<section class="today-grid" aria-label="Следующий шаг">
+<article class="today-card"><div class="card-topline"><span class="small-label">СЕГОДНЯ</span><span class="soft-tag" id="daily-time">В твоём темпе</span></div><h2 id="next-title">Найдём твою отправную точку</h2><p id="next-description">Несколько коротких заданий помогут выбрать сложность. Начальный уровень пока не считается оценкой.</p><ol class="daily-route" id="daily-route" hidden></ol><div class="today-actions"><a class="primary-action" id="next-action" href="chat.html?new=1&mode=diagnostic">Найти отправную точку ↗</a><a class="quiet-action" href="chat.html?new=1&mode=conversation">Просто попрактиковаться</a></div></article>
+<aside class="approach-card" aria-label="Мой подход к обучению"><span class="small-label">ПОДСТРОЕНО ПОД ТЕБЯ</span><div class="language-stamp"><span aria-hidden="true">Aa</span><b id="dialect-label">American English</b></div><h2 id="approach-title">Разговорный английский.</h2><p id="approach-description">Неформальное общение, короткие объяснения и примеры из обычной жизни.</p><div class="preference-tags" id="preference-tags"></div><a class="text-link" href="chat.html?settings=1">Изменить предпочтения ↗</a></aside>
+</section>
+<section id="directions" class="page-section" aria-labelledby="directions-title"><div class="section-heading"><div><h2 id="directions-title">Мои направления</h2><p>У каждого разговора своя цель и контекст. Прогресс остаётся общим.</p></div><a class="text-link" href="chat.html?new=1&direction=custom">Своё направление +</a></div><div id="direction-list" class="direction-grid" aria-live="polite"></div></section>
+<div class="lower-grid"><section class="page-section" aria-labelledby="recent-title"><div class="section-heading"><h2 id="recent-title">Продолжить с места остановки</h2><a class="text-link" href="chat.html">Все занятия ↗</a></div><div id="recent-conversations" class="recent-list"><p class="empty-copy">Здесь появятся твои занятия и сохранённые контексты.</p></div></section><section class="review-card" aria-labelledby="review-title"><span class="small-label">ЧТОБЫ НЕ ЗАБЫТЬ</span><h2 id="review-title">Вспомнить полезное</h2><p><strong id="due-count">0</strong><span id="due-description">карточек к повторению</span></p><a class="secondary-action" href="flashcards.html">Открыть повторение ↗</a><small>Интервалы повторения учитывают, как ты вспоминаешь слова.</small></section></div>
+<section class="progress-strip" aria-label="Результаты практики"><div><span class="metric-number" id="attempt-count">0</span><span>сохранённых ответов</span></div><div><span class="metric-number" id="session-count">0</span><span>завершённых занятий</span></div><div><span class="metric-number level-metric" id="level-status">Ещё знакомимся</span><span>оценка по учебным ответам</span></div><a class="text-link" href="dashboard.html">Посмотреть прогресс ↗</a></section>
+<footer class="page-footer"><span>Сохраняем то, что ты действительно сделал.</span><button class="text-link" id="home-backup" type="button">Скачать резервную копию ↧</button></footer>
+</main>
+<nav class="mobile-bottom-nav" aria-label="Разделы платформы"><a href="index.html" aria-current="page">Сегодня</a><a href="#directions">Направления</a><a href="chat.html">Занятие</a><a href="dashboard.html">Прогресс</a></nav>
+</div>
+</body></html>

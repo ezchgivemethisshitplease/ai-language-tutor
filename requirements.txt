@@ -1,0 +1,4 @@
+# Official maintained FSRS implementation; optimizer is optional and not installed.
+fsrs==6.3.2
+# Pin the runtime dependency as well for reproducible environments.
+typing-extensions==4.16.0

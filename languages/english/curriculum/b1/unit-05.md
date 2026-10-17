@@ -3,7 +3,7 @@
 **Can-do:** I can talk about imaginary or unlikely situations and their results, and say what I would do.
 
 ## Grammar focus
-The **second conditional** talks about unreal, unlikely or imaginary present and future situations: *If + past simple, … would + verb* (*If I won the lottery, I'd travel the world*). The past-tense form here does not mean past time — it marks the situation as hypothetical. Use **would** (*'d*) for the imaginary result, and **could** or **might** for ability or possibility (*I could quit my job / I might move abroad*). With the verb *be*, careful speakers use **were** for all persons in the *if*-clause (*If I were you…*), the classic way to give advice. Compare with the first conditional: first = real and likely, second = unreal or unlikely.
+The **second conditional** talks about unreal, unlikely or imaginary present and future situations: *If + past simple, … would + verb* (*If I won the lottery, I'd travel the world*). The past-tense form here does not mean past time — it marks the situation as hypothetical. Use **would** (*'d*) for the imaginary result, and **could** or **might** for ability or possibility (*I could quit my job / I might move abroad*). With the verb *be*, formal hypothetical constructions use **were** for all persons in the *if*-clause (*If I were you…*), the classic way to give advice. Compare with the first conditional: first = real and likely, second = unreal or unlikely.
 
 - If I **had** more money, I'**d** invest it.
 - What **would** you do if you **lost** your job?
@@ -41,5 +41,5 @@ cut back — to spend or use less than before
 
 ## Watch out
 - If I would have money, I would travel → If I had money, I would travel
-- If I will be rich, I will help → If I were rich, I would help
-- If I was you, I'd wait → If I were you, I'd wait
+- If I will be rich, I will help → If I become rich, I will help (real possibility) / If I were rich, I would help (imaginary situation)
+- For the conventional formal advice frame: If I were you, I'd wait. *Was* also occurs in informal hypothetical English; do not treat every instance as wrong.

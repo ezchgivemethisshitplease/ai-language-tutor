@@ -1,9 +1,9 @@
-# C1 · Unit 10 — Sounding Native
+# C1 · Unit 10 — Idiom, collocation & register
 
 **Can-do:** I can deploy idioms, strong collocations and shifts of register, and recognise humour and irony, so as to sound natural and read between the lines.
 
 ## Grammar focus
-Native-like fluency rests less on grammar than on collocation (*strong tea, heavy rain, a vested interest*), idiom (*a blessing in disguise, the elephant in the room*) and register agility — moving between formal, neutral and colloquial to suit the audience and moment. Irony says the opposite of what is meant and depends on shared context and tone; understatement (*not exactly cheap*) and hyperbole shade attitude without stating it. At C1, reading these cues matters as much as producing them: a mistimed idiom, a wrong collocate, or a literal reading of an ironic remark instantly marks a non-native speaker.
+Natural, intelligible communication draws on grammar as well as collocation (*strong tea, heavy rain, a vested interest*), idiom (*a blessing in disguise, the elephant in the room*) and register agility — moving between formal, neutral and colloquial to suit the audience and moment. Irony says the opposite of what is meant and depends on shared context and tone; understatement (*not exactly cheap*) and hyperbole shade attitude without stating it. At C1, reading these cues matters as much as producing them: a poorly chosen idiom, collocate or interpretation of irony can obscure the message. These are context-sensitive choices, not a test of native identity.
 
 - The merger was, to put it mildly, not a roaring success.
 - Let's not beat around the bush: the project is over budget.

@@ -1,80 +1,119 @@
 # AI Language Tutor
 
-<p align="center">
-  <img src="assets/tutor-mascot.png" alt="AI Language Tutor mascot reading a book" width="240">
-</p>
+A local English learning platform with a learning home, contextual lessons, Russian explanations, a persistent learner model and maintained FSRS scheduling. The web app uses an independent Codex CLI process with ChatGPT subscription login; Codex Desktop is optional. Python validates exercises, records evidence and manages progress. The course contains 60 A1–C1 lesson outlines. Placement and internal readiness estimates are uncalibrated.
 
-Turn any AI coding agent into a personal language tutor with memory — a full CEFR course from A1 to C1 that lives in a folder.
+[Инструкция на русском](docs/usage.ru.md) · [Audit](AUDIT.md) · [Architecture](ARCHITECTURE.md) · [Pedagogy](PEDAGOGY.md) · [Implemented changes](IMPROVEMENTS.md) · [Remaining work](ROADMAP.md)
 
-Beyond your AI coding agent, the core needs no additional account, subscription or remote server. The **agent is the tutor** (it teaches, corrects, converses and examines you), **plain files are the memory** (your level, errors, vocabulary and streak persist between sessions), and **one small script is the clock** (FSRS, the modern spaced-repetition algorithm). Everything is built on evidence-based language pedagogy — see [`docs/methodology.md`](docs/methodology.md).
+## Install
 
-Works with **Claude Code, Cowork, Cursor, OpenCode and Gemini CLI** — anything that reads `AGENTS.md`. macOS, Windows and Linux.
+Supports macOS and Linux with Python 3.10+, Node.js 22+ and npm 10+. There is no frontend build or hosted service to deploy.
 
-## Features
-
-- **Placement test** — a friendly ~15-minute adaptive chat that finds your real CEFR level and builds your profile. No preparation needed.
-- **Daily sessions** — one word (`session`) plans your day: spaced review, comprehensible reading, conversation, writing, pronunciation… balanced across the week and fitted to the minutes you have.
-- **Real curriculum** — 60 CEFR units for English (A1→C1): criterial grammar, vocabulary, functions and Cambridge-style level exams.
-- **Spaced repetition** — sentence-first cloze cards: retrieve a word or chunk inside a real sentence, then reveal its pronunciation, completed context, meaning and optional picture. Scheduled with FSRS and generated from *your* errors and readings.
-- **Speaking that counts** — normal lessons stay in text; conversation, fluency, pronunciation and spoken exams use a detailed self-contained prompt plus Lesson Pass JSON in any external voice chat, with L1 support fading from A1 to target-language immersion by the advanced levels.
-- **Browser apps** — flashcards, quizzes, assisted reader, replayable dictation and a progress dashboard. Self-contained HTML, served locally.
-- **Natural voices, free** — neural TTS via the cloud-based edge-tts service, no key or account. Browser/OS voices work locally; OpenAI and ElevenLabs are optional.
-- **Any native language, any target** — the tutor explains in *your* language; English ships complete, and other target languages are generated in place on request.
-- **Local memory** — the deck and progress stay in local files. Cloud voice/TTS receives only the text or lesson context sent to it; optional Openverse image lookup receives the search phrase.
-
-## Quick start
-
-> Requirements: an AI coding agent + Python 3. Recommended once: `pip3 install edge-tts` (free neural voices).
-
-1. Clone or download this repo.
-2. Open your AI agent in the folder — no terminal needed: in the Claude desktop app, open the folder with **Cowork**.
-3. Say **`let's start`** and take the placement test.
-
-From then on, your daily class is one word: **`session`**. In Claude Code, Cursor, OpenCode and Gemini CLI you can also type `/start` and `/session`.
-
-## How a session works
-
-The tutor reads your memory, greets you with your streak and due cards, and runs a plan shaped to your daily minutes — for example: 10' flashcard review → 15' reading at 95–98% known words → 15' spoken roleplay → 5' grammar targeting your most repeated error. Every activity writes back what it learned about you: new errors become flashcards, mastered words unlock harder texts, and tomorrow's class starts where today's ended.
-
-Speaking steps are enforced, not optional — you cannot pass B1 without a spoken exam. Setup asks once whether an external voice AI is available and reuses that route automatically. If it is unavailable, the tutor defers the spoken step and tracks the debt; it never pretends typing was speaking. The finite [voice bridge](portable/voice-tutor.md) sends one complete prompt plus Lesson Pass JSON; the report is delivered automatically at completion or requested in text immediately after the call.
-
-Browser activities use one localhost server that is reused during the session and shut down automatically at the daily wrap-up. Manual controls are `python3 tools/serve.py status` and `python3 tools/serve.py stop`; shutdown targets only this project's authenticated local instance.
-
-## Languages
-
-- **Learn English today** — complete curriculum, from any native language: hints, translations and explanations are generated in yours.
-- **Learn anything else** — say *"I speak Spanish and I want to learn French"*: the tutor generates the French curriculum in your copy, level by level, and teaches the same way. Generated curricula are marked for review — contribute yours back!
-- **Several at once** — each language keeps its own deck, streak, level and errors in `student/<language>/`. Say *"switch to French"* and everything follows.
-
-## Repo layout
-
-```
-AGENTS.md            the tutor's brain — identity, rules, memory protocol
-docs/                methodology, architecture, and the research behind them
-activities/          lesson procedures and the daily orchestrator (plain markdown)
-languages/english/   curriculum: 60 CEFR units + notes per native language
-apps/                browser apps: flashcards, quiz, reader, dictation, dashboard
-portable/            external voice bridge and report contract
-tools/               SRS · local app server · TTS · voice-contract self-check
-student.example/     template for your data — your real student/ is gitignored
+```sh
+git clone https://github.com/ezchgivemethisshitplease/ai-language-tutor.git
+cd ai-language-tutor
+git switch improve/reliable-russian-tutor
+./start.sh
 ```
 
-## Privacy & API keys
+Open the local learning home, set your study profile, and use **Войти через ChatGPT** inside the lesson to complete the official OpenAI login. Chat, conversation history, lesson controls, exercises, cards, reading, dictation, progress and backup download are available in the browser. The app installs pinned dependencies locally and keeps a separate private Codex profile under `.runtime/codex-home`; it never imports Desktop credentials. No API key is needed. Account eligibility and subscription limits still apply. [Web setup and troubleshooting](docs/web.md) explain the details.
 
-Profile, errors and progress live in `student/` (gitignored), and the app server binds to `localhost`. The text-only stack and browser/OS TTS need **zero API keys and no cloud audio service**. Edge TTS is free but cloud-based: it receives the text to synthesize; OpenAI, ElevenLabs and voice models receive the text or lesson context sent to them. `srs.py img` sends only the visual search phrase to Openverse and downloads the chosen result. The rest of the course memory remains local. Pass API keys only as environment variables (`export OPENAI_API_KEY=...`) — never write them into this folder or paste them into chat.
+Codex app-server and dynamic tools are experimental; the adapter pins version `0.163.0`. The web tutor has a restricted filesystem/network policy and uses curated learning tools. Optional [local Whisper dictation](docs/speech.md) turns recordings into editable drafts; the model receives confirmed text, without acoustic assessment. Replies can be read aloud using installed local browser voices. Human reviews, recovery and archive restore remain explicit CLI workflows. Keep the server running while using the web tutor; stop it with `Ctrl+C` or `.venv/bin/python tools/serve.py stop`.
 
-## Contributing
+For the existing Codex/Claude Code workflow, a file/shell-capable agent can use just the Python core:
 
-The most valuable contributions, in order:
+```sh
+git clone https://github.com/ezchgivemethisshitplease/ai-language-tutor.git
+cd ai-language-tutor
+git switch improve/reliable-russian-tutor
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python tools/tutor.py init --native-language russian --daily-minutes 30
+python tools/tutor.py status
+```
 
-1. **A language you generated** — `languages/<target>/` from the tutor's generator, reviewed by you.
-2. **L1 notes** — typical errors for your native language (`languages/english/l1-notes/<your-language>.md`).
-3. **Curriculum review** — corrections to units by teachers or advanced learners.
-4. **Windows/Linux testing** — the tooling is cross-platform by design; field reports welcome.
+Use the virtual environment for every command. Do not install packages into the system interpreter.
 
-Keep the spirit: plain files, no frameworks, free by default, works in any agent.
-Before submitting voice-flow changes, run `python3 tools/voice_selfcheck.py`.
+Existing learners run the same `init` command: it preserves files, IDs and old progress, retaining the old level as unverified legacy information. Back up `student/` before migrating valuable progress. Corrupt files are rejected instead of reset. The previous JSON generation is kept as `.bak` when state changes.
 
-## License
+## Personal learning in the browser
 
-[MIT](LICENSE) — use it, fork it, translate it, build on it.
+**Мой подход** controls account-wide dialect, register, explanation language/detail, terminology, corrections and topics. Each saved conversation can have its own goal, scenario, mode, difficulty and style overrides. Model-proposed memories require explicit confirmation and can be edited or deleted. The home resumes the owning lesson; the progress page separates reading, writing, listening and speaking evidence. [Полный список возможностей](docs/capabilities.ru.md) · [Design references](docs/design-references.md).
+
+## Study in Codex or Claude Code
+
+Open this repository as the working folder and say «Давай заниматься английским». Codex reads `AGENTS.md`; Claude Code imports it through `CLAUDE.md`. Both use [the same workflow](docs/agent-workflow.md). Claude `/start` and `/session` wrappers are included; plain chat requests work in either agent.
+
+The project includes a portable [`humanize` skill](.agents/skills/humanize/SKILL.md). The agent loads it through AGENTS.md and applies a silent editing pass to its own explanations, feedback and engineering replies. It preserves your exact answers and all assessment data. Codex can also invoke `$humanize`; Claude Code has a project skill wrapper. [Communication examples](docs/communication.md) show the intended tone. Skill discovery and instruction adherence depend on the host; they are not a guarantee that every future reply will have the desired style.
+
+```sh
+python tools/tutor.py start          # store today's plan or resume the unfinished one
+python tools/tutor.py items --level A1 --limit 6   # learner view, keys/scripts hidden
+python tools/tutor.py assess --level A1
+python tools/tutor.py --help
+```
+
+Russian explanations remain available at every level: «Объясни по-русски». Support fades according to observed eligible performance. The Russian KB supplies 31 contextual contrasts linked to units and remedial exercise types. Diagnoses require actual evidence; native language alone never proves an error.
+
+Each meaningful attempt retains the exercise, exact response, hints and rating source. A later `review` appends an annotation to that same trial; it does not rewrite the answer or count as a new independent response. Repeated delayed evidence supports a separate mastery estimate. An LLM review remains provisional and cannot by itself establish mastery or promote a level. Open writing/speech progression needs human review; the local attestation records provenance but cannot authenticate a reviewer. See [workflow commands](docs/agent-workflow.md) for attempts, interruptions, debt and internal progression.
+
+## Reviews and browser practice
+
+```sh
+python tools/srs.py due
+python tools/srs.py stats
+python tools/serve.py
+```
+
+Open `http://localhost:8765/flashcards.html`, `quiz.html`, `reader.html`, `dictation.html` or `dashboard.html`. The agent prepares and validates quiz/reading/dictation JSON first. Flashcard recall grades are saved immediately; retries use stable IDs. Apps retain pending submissions/drafts in browser localStorage until acknowledged. Failed loads show an error; demonstration data requires `?demo=1` explicitly. On shared computers, treat browser drafts as personal data.
+
+FSRS owns learning/relearning steps and due times. Hard means remembered with difficulty; Again means forgotten. The browser does not loop forgotten cards until you choose Good. Unknown wording in non-exhaustive language tasks stays `needs_review`. Quiz outcomes never automatically add cards or establish mastery.
+
+For an agent-hosted activity, stop after the final acknowledged activity with `python tools/serve.py stop`. Keep it running for browser chat. The service binds to loopback and enforces Host/Origin/session-token checks. It is a single-user local service, not a public application server.
+
+## Audio and privacy
+
+OS/browser speech is the default. On macOS, `python tools/tts.py say "I am a student."` uses the installed OS voice. Browser dictation has an explicit browser-speech fallback. Optional cloud providers require `TUTOR_TTS=edge`, `openai` or `elevenlabs`; provider packages/credentials alone never enable them. Cloud speech receives the requested text. Edge requires an optional `edge-tts` installation; it is not a runtime dependency of the core.
+
+The 100-item original diagnostic bank covers reading, listening, writing and speaking. Listening has original scripts and independent contexts. `python tools/tutor.py audio diag-a1-listening-01 /existing/path/stimulus.aiff` renders an English stimulus locally on macOS without printing its script or playing it; Linux uses `.wav` with optional eSpeak. Present audio before the answer and keep transcripts/keys hidden. Generating a file does not prove the learner heard it. [Assessment instructions](docs/assessment.md) describe actual delivery evidence and provisional advanced entry.
+
+Speech production uses an optional external voice conversation and a finite pass/report workflow. The [voice bridge](portable/voice-tutor.md) and `validate-voice` check structure, pass identity and completion fields. They do not authenticate sound, score pronunciation or calibrate proficiency. Missing speaking/listening evidence stays unassessed. No paid speech dependency is required.
+
+Learner files stay under ignored `student/`. The coding agent receives whatever learner context it reads into its conversation, and external voice receives the handoff context. Optional TTS/image services receive the text/query sent to them. Local storage therefore does not imply offline inference. API keys belong only in environment variables. Archives contain personal data and are not encrypted. Full backups include managed files from every language plus learner images/audio/video; credentials, server control files, caches and arbitrary unknown files are excluded.
+
+```sh
+python tools/tutor.py backup /existing/safe/location/learner.zip
+python tools/tutor.py backup-check /existing/safe/location/learner.zip
+python tools/tutor.py restore /existing/safe/location/learner.zip /new/location/restored-student
+python tools/tutor.py recover learner.json
+```
+
+Restore validates the complete archive and publishes a new directory without replacing live data. Use `--student-dir PATH` or `TUTOR_STUDENT_DIR` to select isolated/restored data. The older `export`/`import` JSON commands remain compatible for the active English semantic state.
+
+Set `TUTOR_BACKUP_DIR` to an existing directory on your own backup storage to enable rotating copies after successful study mutations. `TUTOR_BACKUP_KEEP` defaults to 7 and `TUTOR_BACKUP_INTERVAL_HOURS` to 24. `TUTOR_BACKUP_REQUIRE_MOUNT` can require a mounted external volume. No background service is installed; `backup-auto` also runs the policy explicitly. A missing backup volume leaves saved study data intact and reports that the backup is unavailable. [Backup policy and restore drills](docs/backup.md) specify the exact scope and limits.
+
+## Verify
+
+```sh
+python -m pip install -r requirements-dev.txt
+python -m unittest discover -s tests -v
+python -m ruff check tools tests
+python -m ruff format --check tools tests
+python -m mypy tools
+python tools/srs.py selfcheck
+python tools/serve.py selfcheck
+python tools/voice_selfcheck.py
+python -m pip check
+node tests/browser_transport.cjs
+node tests/web_chat_ui.cjs
+node tests/speech_ui.cjs
+python tools/check_browser_scripts.py
+```
+
+Tests use temporary data. They cover FSRS reference parity, migration, corruption/recovery, concurrent writes/retries, 100 simulated sessions, assessment limits, Russian feedback and browser transport. [VALIDATION.md](VALIDATION.md) records the actual results/platforms. CI runs Python 3.10 and 3.14 on Ubuntu and macOS plus the Node checks. Selected real Codex and Claude Code flows are recorded separately from deterministic tests. Learner outcomes, psychometric calibration and actual human speech ratings still require external evidence.
+
+## Files and boundaries
+
+`tools/learning.py` is the evidence/planning model; `tools/tutor.py` is its CLI; `tools/storage.py` serializes durable JSON updates; `tools/srs.py` adapts pinned FSRS. `activities/` contains teaching procedures, `languages/english/` content and Russian contrasts, and `apps/` static local practice. `student.example/` is a compatibility template; initialization never copies it over existing data.
+
+MIT license. The adapted Humanizer skill includes its upstream MIT attribution. Do not redistribute proprietary vocabulary corpora or exam materials through contributions.

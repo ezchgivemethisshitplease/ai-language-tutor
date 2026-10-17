@@ -1,136 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tutor — Dashboard</title>
-<link rel="stylesheet" href="theme.css">
-<style>
-  header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 5; }
-  .brand { display: flex; align-items: baseline; gap: 10px; }
-  .brand b { font-family: var(--font-display); font-size: 17px; }
-  .brand span { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); }
-  main { width: 100%; max-width: 960px; margin: 0 auto; padding: 24px 20px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px; }
-  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
-  .tile { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-1); padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
-  .big { font-family: var(--font-display); font-weight: 700; font-size: 32px; line-height: 1; }
-  .lbl { font-size: 12px; font-weight: 600; color: var(--ink-faint); margin-top: 4px; }
-  .chip { background: var(--accent-soft); color: var(--accent-strong); font-family: var(--font-display); font-weight: 700; font-size: 15px; padding: 3px 10px; border-radius: 8px; }
-  .track { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
-  .track > div { height: 100%; background: var(--accent); border-radius: 3px; }
-  section.panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-1); padding: 20px; }
-  h2 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-faint); }
-  .panel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
-  .kw { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
-  .kw small { font-size: 12px; font-weight: 600; color: var(--ink-faint); }
-  .axis { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: var(--ink-faint); margin-top: 4px; }
-  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
-  .due-num { font-family: var(--font-display); font-weight: 700; font-size: 36px; line-height: 1; }
-  .btn-soft { display: inline-block; background: var(--accent-soft); color: var(--accent-strong); text-decoration: none; font-weight: 700; font-size: 14px; padding: 10px 16px; border-radius: var(--radius-sm); align-self: flex-start; }
-  .btn-soft:hover { filter: brightness(.97); }
-  .err { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
-  .err b { font-family: var(--font-display); font-size: 13px; color: var(--error); min-width: 26px; }
-  .err .l { font-size: 14px; font-weight: 600; }
-  .err .e { font-size: 12px; color: var(--ink-soft); }
-  .cta { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-1); padding: 16px 20px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; text-align: center; }
-  .cta span { font-size: 15px; font-weight: 600; color: var(--ink-soft); }
-  .cta code { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 14px; font-weight: 700; background: var(--surface-2); color: var(--ink); padding: 7px 14px; border-radius: 8px; }
-  .muted { color: var(--ink-faint); font-size: 14px; }
-</style>
-</head>
-<body>
-<header>
-  <div class="brand"><b>Tutor</b><span>Home</span></div>
-  <span class="chip" id="level-chip">–</span>
-</header>
-<main>
-  <section class="row">
-    <div class="tile">
-      <span style="font-size:26px">🔥</span>
-      <div><div class="big" id="streak">0</div><div class="lbl">day streak</div></div>
-    </div>
-    <div class="tile">
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <span class="chip" id="level">–</span>
-          <span class="lbl" style="margin:0" id="level-next"></span>
-        </div>
-        <div class="track"><div id="level-bar" style="width:0"></div></div>
-      </div>
-    </div>
-    <div class="tile">
-      <div><div class="big" id="unit">–</div><div class="lbl">current unit</div></div>
-    </div>
-  </section>
-  <section class="panel">
-    <div class="panel-head">
-      <h2>Vocabulary</h2>
-      <span class="kw"><span id="known">0</span> <small>words known</small></span>
-    </div>
-    <svg id="chart" viewBox="0 0 600 150" style="width:100%;height:auto;display:block" role="img" aria-label="Known words over time"></svg>
-    <div class="axis"><span id="axis-from">start</span><span>today</span></div>
-  </section>
-  <section class="grid2">
-    <div class="panel" style="display:flex;flex-direction:column;gap:12px">
-      <h2>Due today</h2>
-      <div style="display:flex;align-items:baseline;gap:8px">
-        <span class="due-num" id="due">0</span>
-        <span class="muted">cards ready for review</span>
-      </div>
-      <a class="btn-soft" href="flashcards.html">Review cards</a>
-    </div>
-    <div class="panel" style="display:flex;flex-direction:column;gap:10px">
-      <h2>Recurring errors</h2>
-      <div id="errors"><span class="muted">Nothing recurring yet — that's a good sign.</span></div>
-    </div>
-  </section>
-  <div class="cta">
-    <span>Your tutor runs today’s session — say</span>
-    <code>“session”</code>
-    <span>in your AI agent</span>
-  </div>
-</main>
-<script>
-(() => {
-  const DEMO = { streak: 12, level: 'A2', unit: 5, levelPct: 33, knownWords: 418, dueCount: 23,
-    history: [180, 205, 236, 258, 291, 334, 372, 418],
-    topErrors: [
-      { count: 7, label: 'past simple vs. present perfect', example: '“I have seen him yesterday” → I saw him yesterday' },
-      { count: 5, label: 'missing subject “it”', example: '“Is raining a lot” → It’s raining a lot' },
-      { count: 4, label: 'false friend: actually', example: '“Actually I live in Cali” → Currently, I live in Cali' },
-    ]};
-  const $ = id => document.getElementById(id);
-  const esc = s => { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
-  const NEXT = { A1: 'A2', A2: 'B1', B1: 'B2', B2: 'C1', C1: 'C2' };
-
-  function render(d) {
-    $('streak').textContent = d.streak ?? 0;
-    const lvl = d.level || '–';
-    $('level').textContent = lvl; $('level-chip').textContent = lvl;
-    $('level-next').textContent = NEXT[lvl] ? `${d.levelPct ?? 0}% to ${NEXT[lvl]}` : '';
-    $('level-bar').style.width = (d.levelPct ?? 0) + '%';
-    $('unit').textContent = d.unit ?? '–';
-    $('known').textContent = d.knownWords ?? 0;
-    $('due').textContent = d.dueCount ?? 0;
-    const h = (d.history && d.history.length > 1) ? d.history : [0, d.knownWords ?? 0];
-    const max = Math.max(...h, 1) * 1.1;
-    const pts = h.map((v, i) => [20 + i * (560 / (h.length - 1)), 140 - (v / max) * 125]);
-    const line = 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L');
-    const area = line + ` L${pts[pts.length - 1][0].toFixed(1)} 148 L${pts[0][0].toFixed(1)} 148 Z`;
-    $('chart').innerHTML =
-      `<path d="${area}" fill="var(--accent-soft)"></path>` +
-      `<path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"></path>` +
-      `<circle cx="${pts[pts.length - 1][0].toFixed(1)}" cy="${pts[pts.length - 1][1].toFixed(1)}" r="4" fill="var(--accent)"></circle>`;
-    $('axis-from').textContent = h.length > 2 ? `${h.length} sessions ago` : 'start';
-    if (d.topErrors && d.topErrors.length) {
-      $('errors').innerHTML = d.topErrors.map(e =>
-        `<div class="err"><b>${e.count}×</b><div><div class="l">${esc(e.label)}</div><div class="e">${esc(e.example)}</div></div></div>`).join('');
-    }
-  }
-
-  fetch('/api/progress').then(r => r.ok ? r.json() : null)
-    .then(d => render(d || DEMO)).catch(() => render(DEMO));
-})();
-</script>
-</body>
-</html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>Tutor — Мой прогресс</title><link rel="stylesheet" href="theme.css"><link rel="stylesheet" href="platform.css"><script src="client.js" defer></script><script src="progress.js" defer></script></head><body><a class="skip-link" href="#main">К содержимому</a><aside class="platform-nav" aria-label="Главная навигация">
+<a class="platform-brand" href="index.html"><span class="platform-mark" aria-hidden="true">t</span><span>Tutor<small>ENGLISH STUDIO</small></span></a>
+<p class="nav-caption">МОЁ ОБУЧЕНИЕ</p><nav>
+<a class="platform-link" href="index.html"><span aria-hidden="true">◈</span> Сегодня</a>
+<a class="platform-link" href="index.html#directions"><span aria-hidden="true">↗</span> Мои направления</a>
+<a class="platform-link" href="chat.html"><span aria-hidden="true">◌</span> Занятие</a>
+<a class="platform-link selected" href="dashboard.html" aria-current="page"><span aria-hidden="true">▥</span> Мой прогресс</a></nav>
+<p class="nav-caption">ПРАКТИКА</p><nav>
+<a class="platform-link" href="flashcards.html"><span aria-hidden="true">▱</span> Повторение</a><a class="platform-link" href="quiz.html"><span aria-hidden="true">✓</span> Упражнения</a><a class="platform-link" href="reader.html"><span aria-hidden="true">≡</span> Чтение</a><a class="platform-link" href="dictation.html"><span aria-hidden="true">♫</span> Диктант</a></nav>
+<div class="nav-bottom"><a class="platform-link" href="chat.html?settings=1"><span aria-hidden="true">⚙</span> Мой подход</a><a class="nav-help" href="guide.html">Что умеет Tutor ↗</a></div>
+</aside><div class="platform-main"><header class="platform-topbar"><a class="mobile-brand" href="index.html">Tutor</a><span id="date-label">МОЁ ОБУЧЕНИЕ</span><div class="topbar-actions"><span class="service-status" id="service-status">Проверяем подключение</span><a class="avatar-link" href="chat.html?settings=1" aria-label="Настройки моего обучения">Я</a></div></header><main class="page-content" id="main">
+<div class="page-heading"><div><p class="overline">МОЙ ПРОГРЕСС</p><h1>Здесь видна твоя практика.</h1><p class="page-intro">Сохранённые ответы, занятия и то, к чему стоит вернуться. Уровень уточняется по мере работы.</p></div><a class="text-link" href="chat.html">Продолжить занятие ↗</a></div>
+<div id="page-error" class="platform-notice" role="status" hidden><span id="page-error-text"></span><button id="reload-page" type="button">Повторить</button></div>
+<section class="evidence-grid" aria-label="Результаты занятий"><article class="evidence-card"><strong id="progress-attempts">0</strong><p>ответов сохранено</p></article><article class="evidence-card"><strong id="progress-sessions">0</strong><p>занятий завершено</p></article><article class="evidence-card"><strong id="progress-due">0</strong><p>карточек пора повторить</p></article></section>
+<section class="today-card"><span class="small-label">ТЕКУЩИЙ ОРИЕНТИР</span><h2 id="progress-level">Уровень ещё не оценён</h2><p id="progress-level-description">Начальная отметка в профиле не заменяет диагностику. Разберёмся, что уже получается, на нескольких заданиях.</p><a class="primary-action" href="chat.html?new=1&mode=diagnostic">Уточнить отправную точку ↗</a></section>
+<section class="page-section" aria-labelledby="skills-title"><div class="section-heading"><div><h2 id="skills-title">Навыки по отдельности</h2><p>Текстовый ответ не доказывает, как ты слышишь или произносишь.</p></div></div><div class="skill-grid" id="skill-list"></div></section>
+<div class="lower-grid"><section class="page-section"><div class="section-heading"><h2>Последние дни практики</h2></div><div class="activity-history" id="activity-history"><p class="empty-copy">История начнётся с первого сохранённого ответа.</p></div></section><section class="review-card"><span class="small-label">ЧТО ДАЛЬШЕ</span><h2 id="review-heading">Возвращайся к полезному</h2><p id="review-copy" class="empty-copy">Практикуйся в своём направлении или повтори карточки.</p><a class="secondary-action" href="flashcards.html">К повторению ↗</a><small id="pending-review-copy">Развёрнутые ответы могут требовать дополнительного разбора.</small></section></div>
+<footer class="page-footer"><span>Здесь нет баллов за время в приложении. Только сохранённая работа.</span><a class="text-link" href="index.html">На сегодня ↗</a></footer>
+</main><nav class="mobile-bottom-nav" aria-label="Разделы платформы"><a href="index.html">Сегодня</a><a href="index.html#directions">Направления</a><a href="chat.html">Занятие</a><a href="dashboard.html" aria-current="page">Прогресс</a></nav></div></body></html>

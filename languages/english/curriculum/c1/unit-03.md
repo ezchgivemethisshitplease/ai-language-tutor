@@ -10,7 +10,7 @@ Cleft sentences split a single idea into two clauses so as to foreground one par
 - All I'm asking for is a fair hearing.
 - It wasn't until the 1970s that the theory gained traction.
 - The reason the scheme failed was a lack of political will.
-- What the committee did next surprised everyone.
+- What the committee did next was postpone the vote.
 - Deeply flawed though the plan was, it went ahead.
 - Such was the outcry that the law was repealed.
 
@@ -41,5 +41,5 @@ grievance — a real or perceived cause for complaint
 
 ## Watch out
 - What I need are your support. → What I need is your support.
-- It is because of the rain the match was cancelled. → It was because of the rain that the match was cancelled.
+- Explicit cleft, with the original present viewpoint preserved: It is because of the rain that the match was cancelled. *It was because of the rain…* uses a past viewpoint; do not change that tense automatically.
 - The thing what worries me… → What worries me… / The thing that worries me…

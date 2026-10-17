@@ -42,4 +42,4 @@ give up — to stop trying to do something
 ## Watch out
 - I use to play football when I was young → I used to play football when I was young
 - Did you used to live here? → Did you use to live here?
-- I am used to smoke → I used to smoke
+- I am used to smoke → I used to smoke (past habit) / I am used to smoking (familiar activity); ask which meaning is intended

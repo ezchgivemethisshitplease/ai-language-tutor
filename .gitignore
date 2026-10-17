@@ -2,3 +2,16 @@ student/
 .claude/settings.local.json
 .DS_Store
 __pycache__/
+.venv/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+*.pyc
+*.egg-info/
+.coverage
+htmlcov/
+node_modules/
+.runtime/
+.runtime-setup.lock
+npm-debug.log*
+data/assessments.json.lock

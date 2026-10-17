@@ -38,7 +38,7 @@ transition — the process of changing from one state to another
 - quiz focus: choosing future continuous vs future perfect from time markers (*at* vs *by*).
 
 ## Watch out
-- By 2030 we will finish the project → By 2030 we will have finished the project
-- This time tomorrow I will fly → This time tomorrow I will be flying
-- By the time she comes, we will leave → By the time she comes, we will have left
+- By 2030 we will finish the project / By 2030 we will have finished the project — both can be correct; the perfect explicitly views completion from the future deadline.
+- To foreground an action already in progress: This time tomorrow I will be flying. *I will fly* can instead state a future action.
+- To say departure is already complete at her arrival: By the time she comes, we will have left. State the timeline before judging another form wrong.
 - I will have finish it → I will have finished it

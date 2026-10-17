@@ -47,32 +47,33 @@
 </style>
 </head>
 <body>
-<header>
-  <div class="brand"><b>Tutor</b><span>Reader</span></div>
-  <button class="listen-all" id="listen-all">▶ Read to me</button>
+<header class="activity-header">
+  <div class="activity-heading"><a class="back-to-chat" href="index.html">← Моё обучение</a><a class="back-to-chat" href="chat.html">К занятию</a><div class="brand"><b>Tutor</b><span>Чтение</span></div></div>
+  <button class="listen-all" id="listen-all">Озвучить текст</button>
 </header>
 <main id="main">
-  <div class="kicker"><span id="level"></span> · <span id="mins"></span> min read</div>
+  <div class="kicker"><span id="level"></span> · <span id="mins"></span> мин чтения</div>
   <h1 id="title"></h1>
   <div id="paras"></div>
 </main>
-<div class="pop hidden" id="pop" role="dialog" aria-label="Word definition">
-  <div class="pop-head"><b id="pop-word"></b><button class="wspeak" id="pop-speak" aria-label="Pronounce">🔊</button></div>
+<div class="pop hidden" id="pop" role="dialog" aria-label="Значение слова">
+  <div class="pop-head"><b id="pop-word"></b><button class="wspeak" id="pop-speak" aria-label="Произнести">🔊</button></div>
   <div class="def" id="pop-def"></div>
   <div class="l1" id="pop-l1"></div>
   <div class="ex" id="pop-ex"></div>
-  <button class="add" id="pop-add">+ Add to deck</button>
-  <span class="added-chip hidden" id="pop-added">✓ In your deck</span>
-  <button class="add" id="pop-ask">💬 Ask the tutor</button>
-  <span class="added-chip hidden" id="pop-asked">✓ Sent — answer in the chat</span>
+  <button class="add" id="pop-add">+ Предложить карточку</button>
+  <span class="added-chip hidden" id="pop-added">Выбрано для разбора</span>
+  <button class="add" id="pop-ask">Спросить тьютора</button>
+  <span class="added-chip hidden" id="pop-asked">Запрос в очереди, ответ будет в чате</span>
 </div>
 <footer>
   <div class="foot" id="readfoot">
     <div class="track" role="progressbar" aria-label="Reading progress"><div id="readbar"></div></div>
-    <span class="pct"><span id="pct">0</span>% read</span>
-    <span class="col"><span id="collected">0</span> words collected</span>
+    <span class="pct"><span id="pct">0</span>% просмотрено</span>
+    <span class="col"><span id="collected">0</span> слов выбрано</span>
   </div>
 </footer>
+<script src="client.js"></script>
 <script>
 (() => {
   const DEMO = {
@@ -100,10 +101,13 @@
   const esc = s => { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
 
   function postEvent(payload) {
-    const body = JSON.stringify(payload); // snapshot before later clicks mutate the arrays
-    eventQueue = eventQueue.then(() => fetch('/api/text', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true,
-    })).catch(() => {});
+    const snapshot = JSON.parse(JSON.stringify(payload));
+    // Persist immediately; separate batch IDs make concurrent selections independent.
+    eventQueue = Tutor.post('/api/text', {...snapshot, activity_id: story.activity_id});
+    eventQueue.catch(() => Tutor.status('Слово не сохранено. Повторите отправку.', async () => {
+      try { const replay = await Tutor.flush(); if (replay.conflicts) throw new Error("Unresolved result"); location.reload(); }
+      catch (error) { Tutor.status('Сохранение пока недоступно.', () => location.reload()); }
+    }));
   }
 
   let premiumTTS = true, currentAudio = null;
@@ -156,7 +160,7 @@
         return `<span class="s" data-p="${pi}" data-s="${si}">${tokens}</span>`;
       }).join('');
       return `<div class="para">
-        <button class="pspeak" data-p="${pi}" aria-label="Read paragraph aloud">🔊</button>
+        <button class="pspeak" data-p="${pi}" aria-label="Озвучить абзац">🔊</button>
         <p id="p-${pi}">${spans}</p>
       </div>`;
     }).join('');
@@ -235,10 +239,17 @@
     $('readbar').style.width = $('pct').textContent + '%';
   }, { passive: true });
 
-  fetch('/api/text').then(r => r.ok ? r.json() : null).then(d => {
-    if (d && Array.isArray(d.paragraphs)) { story = d; story.glossary = story.glossary || {}; live = true; }
-    render();
-  }).catch(() => render());
+  (async () => {
+    try {
+      if (new URLSearchParams(location.search).get('demo') === '1') {
+        Tutor.status('Демонстрация: результаты не сохраняются.');
+      } else {
+        await Tutor.flush(); const response = await fetch('/api/text');
+        story = await response.json(); story.glossary = story.glossary || {}; live = true;
+      }
+      render();
+    } catch (error) { Tutor.status('Текст не загружен. Проверьте сервер и файл занятия.', () => location.reload()); }
+  })();
 })();
 </script>
 </body>

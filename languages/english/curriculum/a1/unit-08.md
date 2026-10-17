@@ -37,7 +37,7 @@ game — an activity you play for fun with rules
 ## Suggested activities
 - reading: a short message describing what a family is doing right now at home
 - conversation: describe a picture where several people are doing different activities
-- quiz focus: forming the present continuous, and choosing simple vs. continuous by time signal
+- quiz focus: forming the present continuous, and choosing simple vs. continuous from the intended meaning and time context
 
 ## Watch out
 - I am play football → I am playing football

@@ -22,7 +22,7 @@ downturn — a decline in economic or business activity
 streamline — to make a process simpler and more efficient
 undertake — to take on and begin a task or responsibility
 disregard — to ignore or pay no attention to something
-feasible — possible to do easily or conveniently
+feasible — possible to carry out with the available resources and conditions
 counterproductive — having the opposite of the desired effect
 turnover — the total amount of business done in a period
 

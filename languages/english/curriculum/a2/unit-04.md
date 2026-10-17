@@ -40,6 +40,6 @@ save — to keep money to use later
 - quiz focus: choosing *going to* (plan/evidence) vs *will* (prediction/offer/decision).
 
 ## Watch out
-- I will buy a car next year (already decided) → I'm going to buy a car next year
-- Wait, I'm going to help you now → Wait, I'll help you now
+- I going to buy a car next year → I'm going to buy a car next year
+- I will to help you now → I'll help you now
 - I hope I will to pass → I hope I'll pass

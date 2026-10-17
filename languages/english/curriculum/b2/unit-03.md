@@ -38,7 +38,7 @@ coincidence — when things happen together by chance
 - quiz focus: past perfect simple vs continuous; forming participle clauses from full clauses.
 
 ## Watch out
-- I was tired because I worked all day → I was tired because I had been working all day
+- To foreground duration before the tiredness: I was tired because I had been working all day. *I was tired because I worked all day* is also grammatical, with a different emphasis.
 - Having ate dinner, we left → Having eaten dinner, we left
 - Walking home, the rain started → Walking home, I got caught in the rain
 - She had been knowing him for years → She had known him for years

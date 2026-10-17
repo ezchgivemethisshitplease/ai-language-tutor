@@ -1,25 +1,9 @@
-# Activity: Exam simulator (level gate)
+# Activity: practice assessment and internal readiness review
 
-**Mode:** mixed — written papers in chat/app, **speaking paper voice-required, no exceptions** · **Duration:** 45–90 min, can split across 2 days (papers are independent)
+This is course practice, not an official Cambridge exam or calibrated CEFR test. Use original content and explicit task/rubric specifications. Verify current official exam information before coaching a specific examination; do not claim that a half-length generated simulation predicts a certificate.
 
-Run when all 12 units of the level are done, or on request as practice (practice runs don't gate).
+Record reading, writing, listening and speaking evidence separately through the shared workflow. Real audio is required for listening/speaking claims. Use a finite voice pass where applicable and validate the returned report, which remains unverified model-reported evidence. No hints/corrections during an independent assessed item; feedback follows recording. Preserve valid alternative phrasing and explain contextual/register judgments.
 
-## Build the exam
+Use `tutor.py assess --level LEVEL`, then `gate --target-level NEXT` for internal readiness. The gate checks demonstrated unit mastery, distinct delayed evidence and all four core domains. Percentages from this particular quiz are descriptive item results only. Do not update progress.json or assign a CEFR level from a model impression or 70% threshold.
 
-Model it on the level's official exam format for the active language (`languages/<target>/cefr-syllabus.md`). English → Cambridge: A1/A2 → Key-style (reading/writing + listening + speaking) · B1 → Preliminary · B2 → First (adds Use of English: word formation, key-word transformation, open cloze) · C1 → Advanced. Other languages → the exam mapped in their syllabus (DELF/DALF, Goethe, JLPT…). Scale to ~half the parts of the real exam per paper — enough signal, not a whole afternoon. Content draws on the level's units; nothing above level.
-
-Exam conditions: no hints, no corrections mid-paper, time limits stated per part (soft-enforced). Say so up front.
-
-## Papers
-
-1. **Reading (+ Use of English from B2)** — texts follow the known-words rule *for the level*, not for the learner (this is a test, not input).
-2. **Writing** — level task from `writing.md` table, scored with the CEFR rubric under exam strictness.
-3. **Listening** — spoken texts, questions after one play (two at A1–A2).
-4. **Speaking** — interview + picture/topic long turn + (B1+) discussion. Before handoff, write every prompt as a finite numbered plan in `portable/voice-tutor.md`; each response step completes after one good-faith learner answer, including “I don't know” or “skip”. Set `closing: none`. Use the saved voice route. If it is unavailable, schedule this paper separately; the exam cannot gate the level and no typed substitute counts.
-
-## Scoring & verdict
-
-Per-paper % and overall (papers weighted equally). **Gate: ≥70% overall AND ≥60% on every paper** (`docs/methodology.md` §9).
-
-- **Pass:** update `level` in `student/<active>/progress.json`, reset `unit: 1`, celebrate with specifics, preview the new level.
-- **Fail:** no drama — produce the error profile (which units/structures failed), build a targeted review plan (those units back into rotation), retake in ≥1 week. Log everything to `errors.md` and the session history.
+If evidence is incomplete, show the precise missing requirements and schedule remedial/cumulative practice. If the deterministic gate passes, actual internal progression still requires a real human review through `tutor.py progress`. An AI must not impersonate that reviewer. Speaking debt cannot be erased by text or LLM-only marks.

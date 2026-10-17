@@ -3,7 +3,7 @@
 **Can-do:** I can write in an objective academic register, using nominalization and layered passive constructions to foreground processes and findings rather than the people behind them.
 
 ## Grammar focus
-Nominalization turns verbs and adjectives into nouns (*decide → decision*, *wide → width*), packing information densely and shifting attention from actors to abstract processes — a hallmark of scholarly prose. The complex passive (*It is thought that…*, *X is believed to have…*, *are said to be*) removes or backgrounds the agent and reports claims impersonally, lending detachment and caution. Combine the two to sound formal and authoritative. The danger is opacity: a chain of nominalizations can bury the action and hide who actually did what, so use them to focus attention, not to evade it.
+Nominalization turns verbs and adjectives into nouns (*decide → decision*, *wide → width*), letting writers refer to processes or results as concepts. The complex passive (*It is thought that…*, *X is believed to have…*, *are said to be*) backgrounds the agent and can report a claim impersonally. Use these forms when that focus helps the reader. Active clauses and first-person references are also accepted in many academic contexts; check the genre and publication. Dense nominalizations can bury the action, and neither form supplies evidence or authority by itself.
 
 - The implementation of the reform led to a marked reduction in emissions.
 - It is widely believed that the recession was avoidable.
@@ -36,10 +36,10 @@ rigorous — thorough, careful and exact
 
 ## Suggested activities
 - reading: a journal abstract — convert three passive or nominalized sentences back into plain active ones.
-- conversation: summarise a study aloud in academic register, avoiding "I" and "you".
+- conversation: summarise a study for an academic audience, choosing active or passive forms to make the methods, findings and source clear.
 - quiz focus: nominalizing given verbs and completing complex-passive reporting frames.
 
 ## Watch out
-- They have proved that… (in a report) → It has been proved that…
-- The reducing of costs… → The reduction of costs…
-- It is believed that the sample was been contaminated. → It is believed to have been contaminated.
+- Active and passive can both be suitable in a report: They have demonstrated that… / It has been demonstrated that… . Choose who or what to foreground; passive voice alone does not make evidence stronger.
+- *The reducing of costs* is a grammatical nominal gerund; *the reduction of costs* is often a more concise alternative. Choose from context rather than marking every -ing noun phrase wrong.
+- It is believed that the sample was been contaminated. → It is believed that the sample was contaminated. / The sample is believed to have been contaminated.

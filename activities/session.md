@@ -1,38 +1,11 @@
-# Activity: Daily session (orchestrator)
+# Activity: daily session
 
-**Mode:** mixed — each step declares its own · **Trigger:** "session", "let's study", or similar
+Run the repository interpreter and `tools/tutor.py start`. It creates a stored plan or resumes the existing one. Follow [the shared workflow](../docs/agent-workflow.md) for exact commands. Load the canonical learner, relevant unit and L1 notes, then present the returned plan briefly. Do not reconstruct mastery from legacy progress or rewrite level/unit by hand.
 
-## 1. Load context
+Run one planned step at a time. Due SRS comes first when scheduled. Use the selected skill/domain and adapt the scenario to the learner's stated goals; do not silently replace a required audio modality with text. On explicit requests, explain fully in Russian at any level. Each meaningful exercise records the exact response, hints, provenance and stable attempt ID. Confirmed recurring errors use explicit KB tags, never nationality or substring matching alone.
 
-Read `student/profile.md`, `student/active.txt`, `student/<active>/progress.json` and `student/<active>/errors.md`. Run `python3 tools/srs.py streak` and `python3 tools/srs.py stats`.
+Browser app events must match the prepared activity. Per-card review saves do not finish the activity; wait for `.event-flashcards.json` from the completion endpoint. A quiz result is separate observed performance, not mastery. `tools/tutor.py events` recovers durable receipts. Stop and explain unconfirmed saves; the outbox retains them.
 
-## 2. Greet with context (5 lines max)
+Mark each step with `tutor.py step`. If a voice step is unavailable, defer it explicitly; other steps still proceed. Periodically use `assess` and a cumulative check to identify missing evidence. Speaking debt remains visible until a matching later eligible audio observation settles it.
 
-Streak, due cards, one thing from last session ("yesterday *borrow* tripped you twice"), and today's plan.
-
-## 3. Build today's plan
-
-Use the session template for their `daily_minutes` (`docs/methodology.md` §8), then adjust:
-
-- Due cards > 0 → SRS review always goes first.
-- ~7 study days since the last `weekly-check` history entry → it takes today's activity slot (`activities/weekly-check.md`).
-- A `focus` set in `progress.json` (by the weekly check) wins ties among activities that can run and biases material choice — texts, scenarios and prompts lean toward it until the next check moves it.
-- Check the last ~7 `history` entries for strand drift (§1) and `speaking_debt` flags. If the saved voice route is unavailable, filter every voice-required activity out of today's slots, keep the debt visible and choose the next neglected text strand. This applies to focus, debt and rotation; never spend a one-activity day merely deferring its only activity.
-- One-activity days rotate: conversation → reading → listening → story-listening → writing → pronunciation → fluency → grammar+quiz.
-- Unit finished → its checkpoint quiz. All units finished → propose the exam simulation.
-- A `viewing: recommended` in recent history without a matching `watched` → ask in the greet; if they watched it, 2-min debrief + mine their jotted expressions into cards (methodology §11).
-
-Present the plan with mode icons before starting: `1) 🃏 Review (12) → 2) 📖 Reading → 3) 🎙️ Conversation → 4) ✏️ Wrap`. The learner can swap steps — flexibility beats the plan, but voice-required steps can only be swapped, never silently converted to text.
-
-## 4. Run the steps
-
-Each step follows its own file in `activities/`. Between steps: one transition line, no ceremony. App steps: serve, open, wait on the event file, comment results (AGENTS.md §HTML apps). Keep the total time honest — if the budget is 30 min, cut material, not corrections.
-
-## 5. Wrap up (always, even if the session was cut short)
-
-1. `CORRECTIONS`-digest: the 1–3 things to remember from today.
-2. Write-backs per AGENTS.md: errors, new cards (≤15/day), mastered words, `history` entry (date, activities, minutes, `speaking_debt` flags, one-line notes).
-3. Advance `unit` in progress.json if its material was completed.
-4. 1–2× per week (check recent history for the last `viewing:` note): recommend a menu of 3–4 movies/episodes per methodology §11 — matched to level and interests, with the subtitle setup and one rotating technique tip. Log the menu in the history notes.
-5. After all app events and write-backs, run `python3 tools/serve.py stop`; confirm the local app server is stopped. This command is safe when no server is running.
-6. Close with: what improved today + streak + a one-line teaser of tomorrow.
+Wrap with specific feedback and the next practice target. `tutor.py finish` verifies step status. If ending early, `finish --allow-incomplete` records abandonment, or `interrupt` retains resumable work. Completion does not itself confer mastery. Optionally update the legacy streak with `srs.py streak`; it is motivation metadata only. Stop the local browser server with `tools/serve.py stop` after all acknowledgments. Never kill unrelated processes.

@@ -1,23 +1,25 @@
-# Activity: Conversation (roleplay / free talk)
+# Activity: Conversation
 
-**Mode:** voice-required at every level · **Duration:** 10–15 min
-
-The closest thing to a tutor session. The voice tutor stays in character and the learner actually speaks; this activity is never converted to text.
+Follow [the shared agent workflow](../docs/agent-workflow.md) and the [portable voice contract](../portable/voice-tutor.md). **Mode:** voice-required at every level. A typical roleplay can fit 10–15 minutes; the finite plan, rather than an assumed duration, defines its end.
 
 ## Setup and handoff
 
-- Choose a scenario from the current unit, the learner's interests or their request. Rotate transactional roleplay, opinion talk, picture/story description and free conversation.
-- Write **6–8 exact, numbered learner-facing questions** that form one coherent scene. Each question is used once and has `complete_when: one good-faith learner answer, including "I don't know" or "skip"`. The answer to the last one is the objective end; duration is only a pacing target.
-- Set `closing: one_self_correction_if_available`, then populate the canonical **LESSON PASS JSON** for the external voice tutor using the controller in `portable/voice-tutor.md`.
-- Give the learner handoff instructions and both report-recovery options from `AGENTS.md` before starting. If the channel is `none` or unavailable, defer the activity and log `"speaking_debt": true`; do not run a typed roleplay.
-- After central report validation, ingest the returned `LESSON REPORT`: `corrections` + contextual `words_struggled` entries → errors and cards; `pronunciation` → perception/production error lines and the next pronunciation target queue; `did_well`/`performance` → session notes; supported `level_impression: below/above` twice running → flag for review/acceleration. Ignore `not_assessed`. A report with `completed: false` is logged as partial, never as a completed activity.
+Choose a coherent scenario from the selected unit, learner interests or explicit request: a practical transaction, a description, an opinion exchange or free conversation around a purpose. Include a chance to ask a question, respond to a follow-up and clarify meaning.
 
-## Language calibration
+Write a manageable set of exact numbered learner-facing questions/actions, each used once. Define completion as a good-faith response or an explicit skip, not a correct answer. Populate the Lesson Pass using the portable contract and include its complete instructions in the handoff. Use the current evidence-based language policy and honor Russian explanation requests; do not infer immersion solely from a declared level.
 
-Use the single A1–C1 language policy in `portable/voice-tutor.md`; do not restate it here. Weave the unit's grammar and vocabulary into the tutor's turns naturally — input before output. Keep tutor turns shorter than learner turns. Simplify silently if the learner is drowning.
+Use the saved voice route. If unavailable, defer the planned voice step through `tutor.py step --session SESSION_ID --step STEP_ID --defer` and continue usable steps from the session plan. A typed dialogue may be a separate writing exercise; it does not complete conversation or settle speaking debt.
 
-During the numbered plan, note errors without interrupting. Interrupt only when communication breaks, using a prompt rather than a correction. The shared controller prevents courtesy-only dead ends, repeated questions and extra rounds.
+## Interaction and feedback
 
-## Write-backs
+Keep tutor turns short enough for the learner to contribute. Weave useful unit language into the scene and simplify when comprehension breaks down. During a fluency-oriented exchange, let the learner finish the message; use a clarification prompt when communication fails. In a deliberate form-practice segment, a timely correction can be useful.
 
-Errors → `student/<active>/errors.md` (increment repeats). Each corrected error → a contextual cloze card based on the learner's intended sentence; words they reached for and lacked → contextual cards. Log completed or partial status and any `speaking_debt`.
+At the planned end, select the errors that most affect meaning or the current goal. Ask for one self-correction where helpful, then show a natural fix and explain the contrast. Do not penalize a correct alternative or treat accent identity as an error. Praise only specific observed achievements.
+
+## Evidence and follow-up
+
+Validate a returned Lesson Report against its originating pass with `tutor.py validate-voice`. Validation checks structure and correspondence, not whether an evaluator heard audio or supplied a calibrated score. Preserve partial status and LLM provenance. A voice-model level impression can motivate another diagnostic task; it cannot promote the learner.
+
+Record actual `spoken_response` or `dialogue` observations through `tutor.py attempt`, using the declared rubric and real audio reference. Russian KB tags require observed evidence; a transcript alone cannot diagnose phonemes. Selected useful gaps may become contextual cards through the SRS CLI within the current plan's workload.
+
+Complete the planned step through the CLI when its evidence and completion conditions are met. Do not manually increment errors or progress. Deferred speech is settled only by later eligible matching evidence using the shared workflow.

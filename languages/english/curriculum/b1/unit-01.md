@@ -3,7 +3,7 @@
 **Can-do:** I can tell the story of my life so far, linking finished events to their effect on my life now.
 
 ## Grammar focus
-The core B1 contrast: **present perfect** vs **past simple**. Use the past simple for a finished action at a finished time — say *when*, and the past simple is your tense (*I graduated in 2019*). Use the present perfect (*have/has + past participle*) when the time is unstated or unfinished, or when a past event still matters now (*I've graduated, so I'm looking for work*). Time markers point the way: *ago, last, in + year, when* pull the past simple; *for, since, so far, recently, up to now, already, yet* pull the present perfect. A common life-story pattern is to open with the present perfect (*I've lived in three countries*) and then switch to the past simple to give the finished details (*I moved to Spain in 2018*).
+The core B1 contrast: **present perfect** vs **past simple**. Use the past simple for a finished action at a finished time — say *when*, and the past simple is your tense (*I graduated in 2019*). Use the present perfect (*have/has + past participle*) when the time is unstated or unfinished, or when a past event still matters now (*I've graduated, so I'm looking for work*). Time markers are clues, not automatic rules; meaning and variety of English also matter. Typical patterns: *ago, last, in + year, when* pull the past simple; *for, since, so far, recently, up to now, already, yet* pull the present perfect. A common life-story pattern is to open with the present perfect (*I've lived in three countries*) and then switch to the past simple to give the finished details (*I moved to Spain in 2018*).
 
 - I'**ve had** the same best friend since school.
 - We **got married** in 2021.
@@ -37,7 +37,7 @@ look back — to think about the past
 ## Suggested activities
 - reading: a short life-story profile that mixes present perfect ("I've done…") with past simple details ("In 2018 I…").
 - conversation: interview a partner about three life milestones and when each happened.
-- quiz focus: choosing present perfect vs past simple by spotting the time marker.
+- quiz focus: choosing present perfect vs past simple from the timeline, relevance and variety of English; time markers provide clues.
 
 ## Watch out
 - I have graduated last year → I graduated last year

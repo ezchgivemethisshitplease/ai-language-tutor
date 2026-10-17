@@ -41,5 +41,5 @@ run out — to have no more of something left
 
 ## Watch out
 - If it will rain, we will stay home → If it rains, we will stay home
-- I will meet my friends at 6 (fixed plan) → I'm meeting my friends at 6
-- This time tomorrow I fly to Rome → This time tomorrow I'll be flying to Rome
+- I'm meet my friends at six → I'm meeting my friends at six. *I will meet my friends at six* can also be correct; do not reject it solely because an arrangement exists.
+- To emphasise an action in progress tomorrow: This time tomorrow I'll be flying to Rome. A present-simple form may instead describe a timetable.

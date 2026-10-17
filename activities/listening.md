@@ -1,25 +1,31 @@
 # Activity: Listening
 
-**Mode:** chat + generated audio · **Duration:** 10–15 min
+Follow [the shared agent workflow](../docs/agent-workflow.md). **Mode:** chat responses with actual generated or recorded audio. Budget roughly 10–15 minutes when appropriate. Live storytelling with spoken answers is the separate [story-listening activity](story-listening.md).
 
-The interaction stays in text; audio comes from `dictation.html` or TTS. Live voice-model storytelling is the separate `story-listening` activity, so never ask the learner to choose text versus voice here.
+## Choose a task
 
-## Formats (rotate)
+- **Dictation:** a short set of sentences using familiar language and a useful current contrast. Check whether the response reflects vocabulary, sound perception, word boundaries or spelling; a transcription miss alone does not establish its cause.
+- **Comprehension:** a short spoken message or passage followed by gist and detail questions. Choose complexity from observed understanding, not a guaranteed percentage of known words.
+- **Micro-listening:** discriminate a real audio minimal pair, number, date or time. Keep the answer hidden before the attempt.
 
-1. **Dictation** (A1–B1 staple): 4–6 sentences using unit grammar/vocabulary, spoken at natural-but-clear pace. Immediate per-sentence check exposes exactly which sounds and word boundaries they do not parse.
-2. **Comprehension:** a short spoken text (same generation rules as reading — 95–98% known words), then 3 questions in chat. B2+ hears it once unless replay is part of the stated format.
-3. **Micro-listening** (A1–A2): minimal-pair rows and numbers/dates/times — hear it, type it.
+State the replay conditions before an assessment. In practice, let the learner request a useful replay; in a check, record the support used. One play at a high course level is a possible task condition, not a universal rule.
 
-## Run it
+## Deliver the audio
 
-With a browser, use `dictation.html` for every precision format. Write `student/dictation-current.json` (AGENTS.md §HTML apps), open the app and let the learner control replay. The app provides one player per sentence and keeps text folded behind “show text.”
+For replayable dictation, prepare `student/dictation-current.json` using language-neutral `l1` for an optional translation; legacy `es` is readable but is not the default. Validate it, then use the browser workflow:
 
-No browser → use TTS one item per turn, repeat verbatim on request (A1–A2: up to twice), and keep the answer out of visible commands. An explanation and its audio never share a turn.
+```sh
+python tools/tutor.py validate-activity dictation student/dictation-current.json
+```
 
-- Check answers and classify every miss: unknown vocabulary or perception of a known word.
-- When connected speech caused it, name the link briefly: `ran out of` → “ra-nau-tov”.
-- No audio available → swap for reading and log the swap; never fake listening by showing the script first.
+The dictation app lets the learner replay a sentence and reveal its text. Revealing the answer changes the conditions: do not treat a later copied response as unaided listening. Browser receipts are available through `tutor.py events` and are separate from mastery observations.
 
-## Write-backs
+Without the browser, use TTS one item at a time once the learner is ready. Avoid exposing the script in the visible teaching message before a listening attempt. If the environment necessarily exposes it, describe the task as supported listening/read-along rather than unaided assessment. When no audio is available, offer a reading activity and leave listening unassessed.
 
-Perception failures on known words → the pronunciation target queue and `student/<active>/errors.md`. Unknown useful words → contextual cloze cards. Log the step.
+## Feedback and evidence
+
+Ask what they understood before explaining a missed detail. For a suspected connected-speech problem, replay the exact segment, show its written form after the attempt, and explain the relevant boundary or reduction. Do not use an invented phonetic spelling as a measurement.
+
+Record `listening_comprehension` or `minimal_pairs` tasks with an actual audio reference, a stable item ID and the exact response through `tutor.py attempt`. Use accepted alternatives or contextual review. Preserve replay/hint use and judgment provenance. Tag a Russian KB pattern only when the observed evidence supports it; audio-only tags require audio evidence.
+
+Useful vocabulary may become contextual cards through the SRS CLI within the current plan's workload. Complete the planned step through `tutor.py step`. Do not manually change progress, error counts or known-word lists.

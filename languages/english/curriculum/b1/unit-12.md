@@ -11,7 +11,7 @@ This is a review unit — no new grammar, just pulling Units 1–11 together the
 - I **used to** cycle, but now I **drive**. *(U6)*
 - He **said** he **would** send the report. *(U7)*
 - These bikes **are made** locally. *(U8)*
-- The keys are gone — someone **must** have taken them. *(U9)*
+- The lights are on — someone **must be** at home. *(U9)*
 - She's the teacher **who** changed my life. *(U10)*
 
 ## Target vocabulary (10–12 items)

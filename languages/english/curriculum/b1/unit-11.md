@@ -3,7 +3,7 @@
 **Can-do:** I can use common verb patterns correctly and link my ideas naturally with everyday phrasal verbs.
 
 ## Grammar focus
-Many verbs are followed by a fixed form. Some take the **gerund (-ing)**: *enjoy, avoid, finish, mind, suggest, keep, practise* (*I enjoy cooking*). Others take the **infinitive (to + verb)**: *want, decide, hope, promise, offer, learn, manage* (*I decided to leave*). A few change meaning with each (*stop to rest* = pause in order to rest; *stop resting* = end the resting). After a preposition, always use *-ing* (*good at drawing*). Use **so + adjective/adverb** and **such + (a) + noun** to add emphasis (*It was so cold; it was such a cold day*). This unit also builds a bank of high-frequency **phrasal verbs** for everyday connection.
+Many verbs are followed by a fixed form. Some take the **gerund (-ing)**: *enjoy, avoid, finish, mind, suggest, keep, practise* (*I enjoy cooking*). Others take the **infinitive (to + verb)**: *want, decide, hope, promise, offer, learn, manage* (*I decided to leave*). A few change meaning with each (*stop to rest* = pause in order to rest; *stop resting* = end the resting). When an ordinary verb directly follows a preposition, use *-ing* (*good at drawing*). Use **so + adjective/adverb** and **such + (a) + noun** to add emphasis (*It was so cold; it was such a cold day*). This unit also builds a bank of high-frequency **phrasal verbs** for everyday connection.
 
 - I **enjoy meeting** new people.
 - She **decided to change** careers.
