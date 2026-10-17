@@ -38,6 +38,12 @@ MAX_FRAME_BYTES = 2 * 1024 * 1024
 MAX_REQUEST_BYTES = 512 * 1024
 MAX_TOOL_BYTES = 128 * 1024
 PERMISSIONS_PROFILE = "tutor_readonly"
+# In 0.163.0 model metadata can require CodeModeOnly even when code_mode=False.
+# The bundled host runs bare V8 with registered tools; it has no Node/FS/network
+# imports. Keep it available while shell/MCP/browser capabilities remain denied.
+# https://github.com/openai/codex/blob/rust-v0.163.0/codex-rs/core/src/tools/mod.rs
+# https://github.com/openai/codex/blob/rust-v0.163.0/codex-rs/code-mode-runtime/src/runtime/globals.rs
+ENABLED_FEATURES = ("code_mode_host",)
 DISABLED_FEATURES = (
     "shell_tool",
     "unified_exec",
@@ -54,7 +60,6 @@ DISABLED_FEATURES = (
     "multi_agent_v2",
     "image_generation",
     "code_mode",
-    "code_mode_host",
     "memories",
     "memory_tool",
     "skill_search",
@@ -295,6 +300,8 @@ class CodexBridge:
             command.extend(["-c", value])
         for feature in DISABLED_FEATURES:
             command.extend(["--disable", feature])
+        for feature in ENABLED_FEATURES:
+            command.extend(["--enable", feature])
         return command
 
     def start(self) -> CodexBridge:
@@ -776,7 +783,10 @@ class CodexBridge:
             "config": {
                 "web_search": "disabled",
                 "project_doc_max_bytes": 0,
-                "features": {feature: False for feature in DISABLED_FEATURES},
+                "features": {
+                    **{feature: False for feature in DISABLED_FEATURES},
+                    **{feature: True for feature in ENABLED_FEATURES},
+                },
             },
         }
         if model is not None:

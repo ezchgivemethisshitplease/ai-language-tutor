@@ -256,6 +256,31 @@ class BridgeTests(unittest.TestCase):
         for key in ("OPENAI_API_KEY", "CODEX_SHELL", "ELEVENLABS_API_KEY", "ACCESS_TOKEN"):
             self.assertNotIn(key, env)
 
+    def test_model_required_code_mode_has_host_on_start_and_resume_without_enabling_shell(self):
+        bridge = self.bridge()
+        bridge.thread_start()
+        bridge.thread_resume("thread-1")
+        enabled = [
+            self.command[i + 1] for i, value in enumerate(self.command) if value == "--enable"
+        ]
+        disabled = [
+            self.command[i + 1] for i, value in enumerate(self.command) if value == "--disable"
+        ]
+        self.assertEqual(enabled, ["code_mode_host"])
+        self.assertNotIn("code_mode_host", disabled)
+        self.assertEqual(set(disabled), set(cb.DISABLED_FEATURES))
+        self.assertIn("code_mode", disabled)
+        self.assertIn("shell_tool", disabled)
+        for message in self.processes[0].sent:
+            if message.get("method") not in {"thread/start", "thread/resume"}:
+                continue
+            params = message["params"]
+            self.assertIs(params["config"]["features"]["code_mode_host"], True)
+            for feature in cb.DISABLED_FEATURES:
+                self.assertIs(params["config"]["features"][feature], False)
+            self.assertEqual(params["permissions"], cb.PERMISSIONS_PROFILE)
+            self.assertEqual(params["approvalPolicy"], "never")
+
     def test_unsafe_auth_workspace_relationship_and_personal_home_rejected(self):
         for home in (self.root / "workspace", self.root / "workspace" / "private"):
             with self.assertRaisesRegex(cb.BridgeError, "outside"):
